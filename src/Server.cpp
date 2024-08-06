@@ -1142,10 +1142,9 @@ void Server::RunUDPL4S () {
 		ecn_tp ip_ecn;
 		l4s_pacer.GetTimeInfo(timestamp, echoed_timestamp,ip_ecn);
 
-                struct udp_l4s_ack *udp_l4s_pkt_ack = \
-		    reinterpret_cast<struct udp_l4s_ack *>(mSettings->mBuf);
-		udp_l4s_pkt_ack->rx_ts = htonl((int32_t) timestamp);
-		udp_l4s_pkt_ack->echoed_ts = htonl((int32_t) echoed_timestamp);
+                struct udp_l4s_ack udp_l4s_pkt_ack;
+		udp_l4s_pkt_ack.rx_ts = htonl((int32_t) timestamp);
+		udp_l4s_pkt_ack.echoed_ts = htonl((int32_t) echoed_timestamp);
 		if (ip_ecn != prev_ecn) {
 		    SetSocketOptionsIPTos(mSettings, (int) (mSettings->mTOS | ip_ecn));
 		    prev_ecn = ip_ecn;
@@ -1155,12 +1154,13 @@ void Server::RunUDPL4S () {
 		count_tp pkts_lost;
 		bool l4s_err;
 		l4s_pacer.GetACKInfo(pkts_rx, pkts_ce, pkts_lost, l4s_err);
-		udp_l4s_pkt_ack->rx_cnt = htonl(pkts_rx);
-		udp_l4s_pkt_ack->CE_cnt = htonl(pkts_ce);
-		udp_l4s_pkt_ack->lost_cnt = htonl(pkts_lost);
-		udp_l4s_pkt_ack->flags = (l4s_err ? htons(L4S_ECN_ERR) : 0);
-		udp_l4s_pkt_ack->l4sreserved = 0;
-		int ackLen = write(mySocket, mSettings->mBuf, sizeof(struct udp_l4s_ack));
+		udp_l4s_pkt_ack.rx_cnt = htonl(pkts_rx);
+		udp_l4s_pkt_ack.CE_cnt = htonl(pkts_ce);
+		udp_l4s_pkt_ack.lost_cnt = htonl(pkts_lost);
+		udp_l4s_pkt_ack.flags = (l4s_err ? htons(L4S_ECN_ERR) : 0);
+		udp_l4s_pkt_ack.l4sreserved = 0;
+		int writecnt;
+		int ackLen = writen(mySocket, reinterpret_cast<char *> (&(udp_l4s_pkt_ack)), sizeof(struct udp_l4s_ack), &writecnt);
 		if (ackLen <= 0) {
 		    if (ackLen == 0) {
 			WARN_errno(1, "write l4s ack timeout");
