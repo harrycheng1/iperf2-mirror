@@ -1714,18 +1714,6 @@ void Client::RunUDPL4S () {
         time_tp timeout = 0;
         time_tp startSend = 0;
         time_tp pacer_now = l4s_pacer.Now();
-	now.setnow();
-	reportstruct->writecnt = 1;
-	reportstruct->packetTime.tv_sec = now.getSecs();
-	reportstruct->packetTime.tv_usec = now.getUsecs();
-	reportstruct->sentTime = reportstruct->packetTime;
-	// store datagram ID into buffer
-	WritePacketID(reportstruct->packetID);
-	mBuf_UDP->seqno_ts.tv_sec  = htonl(reportstruct->packetTime.tv_sec);
-	mBuf_UDP->seqno_ts.tv_usec = htonl(reportstruct->packetTime.tv_usec);
-
-	reportstruct->err_readwrite = WriteSuccess;
-	reportstruct->emptyreport = false;
         while ((inflight < packet_window) && (inburst < packet_burst) && (nextSend <= pacer_now)) {
             ecn_tp new_ecn;
 	    time_tp sender_ts;
@@ -1741,6 +1729,18 @@ void Client::RunUDPL4S () {
 		prev_ecn = new_ecn;
 	    }
 	    // perform write
+	    reportstruct->writecnt = 1;
+	    now.setnow();
+	    reportstruct->packetTime.tv_sec = now.getSecs();
+	    reportstruct->packetTime.tv_usec = now.getUsecs();
+	    reportstruct->sentTime = reportstruct->packetTime;
+	    // store datagram ID into buffer
+	    WritePacketID(reportstruct->packetID);
+	    mBuf_UDP->seqno_ts.tv_sec  = htonl(reportstruct->packetTime.tv_sec);
+	    mBuf_UDP->seqno_ts.tv_usec = htonl(reportstruct->packetTime.tv_usec);
+
+	    reportstruct->err_readwrite = WriteSuccess;
+	    reportstruct->emptyreport = false;
 	    currLen = write(mySocket, mSettings->mBuf, packet_size);
 	    if (currLen <= 0) {
 		reportstruct->emptyreport = true;
