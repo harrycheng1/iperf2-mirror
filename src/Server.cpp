@@ -1096,7 +1096,6 @@ void Server::RunUDPL4S () {
     bool isLastPacket = false;
     bool startReceiving = InitTrafficLoop();
     PragueCC l4s_pacer;
-    ecn_tp prev_ecn = ecn_not_ect;
     Condition_Signal(&mSettings->receiving); // signal the listener thread so it can hang a new recvfrom
     if (startReceiving) {
 #ifdef HAVE_THREAD_DEBUG
@@ -1145,10 +1144,6 @@ void Server::RunUDPL4S () {
                 struct udp_l4s_ack udp_l4s_pkt_ack;
 		udp_l4s_pkt_ack.rx_ts = htonl((int32_t) timestamp);
 		udp_l4s_pkt_ack.echoed_ts = htonl((int32_t) echoed_timestamp);
-		if (ip_ecn != prev_ecn) {
-		    SetSocketOptionsIPTos(mSettings, (int) (mSettings->mTOS | ip_ecn));
-		    prev_ecn = ip_ecn;
-		}
 		count_tp pkts_rx;
 		count_tp pkts_ce;
 		count_tp pkts_lost;
