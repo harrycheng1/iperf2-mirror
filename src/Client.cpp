@@ -1706,7 +1706,6 @@ void Client::RunUDPL4S () {
     count_tp packet_window;
     count_tp packet_burst;
     size_tp packet_size;
-    ecn_tp prev_ecn = ecn_not_ect;
     l4s_pacer.GetCCInfo(pacing_rate, packet_window, packet_burst, packet_size);
     while (InProgress()) {
 	count_tp inburst = 0;
@@ -1724,10 +1723,6 @@ void Client::RunUDPL4S () {
 	    mBuf_UDP->sender_seqno = htonl(seqnr);
             if (startSend == 0)
                 startSend = pacer_now;
-	    if (new_ecn != prev_ecn) {
-		SetSocketOptionsIPTos(mSettings, (int) (mSettings->mTOS | new_ecn));
-		prev_ecn = new_ecn;
-	    }
 	    // perform write
 	    reportstruct->writecnt = 1;
 	    now.setnow();
@@ -1741,7 +1736,30 @@ void Client::RunUDPL4S () {
 
 	    reportstruct->err_readwrite = WriteSuccess;
 	    reportstruct->emptyreport = false;
-	    currLen = write(mySocket, mSettings->mBuf, packet_size);
+
+	    struct msghdr msg;
+	    struct iovec iov[1];
+	    unsigned char cmsg[CMSG_SPACE(sizeof(int))];
+	    struct cmsghdr *cmsgptr = NULL;
+
+	    memset(&iov, 0, sizeof(iov));
+	    memset(&cmsg, 0, sizeof(cmsg));
+	    memset(&msg, 0, sizeof (struct msghdr));
+
+	    iov[0].iov_base = mSettings->mBuf;
+	    iov[0].iov_len = packet_size;
+	    msg.msg_iov = iov;
+	    msg.msg_iovlen = 1;
+	    msg.msg_control = cmsg;
+	    msg.msg_controllen = sizeof(cmsg);
+	    cmsgptr = CMSG_FIRSTHDR(&msg);
+	    cmsgptr->cmsg_level = IPPROTO_IP;
+	    cmsgptr->cmsg_type  = IP_TOS;
+	    cmsgptr->cmsg_len  = CMSG_LEN(sizeof(u_char));
+	    u_char tos = (mSettings->mTOS | new_ecn);
+	    memcpy(CMSG_DATA(cmsgptr), (u_char*)&tos, sizeof(u_char));
+	    msg.msg_controllen = CMSG_SPACE(sizeof(u_char));
+	    int currLen = sendmsg(mySocket, &msg, 0);
 	    if (currLen <= 0) {
 		reportstruct->emptyreport = true;
 		if (currLen == 0) {
