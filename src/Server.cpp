@@ -1159,8 +1159,29 @@ void Server::RunUDPL4S () {
 		udp_l4s_pkt_ack.lost_cnt = htonl(pkts_lost);
 		udp_l4s_pkt_ack.flags = (l4s_err ? htons(L4S_ECN_ERR) : 0);
 		udp_l4s_pkt_ack.l4sreserved = 0;
-		int writecnt;
-		int ackLen = writen(mySocket, reinterpret_cast<char *> (&(udp_l4s_pkt_ack)), sizeof(struct udp_l4s_ack), &writecnt);
+		struct msghdr msg;
+		struct iovec iov[1];
+		unsigned char cmsg[CMSG_SPACE(sizeof(int))];
+		struct cmsghdr *cmsgptr = NULL;
+
+		memset(&iov, 0, sizeof(iov));
+		memset(&cmsg, 0, sizeof(cmsg));
+
+		iov[0].iov_base = reinterpret_cast<char *> (&(udp_l4s_pkt_ack));
+		iov[0].iov_len = sizeof(struct udp_l4s_ack);
+		msg.msg_iov = iov;
+		msg.msg_iovlen = 1;
+		memset(&msg, 0, sizeof (struct msghdr));
+		msg.msg_control = cmsg;
+		msg.msg_controllen = sizeof(cmsg);
+		cmsgptr = CMSG_FIRSTHDR(&msg);
+		cmsgptr->cmsg_level = IPPROTO_IP;
+		cmsgptr->cmsg_type  = IP_TOS;
+		cmsgptr->cmsg_len  = CMSG_LEN(sizeof(u_char));
+		u_char tos = (mSettings->mTOS | ip_ecn);
+		memcpy(CMSG_DATA(cmsgptr), (u_char*)&tos, sizeof(u_char));
+		msg.msg_controllen = CMSG_SPACE(sizeof(u_char));
+		int ackLen = sendmsg(mySocket, &msg, 0);
 		if (ackLen <= 0) {
 		    if (ackLen == 0) {
 			WARN_errno(1, "write l4s ack timeout");
