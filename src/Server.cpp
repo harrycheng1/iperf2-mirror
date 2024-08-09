@@ -1140,7 +1140,6 @@ void Server::RunUDPL4S () {
 		time_tp echoed_timestamp;
 		ecn_tp ip_ecn;
 		l4s_pacer.GetTimeInfo(timestamp, echoed_timestamp,ip_ecn);
-
                 struct udp_l4s_ack udp_l4s_pkt_ack;
 		udp_l4s_pkt_ack.rx_ts = htonl((int32_t) timestamp);
 		udp_l4s_pkt_ack.echoed_ts = htonl((int32_t) echoed_timestamp);
@@ -1161,12 +1160,12 @@ void Server::RunUDPL4S () {
 
 		memset(&iov, 0, sizeof(iov));
 		memset(&cmsg, 0, sizeof(cmsg));
+		memset(&msg, 0, sizeof (struct msghdr));
 
 		iov[0].iov_base = reinterpret_cast<char *> (&(udp_l4s_pkt_ack));
 		iov[0].iov_len = sizeof(struct udp_l4s_ack);
 		msg.msg_iov = iov;
 		msg.msg_iovlen = 1;
-		memset(&msg, 0, sizeof (struct msghdr));
 		msg.msg_control = cmsg;
 		msg.msg_controllen = sizeof(cmsg);
 		cmsgptr = CMSG_FIRSTHDR(&msg);
