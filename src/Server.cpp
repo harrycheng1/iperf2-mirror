@@ -786,8 +786,8 @@ inline int Server::ReadWithRxTimestamp () {
                     tsdone = true;
                 }
 		if (cmsg->cmsg_level == IPPROTO_IP &&
-                    cmsg->cmsg_type  == IP_RECVTOS &&
-                    cmsg->cmsg_len   == CMSG_LEN(sizeof(sizeof(u_char)))) {
+                    cmsg->cmsg_type  == IP_TOS &&
+                    cmsg->cmsg_len   == CMSG_LEN(sizeof(u_char)) {
                     memcpy(&(reportstruct->tos), CMSG_DATA(cmsg), sizeof(u_char));
 		}
             }
