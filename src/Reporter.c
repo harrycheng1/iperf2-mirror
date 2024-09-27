@@ -426,7 +426,7 @@ static void reporter_update_mmm_sum (struct MeanMinMaxStats *sumstats, struct Me
     } else {
 	if (stats->min < sumstats->min)
 	    sumstats->min = stats->min;
-	if (stats->max < sumstats->max)
+	if (stats->max > sumstats->max)
 	    sumstats->max = stats->max;
 	sumstats->cnt += stats->cnt;
 	sumstats->sum += stats->sum;
