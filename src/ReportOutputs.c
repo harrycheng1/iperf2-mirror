@@ -1281,11 +1281,14 @@ void udp_output_sumcnt_enhanced (struct TransferInfo *stats) {
 void udp_output_sumcnt_read_enhanced (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_sumcnt_bw_jitter_loss);
     _print_stats_common(stats);
-    printf(report_sumcnt_bw_jitter_loss_format, (stats->final ? stats->threadcnt_final: stats->slot_thread_downcount),
+    printf("**** not in trip time\n");
+    printf(report_sumcnt_bw_jitter_loss_enhanced_format, (stats->final ? stats->threadcnt_final: stats->slot_thread_downcount),
 	   stats->ts.iStart, stats->ts.iEnd,
 	   outbuffer, outbufferext,
 	   stats->cntError, stats->cntDatagrams,
 	   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+	   (stats->transit.current.cnt ? (1e3 * (stats->transit.current.sum / stats->transit.current.cnt)) : 0),
+	   (1e3 * stats->transit.current.min), (1e3 * stats->transit.current.max),
 	   (stats->cntIPG && (stats->IPGsum > 0.0) ? (stats->cntIPG / stats->IPGsum) : 0.0),
 	   (stats->common->Omit ? report_omitted : ""));
     if ((stats->cntOutofOrder > 0) && stats->final) {
@@ -1304,10 +1307,16 @@ void udp_output_sumcnt_read_enhanced (struct TransferInfo *stats) {
 }
 
 void udp_output_sumcnt_read_triptime (struct TransferInfo *stats) {
+    printf("**** in trip time\n");
     HEADING_PRINT_COND(report_sumcnt_udp_triptime);
     _print_stats_common(stats);
-    printf(report_sumcnt_udp_triptime_format, (stats->final ? stats->threadcnt_final: stats->slot_thread_downcount), stats->ts.iStart, stats->ts.iEnd, outbuffer, outbufferext, \
-	   stats->cntError, stats->cntDatagrams, stats->cntIPG, (stats->final ? stats->fInP : stats->iInP), \
+    printf(report_sumcnt_udp_triptime_format, (stats->final ? stats->threadcnt_final : stats->slot_thread_downcount), \
+	   stats->ts.iStart, stats->ts.iEnd, outbuffer, outbufferext,	\
+	   stats->cntError, stats->cntDatagrams, stats->cntIPG,
+	   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+	   (stats->final ? stats->fInP : stats->iInP),			\
+	   (stats->transit.current.cnt ? (1e3 * (stats->transit.current.sum / stats->transit.current.cnt)) : 0),
+	   (1e3 * stats->transit.current.min), (1e3 * stats->transit.current.max),
 	   (stats->cntIPG && (stats->IPGsum > 0.0) ? (stats->cntIPG / stats->IPGsum) : 0.0), (stats->common->Omit ? report_omitted : ""));
     if ((stats->cntOutofOrder > 0) && stats->final) {
 	if (isSumOnly(stats->common)) {

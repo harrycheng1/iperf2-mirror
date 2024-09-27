@@ -87,6 +87,7 @@ static void reporter_reset_transfer_stats_sum(struct TransferInfo *stats);
 // code for welfornd's algorithm to produce running mean/min/max/var
 static void reporter_update_mmm (struct MeanMinMaxStats *stats, double value);
 static void reporter_reset_mmm (struct MeanMinMaxStats *stats);
+static void reporter_update_mmm_sum (struct MeanMinMaxStats *sumstats, struct MeanMinMaxStats *stats);
 
 // one way delay (OWD) calculations
 static void reporter_handle_packet_oneway_transit(struct TransferInfo *stats, struct ReportStruct *packet);
@@ -412,6 +413,26 @@ static void reporter_reset_mmm (struct MeanMinMaxStats *stats) {
     stats->m2 = 0;
     stats->cnt = 0;
 };
+
+static void reporter_update_mmm_sum (struct MeanMinMaxStats *sumstats, struct MeanMinMaxStats *stats) {
+    assert(stats != NULL);
+    stats->cnt++;
+    if (sumstats->cnt == 0) {
+	// Very first entry
+	sumstats->min = stats->min;
+	sumstats->max = stats->max;
+	sumstats->sum = stats->sum;
+	sumstats->cnt = stats->cnt;
+    } else {
+	if (stats->min < sumstats->min)
+	    sumstats->min = stats->min;
+	if (stats->max < sumstats->max)
+	    sumstats->max = stats->max;
+	sumstats->cnt += stats->cnt;
+	sumstats->sum += stats->sum;
+    }
+    // fprintf(stderr,"**** mmm(%ld) sum/min/max=%f/%f/%f\n", sumstats->cnt, sumstats->sum, sumstats->min, sumstats->max);
+}
 
 /*
  * This function is the loop that the reporter thread processes
@@ -1391,6 +1412,10 @@ void reporter_transfer_protocol_server_udp (struct ReporterData *data, bool fina
 	sumstats->sock_callstats.read.cntRead += stats->sock_callstats.read.cntRead;
 	sumstats->sock_callstats.read.cntReadTimeo += stats->sock_callstats.read.cntReadTimeo;
 	sumstats->sock_callstats.read.cntReadErrLen += stats->sock_callstats.read.cntReadErrLen;
+	if (isEnhanced(stats->common)) {
+	    reporter_update_mmm_sum(&sumstats->transit.current, &stats->transit.current);
+	    reporter_update_mmm_sum(&sumstats->transit.total, &stats->transit.total);
+	}
 	if (final) {
 	    sumstats->threadcnt_final++;
 	    if (data->packetring->downlevel != sumstats->downlevel) {
