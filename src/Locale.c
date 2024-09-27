@@ -633,6 +633,9 @@ const char report_bw_jitter_loss_enhanced_isoch_format[] =
 const char report_sum_bw_jitter_loss_enhanced_format[] =
 "[SUM] " IPERFTimeFrmt " sec  %ss  %ss/sec  %6.3f ms %" PRIdMAX "/%" PRIdMAX " (%.2g%%)  %.0f pps%s\n";
 
+const char report_sumcnt_bw_jitter_loss_enhanced_header[] =
+"[SUM-cnt] Interval     Transfer     Bandwidth       Lost/Total  Latency avg/min/max  PPS\n";
+
 const char report_sumcnt_bw_jitter_loss_enhanced_format[] =
 "[SUM-%d] " IPERFTimeFrmt " sec  %ss  %ss/sec  %" PRIdMAX "/%" PRIdMAX " (%.2g%%)  %.3f/%.3f/%.3f  %.0f pps%s\n";
 
