@@ -1284,13 +1284,15 @@ void udp_output_sumcnt_read_enhanced (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_sumcnt_bw_jitter_loss_enhanced);
     _print_stats_common(stats);
     printf("**** not in trip time\n");
+    struct MeanMinMaxStats *transit;
+    transit = (stats->final ? &stats->transit.total : &stats->transit.current);
     printf(report_sumcnt_bw_jitter_loss_enhanced_format, (stats->final ? stats->threadcnt_final: stats->slot_thread_downcount),
 	   stats->ts.iStart, stats->ts.iEnd,
 	   outbuffer, outbufferext,
 	   stats->cntError, stats->cntDatagrams,
 	   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
-	   (stats->transit.current.cnt ? (1e3 * (stats->transit.current.sum / stats->transit.current.cnt)) : 0),
-	   (1e3 * stats->transit.current.min), (1e3 * stats->transit.current.max),
+	   ((transit->cnt > 0) ? (1e3 * (transit->sum / transit->cnt)) : 0),
+	   (1e3 * transit->min), (1e3 * transit->max),
 	   (stats->cntIPG && (stats->IPGsum > 0.0) ? (stats->cntIPG / stats->IPGsum) : 0.0),
 	   (stats->common->Omit ? report_omitted : ""));
     if ((stats->cntOutofOrder > 0) && stats->final) {
