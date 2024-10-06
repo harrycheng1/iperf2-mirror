@@ -1283,7 +1283,6 @@ void udp_output_sumcnt_enhanced (struct TransferInfo *stats) {
 void udp_output_sumcnt_read_enhanced (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_sumcnt_bw_jitter_loss_enhanced);
     _print_stats_common(stats);
-    printf("**** not in trip time\n");
     struct MeanMinMaxStats *transit;
     transit = (stats->final ? &stats->transit.total : &stats->transit.current);
     printf(report_sumcnt_bw_jitter_loss_enhanced_format, (stats->final ? stats->threadcnt_final: stats->slot_thread_downcount),
@@ -1311,7 +1310,6 @@ void udp_output_sumcnt_read_enhanced (struct TransferInfo *stats) {
 }
 
 void udp_output_sumcnt_read_triptime (struct TransferInfo *stats) {
-    printf("**** in trip time\n");
     HEADING_PRINT_COND(report_sumcnt_udp_triptime);
     _print_stats_common(stats);
     struct MeanMinMaxStats *transit;
