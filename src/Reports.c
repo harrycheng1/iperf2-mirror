@@ -278,7 +278,7 @@ void SetSumHandlers (struct thread_Settings *inSettings, struct SumReport* sumre
 		if (inSettings->mReportMode == kReport_CSV)
 		    sumreport->info.output_handler = udp_output_read_enhanced_csv;
 		else
-		    sumreport->info.output_handler = udp_output_sumcnt_enhanced;
+		    sumreport->info.output_handler = udp_output_sumcnt_read_enhanced;
 	    } else if (isFullDuplex(inSettings)) {
 		if (inSettings->mReportMode == kReport_CSV)
 		    sumreport->info.output_handler = udp_output_read_enhanced_csv;

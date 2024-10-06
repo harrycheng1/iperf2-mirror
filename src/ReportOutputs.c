@@ -84,6 +84,7 @@ static int HEADING_FLAG(report_frame_tcp_enhanced) = 0;
 static int HEADING_FLAG(report_frame_read_tcp_enhanced_triptime) = 0;
 static int HEADING_FLAG(report_udp_fullduplex) = 0;
 static int HEADING_FLAG(report_sumcnt_bw) = 0;
+static int HEADING_FLAG(report_sumcnt_bw_jitter_loss_enhanced) = 0;
 static int HEADING_FLAG(report_sumcnt_bw_read_enhanced) = 0;
 static int HEADING_FLAG(report_sumcnt_bw_read_triptime) = 0;
 static int HEADING_FLAG(report_sumcnt_bw_write_enhanced) = 0;
@@ -132,6 +133,7 @@ void reporter_default_heading_flags (int flag) {
     HEADING_FLAG(report_sumcnt_bw_write_enhanced) = flag;
     HEADING_FLAG(report_udp_fullduplex) = flag;
     HEADING_FLAG(report_sumcnt_bw_jitter_loss) = flag;
+    HEADING_FLAG(report_sumcnt_bw_jitter_loss_enhanced) = flag;
     HEADING_FLAG(report_sumcnt_bw_pps_enhanced) = flag;
     HEADING_FLAG(report_burst_read_tcp) = flag;
     HEADING_FLAG(report_burst_write_tcp) = flag;
@@ -1279,13 +1281,17 @@ void udp_output_sumcnt_enhanced (struct TransferInfo *stats) {
 }
 
 void udp_output_sumcnt_read_enhanced (struct TransferInfo *stats) {
-    HEADING_PRINT_COND(report_sumcnt_bw_jitter_loss);
+    HEADING_PRINT_COND(report_sumcnt_bw_jitter_loss_enhanced);
     _print_stats_common(stats);
-    printf(report_sumcnt_bw_jitter_loss_format, (stats->final ? stats->threadcnt_final: stats->slot_thread_downcount),
+    struct MeanMinMaxStats *transit;
+    transit = (stats->final ? &stats->transit.total : &stats->transit.current);
+    printf(report_sumcnt_bw_jitter_loss_enhanced_format, (stats->final ? stats->threadcnt_final: stats->slot_thread_downcount),
 	   stats->ts.iStart, stats->ts.iEnd,
 	   outbuffer, outbufferext,
 	   stats->cntError, stats->cntDatagrams,
 	   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+	   ((transit->cnt > 0) ? (1e3 * (transit->sum / transit->cnt)) : 0),
+	   (1e3 * transit->min), (1e3 * transit->max),
 	   (stats->cntIPG && (stats->IPGsum > 0.0) ? (stats->cntIPG / stats->IPGsum) : 0.0),
 	   (stats->common->Omit ? report_omitted : ""));
     if ((stats->cntOutofOrder > 0) && stats->final) {
@@ -1306,8 +1312,16 @@ void udp_output_sumcnt_read_enhanced (struct TransferInfo *stats) {
 void udp_output_sumcnt_read_triptime (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_sumcnt_udp_triptime);
     _print_stats_common(stats);
-    printf(report_sumcnt_udp_triptime_format, (stats->final ? stats->threadcnt_final: stats->slot_thread_downcount), stats->ts.iStart, stats->ts.iEnd, outbuffer, outbufferext, \
-	   stats->cntError, stats->cntDatagrams, stats->cntIPG, (stats->final ? stats->fInP : stats->iInP), \
+    struct MeanMinMaxStats *transit;
+    transit = (stats->final ? &stats->transit.total : &stats->transit.current);
+    printf(report_sumcnt_udp_triptime_format, (stats->final ? stats->threadcnt_final : stats->slot_thread_downcount), \
+	   stats->ts.iStart, stats->ts.iEnd, outbuffer, outbufferext,	\
+	   stats->cntError, stats->cntDatagrams,
+	   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+	   ((transit->cnt > 0) ? (1e3 * (transit->sum / transit->cnt)) : 0),
+	   (1e3 * transit->min), (1e3 * transit->max),
+	   stats->cntIPG,
+	   (stats->final ? stats->fInP : stats->iInP),			\
 	   (stats->cntIPG && (stats->IPGsum > 0.0) ? (stats->cntIPG / stats->IPGsum) : 0.0), (stats->common->Omit ? report_omitted : ""));
     if ((stats->cntOutofOrder > 0) && stats->final) {
 	if (isSumOnly(stats->common)) {
