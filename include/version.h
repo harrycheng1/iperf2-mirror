@@ -1,10 +1,9 @@
 #include "config.h"
 #define IPERF_VERSION VERSION
-#define IPERF_VERSION_DATE "26 July 2024"
+#define IPERF_VERSION_DATE "6 Oct 2024"
 #define IPERF_VERSION_MAJORHEX 0x00020002
-#define IPERF_VERSION_MINORHEX 0x00020005
+#define IPERF_VERSION_MINORHEX 0x00010000
 #define IPERF_BRANCH "udp_prague"
-
 /*
  * 	case 0:
  *	    sprintf(report->peerversion + strlen(report->peerversion) - 1,"-dev)");

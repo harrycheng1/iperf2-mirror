@@ -278,7 +278,7 @@ void SetSumHandlers (struct thread_Settings *inSettings, struct SumReport* sumre
 		if (inSettings->mReportMode == kReport_CSV)
 		    sumreport->info.output_handler = udp_output_read_enhanced_csv;
 		else
-		    sumreport->info.output_handler = udp_output_sumcnt_enhanced;
+		    sumreport->info.output_handler = udp_output_sumcnt_read_enhanced;
 	    } else if (isFullDuplex(inSettings)) {
 		if (inSettings->mReportMode == kReport_CSV)
 		    sumreport->info.output_handler = udp_output_read_enhanced_csv;
@@ -1126,6 +1126,19 @@ struct ReportHeader* InitStringReport (char *textoutput) {
 	WARN_errno(1, "Out of Memory!!\n");
     }
     reporthdr->type = STRING_REPORT;
+
+    reporthdr->this_report = (void *) calloc((strlen(textoutput) + 1), sizeof(char));
+    char *dst = (char *)(reporthdr->this_report);
+    strcpy(dst, textoutput);
+    return reporthdr;
+}
+
+struct ReportHeader* InitErrorReport (char *textoutput) {
+    struct ReportHeader *reporthdr = (struct ReportHeader *) calloc(1, sizeof(struct ReportHeader));
+    if (reporthdr == NULL) {
+	WARN_errno(1, "Out of Memory!!\n");
+    }
+    reporthdr->type = ERROR_REPORT;
 
     reporthdr->this_report = (void *) calloc((strlen(textoutput) + 1), sizeof(char));
     char *dst = (char *)(reporthdr->this_report);
