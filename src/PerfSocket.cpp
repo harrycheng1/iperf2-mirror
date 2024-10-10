@@ -167,7 +167,7 @@ void SetSocketOptions (struct thread_Settings *inSettings) {
         if (!(*device)) {
             int len = snprintf(NULL, 0, "tap%d", inSettings->tuntapdev);
             len++;  // Trailing null byte + extra
-            (*device) = static_cast<char *>(calloc(0,len));
+            (*device) = static_cast<char *>(calloc(1,len));
             len = snprintf(*device, len, "tap%d", inSettings->tuntapdev);
         }
         memset(&saddr, 0, sizeof(saddr));
