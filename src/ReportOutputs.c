@@ -2635,7 +2635,7 @@ void reporter_print_connection_report (struct ConnectionInfo *report) {
     char *b = &linebuffer[0];
     linebuffer[SNBUFFERSIZE] = '\0';
     linebuffer[0] = '\0';
-    int n;
+    int n = 0;
 #if HAVE_DECL_TCP_WINDOW_CLAMP
     if (!isUDP(report->common) && isRxClamp(report->common)) {
 	n = snprintf(b, (SNBUFFERSIZE-strlen(linebuffer)), " (%s%d)", "clamp=", report->common->ClampSize);
