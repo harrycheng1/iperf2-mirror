@@ -697,8 +697,8 @@ struct thread_Settings {
 #define unsetIgnoreShutdown(settings) settings->flags_extend2 &= ~FLAG_IGNORESHUTDOWN
 #define unsetSetTOS(settings)         settings->flags_extend2 &= ~FLAG_SETTOS
 #define unsetSkipRxCopy(settings)     settings->flags_extend2 &= ~FLAG_SKIPRXCOPY
-#define unsetUDPL4S(settings)           settings->flags_extend2 &= ~FLAG_L4S
-#define unsetUDPL4SVideo(settings)      settings->flags_extend2 &= ~FLAG_L4SVIDEO
+#define unsetUDPL4S(settings)           settings->flags_extend2 &= ~FLAG_UDPL4S
+#define unsetUDPL4SVideo(settings)      settings->flags_extend2 &= ~FLAG_UDPL4SVIDEO
 
 // set to defaults
 void Settings_Initialize(struct thread_Settings* main);
