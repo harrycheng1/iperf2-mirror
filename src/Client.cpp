@@ -613,7 +613,7 @@ void Client::Run () {
             RunUDPIsochronous();
         } else if (isBurstSize(mSettings)) {
             RunUDPBurst();
-#if HAVE_L4S_UPD
+#if HAVE_UDP_L4S
         } else if (isUDPL4S(mSettings)) {
             RunUDPL4S();
 #endif
