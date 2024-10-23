@@ -176,6 +176,8 @@ Client specific:\n\
       --trip-times         enable end to end measurements (requires client and server clock sync)\n\
       --txdelay-time       time in seconds to hold back after connect and before first write\n\
       --txstart-time       unix epoch time to schedule first write and start traffic\n\
+      --udp-l4s            run a UDP L4S flow\n\
+      --udp-l4s-video      run a UDP L4S video flow\n\
   -B, --bind [<ip> | <ip:port>] bind ip (and optional port) from which to source traffic\n\
   -F, --fileinput <name>   input the data to be transmitted from a file\n\
   -H, --ssm-host <ip>      set the SSM source, use with -B for (S,G) \n\
@@ -581,10 +583,10 @@ const char report_sumcnt_udp_enhanced_format[] =
 "[SUM-%d] " IPERFTimeFrmt " sec  %ss  %ss/sec  %" PRIdMAX "/%" PRIdMAX " %8.0f pps%s\n";
 
 const char report_sumcnt_udp_triptime_header[] =
-"[SUM-cnt] Interval" IPERFTimeSpace "Transfer     Bandwidth      Lost/Total  Rx/inP PPS\n";
+"[SUM-cnt] Interval" IPERFTimeSpace "Transfer     Bandwidth      Lost/Total  Latency avg/min/max  Rx/inP PPS\n";
 
 const char report_sumcnt_udp_triptime_format[] =
-"[SUM-%d] " IPERFTimeFrmt " sec  %ss  %ss/sec  %" PRIdMAX "/%" PRIdMAX "   %" PRIdMAX "/%.0f  %8.0f pps%s\n";
+"[SUM-%d] " IPERFTimeFrmt " sec  %ss  %ss/sec  %" PRIdMAX "/%" PRIdMAX " (%.2g%%)  %.3f/%.3f/%.3f  %" PRIdMAX "/%.0f  %8.0f pps%s\n";
 
 const char report_bw_pps_enhanced_isoch_header[] =
 "[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth      Write/Err  PPS  isoch:tx/miss/slip\n";
@@ -633,8 +635,11 @@ const char report_bw_jitter_loss_enhanced_isoch_format[] =
 const char report_sum_bw_jitter_loss_enhanced_format[] =
 "[SUM] " IPERFTimeFrmt " sec  %ss  %ss/sec  %6.3f ms %" PRIdMAX "/%" PRIdMAX " (%.2g%%)  %.0f pps%s\n";
 
+const char report_sumcnt_bw_jitter_loss_enhanced_header[] =
+"[SUM-cnt] Interval     Transfer     Bandwidth       Lost/Total  Latency avg/min/max  PPS\n";
+
 const char report_sumcnt_bw_jitter_loss_enhanced_format[] =
-"[SUM-%d] " IPERFTimeFrmt " sec  %ss  %ss/sec  %6.3f ms %" PRIdMAX "/%" PRIdMAX " (%.2g%%)  %.0f pps%s\n";
+"[SUM-%d] " IPERFTimeFrmt " sec  %ss  %ss/sec  %" PRIdMAX "/%" PRIdMAX " (%.2g%%)  %.3f/%.3f/%.3f  %.0f pps%s\n";
 
 const char report_bw_jitter_loss_suppress_enhanced_format[] =
 "%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %6.3f ms %" PRIdMAX "/%" PRIdMAX " (%.2g%%) -/-/-/- ms %.0f pps %" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX "%s\n";

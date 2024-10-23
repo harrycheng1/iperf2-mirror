@@ -59,6 +59,7 @@
 #include "isochronous.hpp"
 #include "iperf_multicast_api.h"
 #include "Mutex.h"
+#include "prague_cc.h"
 
 /* ------------------------------------------------------------------- */
 class Client {
@@ -130,6 +131,10 @@ private:
     // UDP plain
     void RunUDP(void);
     void RunUDPBurst(void);
+#if HAVE_UDP_L4S
+    void RunUDPL4S(void);
+    int ack_poll (time_tp ack_timeout);
+#endif
     // client connect
     void PeerXchange(void);
     thread_Settings *mSettings;
@@ -152,6 +157,7 @@ private:
 #if HAVE_DECL_SO_MAX_PACING_RATE
     Timestamp PacingStepTime;
 #endif
+    struct udp_l4s_ack UDPAckBuf;
 }; // end class Client
 
 #endif // CLIENT_H

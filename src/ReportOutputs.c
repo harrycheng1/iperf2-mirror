@@ -84,6 +84,7 @@ static int HEADING_FLAG(report_frame_tcp_enhanced) = 0;
 static int HEADING_FLAG(report_frame_read_tcp_enhanced_triptime) = 0;
 static int HEADING_FLAG(report_udp_fullduplex) = 0;
 static int HEADING_FLAG(report_sumcnt_bw) = 0;
+static int HEADING_FLAG(report_sumcnt_bw_jitter_loss_enhanced) = 0;
 static int HEADING_FLAG(report_sumcnt_bw_read_enhanced) = 0;
 static int HEADING_FLAG(report_sumcnt_bw_read_triptime) = 0;
 static int HEADING_FLAG(report_sumcnt_bw_write_enhanced) = 0;
@@ -132,6 +133,7 @@ void reporter_default_heading_flags (int flag) {
     HEADING_FLAG(report_sumcnt_bw_write_enhanced) = flag;
     HEADING_FLAG(report_udp_fullduplex) = flag;
     HEADING_FLAG(report_sumcnt_bw_jitter_loss) = flag;
+    HEADING_FLAG(report_sumcnt_bw_jitter_loss_enhanced) = flag;
     HEADING_FLAG(report_sumcnt_bw_pps_enhanced) = flag;
     HEADING_FLAG(report_burst_read_tcp) = flag;
     HEADING_FLAG(report_burst_write_tcp) = flag;
@@ -1279,13 +1281,17 @@ void udp_output_sumcnt_enhanced (struct TransferInfo *stats) {
 }
 
 void udp_output_sumcnt_read_enhanced (struct TransferInfo *stats) {
-    HEADING_PRINT_COND(report_sumcnt_bw_jitter_loss);
+    HEADING_PRINT_COND(report_sumcnt_bw_jitter_loss_enhanced);
     _print_stats_common(stats);
-    printf(report_sumcnt_bw_jitter_loss_format, (stats->final ? stats->threadcnt_final: stats->slot_thread_downcount),
+    struct MeanMinMaxStats *transit;
+    transit = (stats->final ? &stats->transit.total : &stats->transit.current);
+    printf(report_sumcnt_bw_jitter_loss_enhanced_format, (stats->final ? stats->threadcnt_final: stats->slot_thread_downcount),
 	   stats->ts.iStart, stats->ts.iEnd,
 	   outbuffer, outbufferext,
 	   stats->cntError, stats->cntDatagrams,
 	   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+	   ((transit->cnt > 0) ? (1e3 * (transit->sum / transit->cnt)) : 0),
+	   (1e3 * transit->min), (1e3 * transit->max),
 	   (stats->cntIPG && (stats->IPGsum > 0.0) ? (stats->cntIPG / stats->IPGsum) : 0.0),
 	   (stats->common->Omit ? report_omitted : ""));
     if ((stats->cntOutofOrder > 0) && stats->final) {
@@ -1306,8 +1312,16 @@ void udp_output_sumcnt_read_enhanced (struct TransferInfo *stats) {
 void udp_output_sumcnt_read_triptime (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_sumcnt_udp_triptime);
     _print_stats_common(stats);
-    printf(report_sumcnt_udp_triptime_format, (stats->final ? stats->threadcnt_final: stats->slot_thread_downcount), stats->ts.iStart, stats->ts.iEnd, outbuffer, outbufferext, \
-	   stats->cntError, stats->cntDatagrams, stats->cntIPG, (stats->final ? stats->fInP : stats->iInP), \
+    struct MeanMinMaxStats *transit;
+    transit = (stats->final ? &stats->transit.total : &stats->transit.current);
+    printf(report_sumcnt_udp_triptime_format, (stats->final ? stats->threadcnt_final : stats->slot_thread_downcount), \
+	   stats->ts.iStart, stats->ts.iEnd, outbuffer, outbufferext,	\
+	   stats->cntError, stats->cntDatagrams,
+	   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+	   ((transit->cnt > 0) ? (1e3 * (transit->sum / transit->cnt)) : 0),
+	   (1e3 * transit->min), (1e3 * transit->max),
+	   stats->cntIPG,
+	   (stats->final ? stats->fInP : stats->iInP),			\
 	   (stats->cntIPG && (stats->IPGsum > 0.0) ? (stats->cntIPG / stats->IPGsum) : 0.0), (stats->common->Omit ? report_omitted : ""));
     if ((stats->cntOutofOrder > 0) && stats->final) {
 	if (isSumOnly(stats->common)) {
@@ -2419,12 +2433,14 @@ static void reporter_output_client_settings (struct ReportSettings *report) {
 		      : report->common->Host);
     if (!report->common->Ifrnametx) {
 	printf(isEnhanced(report->common) ? client_pid_port : client_port, hoststr,
-	       (isUDP(report->common) ? "UDP" : "TCP"), report->common->Port, report->pid, \
+	       (isUDP(report->common) ? (isUDPL4S(report->common) ? (isUDPL4SVideo(report->common) ? "UDP L4S Video" : "UDP L4S") : "UDP") : "TCP"),
+	       report->common->Port, report->pid,
 	       (!report->common->threads ? 1 : report->common->threads),
 	       (!report->common->threads ? 1 : report->common->working_load_threads));
     } else {
 	printf(client_pid_port_dev, hoststr,
-	       (isUDP(report->common) ? "UDP" : "TCP"), report->common->Port, report->pid, \
+	       (isUDP(report->common) ? (isUDPL4S(report->common) ? (isUDPL4SVideo(report->common) ? "UDP L4S Video" : "UDP L4S") : "UDP") : "TCP"),
+	       report->common->Port, report->pid,
 	       report->common->Ifrnametx, (!report->common->threads ? 1 : report->common->threads),
 	       (!report->common->threads ? 1 : report->common->working_load_threads));
     }
@@ -2622,7 +2638,6 @@ void reporter_print_connection_report (struct ConnectionInfo *report) {
     linebuffer[SNBUFFERSIZE] = '\0';
     linebuffer[0] = '\0';
     int n = 0;
-
 #if HAVE_DECL_TCP_WINDOW_CLAMP
     if (!isUDP(report->common) && isRxClamp(report->common)) {
 	n = snprintf(b, (SNBUFFERSIZE-strlen(linebuffer)), " (%s%d)", "clamp=", report->common->ClampSize);
@@ -2708,6 +2723,12 @@ void reporter_print_connection_report (struct ConnectionInfo *report) {
 	FAIL_exit((strlen(linebuffer) >= SNBUFFERSIZE), "buffer overflow tt");
 	b += n;
     }
+    if (isUDPL4S(report->common)) {
+	n = snprintf(b, SNBUFFERSIZE-strlen(b), " (l4s)");
+	FAIL_exit((n < 0), "fail append l4s");
+	FAIL_exit((strlen(linebuffer) >= SNBUFFERSIZE), "buffer overflow l4s");
+	b += n;
+    }
     if (isEnhanced(report->common)) {
 #if HAVE_DECL_TCP_CONGESTION
         if (isCongestionControl(report->common)) {
@@ -2715,7 +2736,7 @@ void reporter_print_connection_report (struct ConnectionInfo *report) {
 	    Socklen_t len = sizeof(cca);
 	    int rc;
 	    if ((rc = getsockopt(report->common->socket, IPPROTO_TCP, TCP_CONGESTION, &cca, &len)) == 0) {
-	        cca[len - 1]='\0';
+	        cca[len - 1] = '\0';
 	    }
 	    if (rc != SOCKET_ERROR) {
 	        n = snprintf(b, SNBUFFERSIZE-strlen(linebuffer), " (%s)", cca);
@@ -2727,6 +2748,7 @@ void reporter_print_connection_report (struct ConnectionInfo *report) {
 #endif
     }
     if (isOverrideTOS(report->common)) {
+	n  = 0;
 	if (isFullDuplex(report->common)) {
 	    n = snprintf(b, SNBUFFERSIZE-strlen(linebuffer), " (tos rx/tx=0x%x,dscp=%d,ecn=%d, /0x%x,dscp=%d,ecn=%d)", report->common->TOS, \
 			 DSCP_VALUE(report->common->TOS), ECN_VALUE(report->common->TOS), \
@@ -2823,44 +2845,44 @@ void reporter_print_connection_report (struct ConnectionInfo *report) {
 #endif
 #if HAVE_IPV6
     if (report->common->KeyCheck) {
-	if (isEnhanced(report->common) && report->common->Ifrname && (strlen(report->common->Ifrname) < SNBUFFERSIZE-strlen(b))) {
+	if (isEnhanced(report->common) && report->common->Ifrname) {
 	    printf(report_peer_dev, report->common->transferIDStr, local_addr, report->common->Ifrname, \
 		   (local->sa_family == AF_INET ? ntohs(((struct sockaddr_in*)local)->sin_port) : \
 		    ntohs(((struct sockaddr_in6*)local)->sin6_port)), \
 		   remote_addr, (peer->sa_family == AF_INET ? ntohs(((struct sockaddr_in*)peer)->sin_port) : \
-				 ntohs(((struct sockaddr_in6*)peer)->sin6_port)), outbuffer);
+				 ntohs(((struct sockaddr_in6*)peer)->sin6_port)), linebuffer);
 	} else {
 	    printf(report_peer, report->common->transferIDStr, local_addr, \
 		   (local->sa_family == AF_INET ? ntohs(((struct sockaddr_in*)local)->sin_port) : \
 		    ntohs(((struct sockaddr_in6*)local)->sin6_port)), \
 		   remote_addr, (peer->sa_family == AF_INET ? ntohs(((struct sockaddr_in*)peer)->sin_port) : \
-				 ntohs(((struct sockaddr_in6*)peer)->sin6_port)), outbuffer);
+				 ntohs(((struct sockaddr_in6*)peer)->sin6_port)), linebuffer);
 	}
     } else {
 	printf(report_peer_fail, local_addr, \
 	       (local->sa_family == AF_INET ? ntohs(((struct sockaddr_in*)local)->sin_port) : \
 		ntohs(((struct sockaddr_in6*)local)->sin6_port)), \
 	       remote_addr, (peer->sa_family == AF_INET ? ntohs(((struct sockaddr_in*)peer)->sin_port) : \
-			     ntohs(((struct sockaddr_in6*)peer)->sin6_port)), outbuffer);
+			     ntohs(((struct sockaddr_in6*)peer)->sin6_port)), linebuffer);
     }
 
 #else
     if (report->common->KeyCheck) {
-	if (isEnhanced(report->common) && report->common->Ifrname  && (strlen(report->common->Ifrname) < SNBUFFERSIZE-strlen(b))) {
+	if (isEnhanced(report->common) && report->common->Ifrname) {
 	    printf(report_peer_dev, report->common->transferIDStr, local_addr, report->common->Ifrname, \
 		   local_addr, (local->sa_family == AF_INET ? ntohs(((struct sockaddr_in*)local)->sin_port) : 0), \
 		   remote_addr, (peer->sa_family == AF_INET ? ntohs(((struct sockaddr_in*)peer)->sin_port) :  0), \
-		   outbuffer);
+		   linebuffer);
 	} else {
 	    printf(report_peer, report->common->transferIDStr, \
 		   local_addr, (local->sa_family == AF_INET ? ntohs(((struct sockaddr_in*)local)->sin_port) : 0), \
 		   remote_addr, (peer->sa_family == AF_INET ? ntohs(((struct sockaddr_in*)peer)->sin_port) :  0), \
-		   outbuffer);
+		   linebuffer);
 	}
     } else {
 	printf(report_peer_fail, local_addr, (local->sa_family == AF_INET ? ntohs(((struct sockaddr_in*)local)->sin_port) : 0), \
 	       remote_addr, (peer->sa_family == AF_INET ? ntohs(((struct sockaddr_in*)peer)->sin_port) :  0), \
-	       outbuffer);
+	       linebuffer);
     }
 #endif
     if ((report->common->ThreadMode == kMode_Server) ||			\

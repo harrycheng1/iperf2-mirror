@@ -125,10 +125,14 @@ extern "C" {
 // lower flags (16 bit)
 #define HEADER_CCA          0x8000
 #define HEADER_BARRIER_TIME 0x4000
+#define HEADER_UDPL4S       0x2000
 
 // later features
 #define HDRXACKMAX 2500000 // default 2.5 seconds, units microseconds
 #define HDRXACKMIN   10000 // default 10 ms, units microsecond
+
+// L4S Flags
+#define L4S_ECN_ERR 0x0001
 
 /*
  * Structures used for test messages which
@@ -452,6 +456,87 @@ struct isoch_payload {
     uint32_t burstsize;
     uint32_t remaining;
     uint32_t reserved;
+};
+
+/*
+ * UDP Foward L4S payload structure
+ *
+ *                 0      7 8     15 16    23 24    31
+ *                +--------+--------+--------+--------+
+ *      0x00  1   |          seqno lower              |
+ *                +--------+--------+--------+--------+
+ *      0x04  2   |             tv_sec                |
+ *                +--------+--------+--------+--------+
+ *      0x08  3   |             tv_usec               |
+ *                +--------+--------+--------+--------+
+ *            4   |          seqno upper              |
+ *                +--------+--------+--------+--------+
+ *            5   |         flags (v1)                |
+ *                +--------+--------+--------+--------+
+ *            6   |         numThreads (v1)           |
+ *                +--------+--------+--------+--------+
+ *            7   |         mPort (v1)                |
+ *                +--------+--------+--------+--------+
+ *            8   |         bufferLen (v1)            |
+ *                +--------+--------+--------+--------+
+ *            9   |         mWinBand (v1)             |
+ *                +--------+--------+--------+--------+
+ *            10  |         mAmount (v1)              |
+ *                +--------+--------+--------+--------+
+ *            11  |   up flags      |   low flags     |
+ *                +--------+--------+--------+--------+
+ *            12  |        iperf version major        |
+ *                +--------+--------+--------+--------+
+ *            13  |        iperf version minor        |
+ *                +--------+--------+--------+--------+
+ *            14  |          sender timestamp (A)     |
+ *                +--------+--------+--------+--------+
+ *            15  |          echoed timestamp (B)     |
+ *                +--------+--------+--------+--------+
+ *            16  |          sender seqno (A)         |
+ *                +--------+--------+--------+--------+
+ */
+struct client_udp_l4s_fwd {
+    struct UDP_datagram seqno_ts;
+    struct client_hdr_v1 base;
+    int16_t upperflags;
+    int16_t lowerflags;
+    uint32_t version_u;
+    uint32_t version_l;
+    uint32_t sender_ts;
+    uint32_t echoed_ts;
+    uint32_t sender_seqno;
+};
+
+/*
+ * UDP L4S ACK payload structure
+ *
+ *                 0      7 8     15 16    23 24    31
+ *                +--------+--------+--------+--------+
+ *      0X00  1   | uint16_t flags  |   reserved      |
+ *                +--------+--------+--------+--------+
+ *      0x04  2   |        receiver timestamp (B)     |
+ *                +--------+--------+--------+--------+
+ *      0x06  4   |          echoed timestamp (A)     |
+ *                +--------+--------+--------+--------+
+ *      0x08  5   |            pkt rx count (B)       |
+ *                +--------+--------+--------+--------+
+ *            6   |   pkt CE count (B,N) (CE==0x3)++  |
+ *                +--------+--------+--------+--------+
+ *            7   |          pkt lost count (A,B)     |
+ *                +--------+--------+--------+--------+
+ *            8   |        reserved                   |
+ *                +--------+--------+--------+--------+
+ */
+struct udp_l4s_ack {
+    uint16_t flags; // L4S_ECN_ERR bit, receiver found a bleached/error ECN; stop using L4S_id on the sending packets!
+    uint16_t l4sreserved;
+    int32_t rx_ts; // timestamp from peer, freeze and keep this time
+    int32_t echoed_ts; // echoed_timestamp can be used to calculate the RTT
+    int32_t rx_cnt; // echoed_packet counter
+    int32_t CE_cnt; // echoed CE counter
+    int32_t lost_cnt; // echoed lost counter
+    int32_t reserved1;
 };
 
 struct cca_field {

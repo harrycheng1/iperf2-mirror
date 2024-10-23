@@ -70,6 +70,9 @@ public:
 
     // accepts connection and receives data
     void RunUDP(void);
+#if HAVE_UDP_L4S
+    void RunUDPL4S(void);
+#endif
     void RunTCP(void);
     void RunBounceBackTCP(void);
     static void Sig_Int(int inSigno);
@@ -115,7 +118,8 @@ private:
     struct sockaddr_storage srcaddr;
     struct iovec iov[1];
     struct msghdr message;
-    char ctrl[CMSG_SPACE(sizeof(struct timeval))];
+    char ctrl[(CMSG_SPACE(sizeof(struct timeval)) \
+	       + CMSG_SPACE(sizeof(u_char)))]; // add space for rcvtos
     struct cmsghdr *cmsg;
 #if HAVE_DECL_MSG_CTRUNC
     bool ctrunc_warn_enable;

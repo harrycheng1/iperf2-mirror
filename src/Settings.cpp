@@ -1,4 +1,3 @@
-
 /*---------------------------------------------------------------
  * Copyright (c) 1999,2000,2001,2002,2003
  * The Board of Trustees of the University of Illinois
@@ -135,6 +134,8 @@ static int testxchangetimeout = 0;
 static int synctransferid = 0;
 static int ignoreshutdown = 0;
 static int skiprxcopy = 0;
+static int udpl4s = 0;
+static int udpl4svideo = 0;
 
 void Settings_Interpret(char option, const char *optarg, struct thread_Settings *mExtSettings);
 // apply compound settings after the command line has been fully parsed
@@ -254,6 +255,8 @@ const struct option long_options[] =
 {"test-exchange-timeout", required_argument, &testxchangetimeout, 1},
 {"tap-dev", optional_argument, &tapif, 1},
 {"tun-dev", optional_argument, &tunif, 1},
+{"udp-l4s", no_argument, &udpl4s, 1},
+{"udp-l4s-video", optional_argument, &udpl4svideo, 1},
 {"working-load", optional_argument, &workingload, 1},
 {"working-load-cca", required_argument, &loadcca, 1},
 {"tcp-cca", required_argument, &primarycca, 1},
@@ -1486,6 +1489,25 @@ void Settings_Interpret (char option, const char *optarg, struct thread_Settings
 	    setEnhanced(mExtSettings);
 #endif
 	}
+	if (udpl4s) {
+	    udpl4s = 0;
+#if !HAVE_UDP_L4S
+	    fprintf (stderr, "WARN: UDP L4S --udp-l4s not supported\n");
+#else
+	    setUDP(mExtSettings);
+	    setUDPL4S(mExtSettings);
+#endif
+	}
+	if (udpl4svideo) {
+	    udpl4svideo = 0;
+#if !HAVE_UDP_L4S || 1
+	    fprintf (stderr, "WARN: UDP L4S --udp-l4s-video not supported\n");
+#else
+	    setUDP(mExtSettings);
+	    setUDPL4S(mExtSettings);
+	    setUDPL4SVideo(mExtSettings);
+#endif
+	}
 	break;
     default: // ignore unknown
 	break;
@@ -1926,6 +1948,10 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 		fprintf(stderr, "ERROR: units of pps not supported with TCP\n");
 		bail = true;
 	    }
+	    if (!isUDP(mExtSettings) && isUDPL4S(mExtSettings) && (mExtSettings->mThreadMode == kMode_Client)) {
+		fprintf(stderr, "ERROR: UDP L4S not supported with TCP\n");
+		bail = true;
+	    }
 	    if (isJitterHistogram(mExtSettings)) {
 		fprintf(stderr, "ERROR: option of --jitter-histogram not supported with TCP\n");
 		bail = true;
@@ -1938,10 +1964,6 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 	    mExtSettings->mHistUnits = 6;  // usecs 10 pow(x)
 	    mExtSettings->mHistci_lower = 5;
 	    mExtSettings->mHistci_upper = 95;
-	}
-	if (isCongestionControl(mExtSettings) && isReverse(mExtSettings)) {
-	    fprintf(stderr, "ERROR: tcp congestion control -Z and --reverse cannot be applied together\n");
-	    bail = true;
 	}
 	{
 	    int one_only = 0;
@@ -2043,6 +2065,12 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 	if (mExtSettings->mBurstSize != 0) {
 	    fprintf(stderr, "WARN: option of --burst-size not supported on the server\n");
 	}
+#if HAVE_UDP_L4S
+	if (isUDPL4S(mExtSettings)) {
+	    fprintf(stderr, "WARN: option of --udp-l4s not supported on the server\n");
+	    unsetUDPL4S(mExtSettings);
+	}
+#endif
 	if (isUDP(mExtSettings)) {
 	    if (isRxClamp(mExtSettings)) {
 		fprintf(stderr, "WARN: option of --tcp-rx-window-clamp not supported using -u UDP \n");
@@ -2688,6 +2716,10 @@ int Settings_GenerateClientHdr (struct thread_Settings *client, void *testhdr, s
 		len += sizeof(struct client_hdrext_isoch_settings);
 	    }
 	}
+	if (isUDPL4S(client)) {
+	    flags |= (HEADER_UDPTESTS | HEADER_EXTEND) ;
+	    upperflags |= HEADER_UDPL4S;
+    }
 	if (isReverse(client) || isFullDuplex(client)) {
 	    flags |= (HEADER_UDPTESTS | HEADER_VERSION2);
 	}

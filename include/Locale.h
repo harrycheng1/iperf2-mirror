@@ -210,6 +210,8 @@ extern const char report_bw_read_enhanced_format[];
 
 extern const char report_sum_bw_read_enhanced_format[];
 
+extern const char report_sumcnt_bw_jitter_loss_enhanced_header[];
+
 extern const char report_sumcnt_bw_read_enhanced_header[];
 
 extern const char report_sumcnt_bw_read_enhanced_format[];
