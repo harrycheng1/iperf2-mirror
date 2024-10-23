@@ -377,9 +377,11 @@ void SetSocketOptionsIPTos (struct thread_Settings *mSettings, int tos) {
 }
 
 void SetSocketOptionsIPRCVTos (struct thread_Settings *mSettings) {
+#if HAVE_UDP_L4S
     int value = (isUDPL4S(mSettings) ? 1 : 0);
     int rc = setsockopt(mSettings->mSock, IPPROTO_IP, IP_RECVTOS, &value, sizeof(value));
     WARN_errno(rc == SOCKET_ERROR, "ip_recvtos");
+#endif
 }
 
 /*

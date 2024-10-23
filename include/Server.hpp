@@ -70,7 +70,9 @@ public:
 
     // accepts connection and receives data
     void RunUDP(void);
+#if HAVE_UDP_L4S
     void RunUDPL4S(void);
+#endif
     void RunTCP(void);
     void RunBounceBackTCP(void);
     static void Sig_Int(int inSigno);

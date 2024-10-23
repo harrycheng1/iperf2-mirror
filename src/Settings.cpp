@@ -1491,14 +1491,22 @@ void Settings_Interpret (char option, const char *optarg, struct thread_Settings
 	}
 	if (udpl4s) {
 	    udpl4s = 0;
+#if !HAVE_UDP_L4S
+	    fprintf (stderr, "WARN: UDP L4S --udp-l4s not supported\n");
+#else
 	    setUDP(mExtSettings);
 	    setUDPL4S(mExtSettings);
+#endif
 	}
 	if (udpl4svideo) {
 	    udpl4svideo = 0;
+#if !HAVE_UDP_L4S || 1
+	    fprintf (stderr, "WARN: UDP L4S --udp-l4s-video not supported\n");
+#else
 	    setUDP(mExtSettings);
 	    setUDPL4S(mExtSettings);
 	    setUDPL4SVideo(mExtSettings);
+#endif
 	}
 	break;
     default: // ignore unknown
@@ -1940,6 +1948,10 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 		fprintf(stderr, "ERROR: units of pps not supported with TCP\n");
 		bail = true;
 	    }
+	    if (!isUDP(mExtSettings) && isUDPL4S(mExtSettings) && (mExtSettings->mThreadMode == kMode_Client)) {
+		fprintf(stderr, "ERROR: UDP L4S not supported with TCP\n");
+		bail = true;
+	    }
 	    if (isJitterHistogram(mExtSettings)) {
 		fprintf(stderr, "ERROR: option of --jitter-histogram not supported with TCP\n");
 		bail = true;
@@ -2053,6 +2065,12 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 	if (mExtSettings->mBurstSize != 0) {
 	    fprintf(stderr, "WARN: option of --burst-size not supported on the server\n");
 	}
+#if HAVE_UDP_L4S
+	if (isUDPL4S(mExtSettings)) {
+	    fprintf(stderr, "WARN: option of --udp-l4s not supported on the server\n");
+	    unsetUDPL4S(mExtSettings);
+	}
+#endif
 	if (isUDP(mExtSettings)) {
 	    if (isRxClamp(mExtSettings)) {
 		fprintf(stderr, "WARN: option of --tcp-rx-window-clamp not supported using -u UDP \n");

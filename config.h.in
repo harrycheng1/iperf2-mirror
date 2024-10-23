@@ -29,6 +29,18 @@
    don't. */
 #undef HAVE_DECL_AF_INET6
 
+/* Define to 1 if you have the declaration of 'CMSG_FIRSTHDR', and to 0 if you
+   don't. */
+#undef HAVE_DECL_CMSG_FIRSTHDR
+
+/* Define to 1 if you have the declaration of 'CMSG_LEN', and to 0 if you
+   don't. */
+#undef HAVE_DECL_CMSG_LEN
+
+/* Define to 1 if you have the declaration of 'CMSG_SPACE', and to 0 if you
+   don't. */
+#undef HAVE_DECL_CMSG_SPACE
+
 /* Define to 1 if you have the declaration of 'CPU_SET', and to 0 if you
    don't. */
 #undef HAVE_DECL_CPU_SET
@@ -104,6 +116,10 @@
 /* Define to 1 if you have the declaration of 'IP_MULTICAST_IF', and to 0 if
    you don't. */
 #undef HAVE_DECL_IP_MULTICAST_IF
+
+/* Define to 1 if you have the declaration of 'IP_RECVTOS', and to 0 if you
+   don't. */
+#undef HAVE_DECL_IP_RECVTOS
 
 /* Define to 1 if you have the declaration of 'IP_TOS', and to 0 if you don't.
    */

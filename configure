@@ -8741,6 +8741,46 @@ else case e in #(
 esac
 fi
 printf "%s\n" "#define HAVE_DECL_MSG_TRUNC $ac_have_decl" >>confdefs.h
+ac_fn_check_decl "$LINENO" "IP_RECVTOS" "ac_cv_have_decl_IP_RECVTOS" "$in_h
+" "$ac_c_undeclared_builtin_options" "CFLAGS"
+if test "x$ac_cv_have_decl_IP_RECVTOS" = xyes
+then :
+  ac_have_decl=1
+else case e in #(
+  e) ac_have_decl=0 ;;
+esac
+fi
+printf "%s\n" "#define HAVE_DECL_IP_RECVTOS $ac_have_decl" >>confdefs.h
+ac_fn_check_decl "$LINENO" "CMSG_FIRSTHDR" "ac_cv_have_decl_CMSG_FIRSTHDR" "$in_h
+" "$ac_c_undeclared_builtin_options" "CFLAGS"
+if test "x$ac_cv_have_decl_CMSG_FIRSTHDR" = xyes
+then :
+  ac_have_decl=1
+else case e in #(
+  e) ac_have_decl=0 ;;
+esac
+fi
+printf "%s\n" "#define HAVE_DECL_CMSG_FIRSTHDR $ac_have_decl" >>confdefs.h
+ac_fn_check_decl "$LINENO" "CMSG_SPACE" "ac_cv_have_decl_CMSG_SPACE" "$in_h
+" "$ac_c_undeclared_builtin_options" "CFLAGS"
+if test "x$ac_cv_have_decl_CMSG_SPACE" = xyes
+then :
+  ac_have_decl=1
+else case e in #(
+  e) ac_have_decl=0 ;;
+esac
+fi
+printf "%s\n" "#define HAVE_DECL_CMSG_SPACE $ac_have_decl" >>confdefs.h
+ac_fn_check_decl "$LINENO" "CMSG_LEN" "ac_cv_have_decl_CMSG_LEN" "$in_h
+" "$ac_c_undeclared_builtin_options" "CFLAGS"
+if test "x$ac_cv_have_decl_CMSG_LEN" = xyes
+then :
+  ac_have_decl=1
+else case e in #(
+  e) ac_have_decl=0 ;;
+esac
+fi
+printf "%s\n" "#define HAVE_DECL_CMSG_LEN $ac_have_decl" >>confdefs.h
 ac_fn_check_decl "$LINENO" "MCAST_JOIN_GROUP" "ac_cv_have_decl_MCAST_JOIN_GROUP" "$in_h
 " "$ac_c_undeclared_builtin_options" "CFLAGS"
 if test "x$ac_cv_have_decl_MCAST_JOIN_GROUP" = xyes

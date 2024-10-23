@@ -613,8 +613,10 @@ void Client::Run () {
             RunUDPIsochronous();
         } else if (isBurstSize(mSettings)) {
             RunUDPBurst();
+#if HAVE_L4S_UPD
         } else if (isUDPL4S(mSettings)) {
             RunUDPL4S();
+#endif
         } else {
             RunUDP();
         }
@@ -1655,6 +1657,7 @@ void Client::RunUDPBurst () {
     FinishTrafficActions();
 }
 
+#if HAVE_UDP_L4S
 int Client::ack_poll (time_tp ack_timeout) {
     int rc = -1;
     if (ack_timeout > 0) {
@@ -1715,7 +1718,7 @@ void Client::RunUDPL4S () {
     while (InProgress()) {
 	count_tp inburst = 0;
         // [TODO] Add timout functionality
-        time_tp timeout = 0;
+        // time_tp timeout = 0;
         time_tp startSend = 0;
         time_tp pacer_now = l4s_pacer.Now();
         while ((inflight < packet_window) && (inburst < packet_burst) && (nextSend <= pacer_now)) {
@@ -1809,7 +1812,7 @@ void Client::RunUDPL4S () {
 	currLen = ack_poll(ack_timeout);
 	pacer_now = l4s_pacer.Now();
         if (currLen >= (int) sizeof(struct udp_l4s_ack)) {
-	    ecn_tp rcv_ecn = ecn_tp(reportstruct->tos & 0x3);
+	    // ecn_tp rcv_ecn = ecn_tp(reportstruct->tos & 0x3);
 	    time_tp timestamp;
 	    time_tp echoed_timestamp;
 	    timestamp = ntohl(UDPAckBuf.rx_ts);
@@ -1828,6 +1831,7 @@ void Client::RunUDPL4S () {
     }
     FinishTrafficActions();
 }
+#endif
 
 inline void Client::WritePacketID (intmax_t packetID) {
     struct UDP_datagram * mBuf_UDP = reinterpret_cast<struct UDP_datagram *>(mSettings->mBuf);

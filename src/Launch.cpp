@@ -155,9 +155,12 @@ void server_spawn(struct thread_Settings *thread) {
     }
     // Run the test
     if (isUDP(thread)) {
+#if HAVE_L4S_UDP
         if (isUDPL4S(thread)) {
             theServer->RunUDPL4S();
-        } else {
+        } else
+#endif
+	{
             theServer->RunUDP();
         }
     } else {

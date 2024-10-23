@@ -1091,6 +1091,7 @@ void Server::RunUDP () {
     FreeReport(myJob);
 }
 
+#if HAVE_UDP_L4S
 void Server::RunUDPL4S () {
     int rxlen;
     bool isLastPacket = false;
@@ -1206,5 +1207,5 @@ void Server::RunUDPL4S () {
     Iperf_remove_host(mSettings);
     FreeReport(myJob);
 }
-
+#endif
 // end Recv

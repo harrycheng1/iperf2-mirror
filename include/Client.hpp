@@ -131,8 +131,10 @@ private:
     // UDP plain
     void RunUDP(void);
     void RunUDPBurst(void);
+#if HAVE_UDP_L4S
     void RunUDPL4S(void);
     int ack_poll (time_tp ack_timeout);
+#endif
     // client connect
     void PeerXchange(void);
     thread_Settings *mSettings;
