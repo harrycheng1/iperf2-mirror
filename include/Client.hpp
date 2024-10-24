@@ -134,6 +134,7 @@ private:
 #if HAVE_UDP_L4S
     void RunUDPL4S(void);
     int ack_poll (time_tp ack_timeout);
+    struct udp_l4s_ack UDPAckBuf;
 #endif
     // client connect
     void PeerXchange(void);
@@ -157,7 +158,6 @@ private:
 #if HAVE_DECL_SO_MAX_PACING_RATE
     Timestamp PacingStepTime;
 #endif
-    struct udp_l4s_ack UDPAckBuf;
 }; // end class Client
 
 #endif // CLIENT_H
