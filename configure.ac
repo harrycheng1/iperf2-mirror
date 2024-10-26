@@ -21,9 +21,6 @@ AC_ARG_ENABLE(ipv6, AS_HELP_STRING([--disable-ipv6],[disable ipv6 support (defau
 AC_ARG_ENABLE(multicast, AS_HELP_STRING([--disable-multicast],[disable multicast support (default is autodetect)]),
 	ac_cv_multicast=$enable_multicast)
 
-AC_ARG_ENABLE(udp_l4s, AS_HELP_STRING([--disable-udp-l4s],[disable udp-l4s support (default is autodetect)]),
-        ac_cv_udp_l4s=$enable_udp_l4s)
-
 AC_ARG_ENABLE(tcpstats, AS_HELP_STRING([--disable-tcpstats],[disable tcpstats support (default is autodetect)]),
 	ac_cv_tcpstats=$enable_tcpstats)
 
@@ -60,8 +57,15 @@ AM_CONDITIONAL([PACKET_DEBUG], [test "x$enable_packet_debug" = "xyes"])
 AC_ARG_ENABLE(summing_debug, AS_HELP_STRING([--enable-summing-debug],[enable support for interval summing debugging (default is disable)]))
 AM_CONDITIONAL([SUMMING_DEBUG], [test "x$enable_summing_debug" = "xyes"])
 
+AC_ARG_ENABLE(summing_debug, AS_HELP_STRING([--enable-summing-debug],[enable support for interval summing debugging (default is disable)]))
+AM_CONDITIONAL([SUMMING_DEBUG], [test "x$enable_summing_debug" = "xyes"])
+
+AC_ARG_ENABLE(udp_l4s, AS_HELP_STRING([--enable-udp-l4s],[enable udp-l4s support (default is disable)]))
+AM_CONDITIONAL([UDP_L4S], [test "x${ac_cv_udp_l4s}" = "xyes"])
+
 AC_ARG_ENABLE(checkprograms, AS_HELP_STRING([--enable-checkprograms],[enable support for building support programs such as checkdelay, checkpdfs, etc. (default is disable)]))
 AM_CONDITIONAL([CHECKPROGRAMS], [test "x$enable_checkprograms" = "xyes"])
+
 
 AC_ARG_ENABLE(debug_symbols,
 AS_HELP_STRING([--enable-debug-symbols],
@@ -337,7 +341,7 @@ if test "$ac_cv_have_ipv6" = yes; then
 fi
 
 dnl check for udp_l4s
-if test "$enable_udp_l4s" != no; then
+if test x"$enable_udp_l4s" = "xyes"; then
   ac_cv_have_udp_l4s=no
   AC_MSG_CHECKING(for IP_RECVTOS)
   AC_MSG_RESULT($ac_cv_have_decl_IP_RECVTOS)
@@ -356,7 +360,6 @@ if test "$enable_udp_l4s" != no; then
   AC_MSG_CHECKING(for UDP L4S support)
   AC_MSG_RESULT($ac_cv_have_udp_l4s)
 fi
-AM_CONDITIONAL([UDP_L4S], [test "x${ac_cv_have_udp_l4s}" = "xyes"])
 
 AS_IF([test "x$enable_af_packet" = "xyes"], [
    AC_CHECK_DECL([TPACKET_V2],

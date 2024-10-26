@@ -647,8 +647,6 @@ STRIP_BEGIN
 STRIP_DUMMY
 AF_PACKET_FALSE
 AF_PACKET_TRUE
-UDP_L4S_FALSE
-UDP_L4S_TRUE
 LIBOBJS
 PTHREAD_CFLAGS
 PTHREAD_LIBS
@@ -691,6 +689,8 @@ DEBUG_SYMBOLS_FALSE
 DEBUG_SYMBOLS_TRUE
 CHECKPROGRAMS_FALSE
 CHECKPROGRAMS_TRUE
+UDP_L4S_FALSE
+UDP_L4S_TRUE
 SUMMING_DEBUG_FALSE
 SUMMING_DEBUG_TRUE
 PACKET_DEBUG_FALSE
@@ -781,7 +781,6 @@ enable_silent_rules
 enable_maintainer_mode
 enable_ipv6
 enable_multicast
-enable_udp_l4s
 enable_tcpstats
 enable_threads
 enable_debuginfo
@@ -796,6 +795,7 @@ enable_discover_defaultlen
 enable_thread_debug
 enable_packet_debug
 enable_summing_debug
+enable_udp_l4s
 enable_checkprograms
 enable_debug_symbols
 enable_af_packet
@@ -1449,7 +1449,6 @@ Optional Features:
                           sometimes confusing) to the casual installer
   --disable-ipv6          disable ipv6 support (default is autodetect)
   --disable-multicast     disable multicast support (default is autodetect)
-  --disable-udp-l4s       disable udp-l4s support (default is autodetect)
   --disable-tcpstats      disable tcpstats support (default is autodetect)
   --disable-threads       disable thread support (default is autodetect)
   --enable-debuginfo      enable asserts and debugging info for sockets
@@ -1478,6 +1477,7 @@ Optional Features:
                           is disable)
   --enable-summing-debug  enable support for interval summing debugging
                           (default is disable)
+  --enable-udp-l4s        enable udp-l4s support (default is disable)
   --enable-checkprograms  enable support for building support programs such as
                           checkdelay, checkpdfs, etc. (default is disable)
   --enable-debug-symbols  enable debugging with symbols, default: no
@@ -3870,13 +3870,6 @@ then :
 fi
 
 
-# Check whether --enable-udp_l4s was given.
-if test ${enable_udp_l4s+y}
-then :
-  enableval=$enable_udp_l4s; ac_cv_udp_l4s=$enable_udp_l4s
-fi
-
-
 # Check whether --enable-tcpstats was given.
 if test ${enable_tcpstats+y}
 then :
@@ -4018,6 +4011,36 @@ else
 fi
 
 
+# Check whether --enable-summing_debug was given.
+if test ${enable_summing_debug+y}
+then :
+  enableval=$enable_summing_debug;
+fi
+
+ if test "x$enable_summing_debug" = "xyes"; then
+  SUMMING_DEBUG_TRUE=
+  SUMMING_DEBUG_FALSE='#'
+else
+  SUMMING_DEBUG_TRUE='#'
+  SUMMING_DEBUG_FALSE=
+fi
+
+
+# Check whether --enable-udp_l4s was given.
+if test ${enable_udp_l4s+y}
+then :
+  enableval=$enable_udp_l4s;
+fi
+
+ if test "x${ac_cv_udp_l4s}" = "xyes"; then
+  UDP_L4S_TRUE=
+  UDP_L4S_FALSE='#'
+else
+  UDP_L4S_TRUE='#'
+  UDP_L4S_FALSE=
+fi
+
+
 # Check whether --enable-checkprograms was given.
 if test ${enable_checkprograms+y}
 then :
@@ -4031,6 +4054,7 @@ else
   CHECKPROGRAMS_TRUE='#'
   CHECKPROGRAMS_FALSE=
 fi
+
 
 
 # Check whether --enable-debug_symbols was given.
@@ -9783,7 +9807,7 @@ printf "%s\n" "$ac_cv_have_ipv6_multicast" >&6; }
   fi
 fi
 
-if test "$enable_udp_l4s" != no; then
+if test x"$enable_udp_l4s" = "xyes"; then
   ac_cv_have_udp_l4s=no
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for IP_RECVTOS" >&5
 printf %s "checking for IP_RECVTOS... " >&6; }
@@ -9812,14 +9836,6 @@ printf %s "checking for UDP L4S support... " >&6; }
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have_udp_l4s" >&5
 printf "%s\n" "$ac_cv_have_udp_l4s" >&6; }
 fi
- if test "x${ac_cv_have_udp_l4s}" = "xyes"; then
-  UDP_L4S_TRUE=
-  UDP_L4S_FALSE='#'
-else
-  UDP_L4S_TRUE='#'
-  UDP_L4S_FALSE=
-fi
-
 
 if test "x$enable_af_packet" = "xyes"
 then :
@@ -10141,6 +10157,14 @@ if test -z "${SUMMING_DEBUG_TRUE}" && test -z "${SUMMING_DEBUG_FALSE}"; then
   as_fn_error $? "conditional \"SUMMING_DEBUG\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
+if test -z "${SUMMING_DEBUG_TRUE}" && test -z "${SUMMING_DEBUG_FALSE}"; then
+  as_fn_error $? "conditional \"SUMMING_DEBUG\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${UDP_L4S_TRUE}" && test -z "${UDP_L4S_FALSE}"; then
+  as_fn_error $? "conditional \"UDP_L4S\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${CHECKPROGRAMS_TRUE}" && test -z "${CHECKPROGRAMS_FALSE}"; then
   as_fn_error $? "conditional \"CHECKPROGRAMS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -10162,10 +10186,6 @@ if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
-if test -z "${UDP_L4S_TRUE}" && test -z "${UDP_L4S_FALSE}"; then
-  as_fn_error $? "conditional \"UDP_L4S\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
 if test -z "${AF_PACKET_TRUE}" && test -z "${AF_PACKET_FALSE}"; then
   as_fn_error $? "conditional \"AF_PACKET\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
