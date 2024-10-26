@@ -336,6 +336,9 @@ time in seconds to hold back or delay after the TCP connect and prior to the soc
 .BR "    --txstart-time "\fIn\fR.\fIn\fR
 set the txstart-time to \fIn\fR.\fIn\fR using unix or epoch time format (supports microsecond resolution, e.g 1536014418.123456) An example to delay one second using command substitution is iperf -c 192.168.1.10 --txstart-time $(expr $(date +%s) + 1).$(date +%N)
 .TP
+.BR "    --udp-l4s "
+run an l4s traffic load (requires a iperf server that supports l4s)
+.TP
 .BR -B ", " --bind " \fIip\fR | \fIip\fR:\fIport\fR | \fIipv6 -V\fR | \fI[ipv6]\fR:\fIport -V\fR"
 bind src ip addr and optional port as the source of traffic (see NOTES)
 .TP
@@ -359,9 +362,6 @@ set the socket's IP_TOS value. Versions 2.1.5 or greater will reflect this tos s
 .TP
 .BR -T ", " --ttl " \fIn\fR"
 time-to-live, for multicast (default 1)
-.TP
-.BR "    --udp-l4s "
-run an l4s traffic load (requires a iperf server that supports l4s)
 .TP
 .BR "    --working-load[="\fBup|down|bidir][\fR,\fIn\fR\fB]\fR
 request a concurrent working load, currently TCP stream(s), defaults to full duplex (or bidir) unless the \fBup\fR or \fBdown\fR option is provided. The number of TCP streams defaults to 1 and can be changed via the n value, e.g. \fB--working-load=down,4\fR will use four TCP streams from server to the client as the working load. The IP ToS will be BE (0x0) for working load traffic.
