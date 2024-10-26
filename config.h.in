@@ -552,7 +552,7 @@
 /* TUNTAP_TUN support is available */
 #undef HAVE_TUNTAP_TUN
 
-/* Define to enable udpl4s support */
+/* Define to enable udp l4s support */
 #undef HAVE_UDP_L4S
 
 /* Define to 1 if you have the <unistd.h> header file. */

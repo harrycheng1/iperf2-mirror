@@ -3873,7 +3873,7 @@ fi
 # Check whether --enable-udp_l4s was given.
 if test ${enable_udp_l4s+y}
 then :
-  enableval=$enable_udp_l4s; ac_cv_have_udp_l4s=$enable_udp_l4s
+  enableval=$enable_udp_l4s; ac_cv_udp_l4s=$enable_udp_l4s
 fi
 
 
@@ -9784,22 +9784,35 @@ printf "%s\n" "$ac_cv_have_ipv6_multicast" >&6; }
 fi
 
 if test "$enable_udp_l4s" != no; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for UDP L4S support" >&5
-printf %s "checking for UDP L4S support... " >&6; }
   ac_cv_have_udp_l4s=no
-  if test "$ac_cv_have_decl_MSG_IP_RECVTOS" = yes; then
-      if test "$ac_cv_have_decl_MSG_DONTWAIT" = yes; then
-      	 if test "$ac_cv_have_decl_MSG_CMSG_LEN" = yes; then
-	   ac_cv_have_udp_l4s=yes
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for IP_RECVTOS" >&5
+printf %s "checking for IP_RECVTOS... " >&6; }
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have_decl_IP_RECVTOS" >&5
+printf "%s\n" "$ac_cv_have_decl_IP_RECVTOS" >&6; }
+  if test "$ac_cv_have_decl_IP_RECVTOS" = yes; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for MSG_DONTWAIT" >&5
+printf %s "checking for MSG_DONTWAIT... " >&6; }
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have_decl_MSG_DONTWAIT" >&5
+printf "%s\n" "$ac_cv_have_decl_MSG_DONTWAIT" >&6; }
+    if test "$ac_cv_have_decl_MSG_DONTWAIT" = yes; then
+       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for CMSG_LEN" >&5
+printf %s "checking for CMSG_LEN... " >&6; }
+       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have_decl_CMSG_LEN" >&5
+printf "%s\n" "$ac_cv_have_decl_CMSG_LEN" >&6; }
+       if test "$ac_cv_have_decl_CMSG_LEN" = yes; then
+          ac_cv_have_udp_l4s=yes
 
 printf "%s\n" "#define HAVE_UDP_L4S 1" >>confdefs.h
 
-	 fi
-      fi
+	fi
+    fi
   fi
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for UDP L4S support" >&5
+printf %s "checking for UDP L4S support... " >&6; }
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have_udp_l4s" >&5
 printf "%s\n" "$ac_cv_have_udp_l4s" >&6; }
-   if test "x${ac_cv_have_udp_l4s}" = "xyes"; then
+fi
+ if test "x${ac_cv_have_udp_l4s}" = "xyes"; then
   UDP_L4S_TRUE=
   UDP_L4S_FALSE='#'
 else
@@ -9807,7 +9820,6 @@ else
   UDP_L4S_FALSE=
 fi
 
-fi
 
 if test "x$enable_af_packet" = "xyes"
 then :
