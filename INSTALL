@@ -186,6 +186,7 @@ Other configure and compile options
       ./configure --enable-checkprograms - compile supplmentary test programs
       ./configure --disable-ipv6
       ./configure --disable-multicast
+      ./configure --disable-udp-l4s
       ./configure --disable-threads
       ./configure --disable-write-select
       ./configure --enable-debug-symbols - enable debugging with symbols

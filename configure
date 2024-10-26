@@ -647,6 +647,8 @@ STRIP_BEGIN
 STRIP_DUMMY
 AF_PACKET_FALSE
 AF_PACKET_TRUE
+UDP_L4S_FALSE
+UDP_L4S_TRUE
 LIBOBJS
 PTHREAD_CFLAGS
 PTHREAD_LIBS
@@ -779,6 +781,7 @@ enable_silent_rules
 enable_maintainer_mode
 enable_ipv6
 enable_multicast
+enable_udp_l4s
 enable_tcpstats
 enable_threads
 enable_debuginfo
@@ -1446,6 +1449,7 @@ Optional Features:
                           sometimes confusing) to the casual installer
   --disable-ipv6          disable ipv6 support (default is autodetect)
   --disable-multicast     disable multicast support (default is autodetect)
+  --disable-udp-l4s       disable udp-l4s support (default is autodetect)
   --disable-tcpstats      disable tcpstats support (default is autodetect)
   --disable-threads       disable thread support (default is autodetect)
   --enable-debuginfo      enable asserts and debugging info for sockets
@@ -3863,6 +3867,13 @@ fi
 if test ${enable_multicast+y}
 then :
   enableval=$enable_multicast; ac_cv_multicast=$enable_multicast
+fi
+
+
+# Check whether --enable-udp_l4s was given.
+if test ${enable_udp_l4s+y}
+then :
+  enableval=$enable_udp_l4s; ac_cv_udp_l4s=$enable_udp_l4s
 fi
 
 
@@ -9772,6 +9783,44 @@ printf "%s\n" "$ac_cv_have_ipv6_multicast" >&6; }
   fi
 fi
 
+if test "$enable_udp_l4s" != no; then
+  ac_cv_have_udp_l4s=no
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for IP_RECVTOS" >&5
+printf %s "checking for IP_RECVTOS... " >&6; }
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have_decl_IP_RECVTOS" >&5
+printf "%s\n" "$ac_cv_have_decl_IP_RECVTOS" >&6; }
+  if test "$ac_cv_have_decl_IP_RECVTOS" = yes; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for MSG_DONTWAIT" >&5
+printf %s "checking for MSG_DONTWAIT... " >&6; }
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have_decl_MSG_DONTWAIT" >&5
+printf "%s\n" "$ac_cv_have_decl_MSG_DONTWAIT" >&6; }
+    if test "$ac_cv_have_decl_MSG_DONTWAIT" = yes; then
+       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for CMSG_LEN" >&5
+printf %s "checking for CMSG_LEN... " >&6; }
+       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have_decl_CMSG_LEN" >&5
+printf "%s\n" "$ac_cv_have_decl_CMSG_LEN" >&6; }
+       if test "$ac_cv_have_decl_CMSG_LEN" = yes; then
+          ac_cv_have_udp_l4s=yes
+
+printf "%s\n" "#define HAVE_UDP_L4S 1" >>confdefs.h
+
+	fi
+    fi
+  fi
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for UDP L4S support" >&5
+printf %s "checking for UDP L4S support... " >&6; }
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have_udp_l4s" >&5
+printf "%s\n" "$ac_cv_have_udp_l4s" >&6; }
+fi
+ if test "x${ac_cv_have_udp_l4s}" = "xyes"; then
+  UDP_L4S_TRUE=
+  UDP_L4S_FALSE='#'
+else
+  UDP_L4S_TRUE='#'
+  UDP_L4S_FALSE=
+fi
+
+
 if test "x$enable_af_packet" = "xyes"
 then :
 
@@ -10113,6 +10162,10 @@ if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
+if test -z "${UDP_L4S_TRUE}" && test -z "${UDP_L4S_FALSE}"; then
+  as_fn_error $? "conditional \"UDP_L4S\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${AF_PACKET_TRUE}" && test -z "${AF_PACKET_FALSE}"; then
   as_fn_error $? "conditional \"AF_PACKET\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
