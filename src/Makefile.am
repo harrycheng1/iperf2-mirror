@@ -54,7 +54,6 @@ iperf_SOURCES = \
 
 iperf_LDADD = $(LIBCOMPAT_LDADDS)
 
-
 if CHECKPROGRAMS
 noinst_PROGRAMS = checkdelay checkpdfs checkisoch igmp_querier
 checkdelay_SOURCES = checkdelay.c

@@ -22,7 +22,7 @@ AC_ARG_ENABLE(multicast, AS_HELP_STRING([--disable-multicast],[disable multicast
 	ac_cv_multicast=$enable_multicast)
 
 AC_ARG_ENABLE(udp_l4s, AS_HELP_STRING([--disable-udp-l4s],[disable udp-l4s support (default is autodetect)]),
-        ac_cv_have_udp_l4s=$enable_udp_l4s)
+        ac_cv_udp_l4s=$enable_udp_l4s)
 
 AC_ARG_ENABLE(tcpstats, AS_HELP_STRING([--disable-tcpstats],[disable tcpstats support (default is autodetect)]),
 	ac_cv_tcpstats=$enable_tcpstats)
@@ -338,19 +338,25 @@ fi
 
 dnl check for udp_l4s
 if test "$enable_udp_l4s" != no; then
-  AC_MSG_CHECKING(for UDP L4S support)
   ac_cv_have_udp_l4s=no
-  if test "$ac_cv_have_decl_MSG_IP_RECVTOS" = yes; then
-      if test "$ac_cv_have_decl_MSG_DONTWAIT" = yes; then
-      	 if test "$ac_cv_have_decl_MSG_CMSG_LEN" = yes; then
-	   ac_cv_have_udp_l4s=yes
-	   AC_DEFINE([HAVE_UDP_L4S], 1, [Define to enable udpl4s support])
-	 fi
-      fi
+  AC_MSG_CHECKING(for IP_RECVTOS)
+  AC_MSG_RESULT($ac_cv_have_decl_IP_RECVTOS)
+  if test "$ac_cv_have_decl_IP_RECVTOS" = yes; then
+    AC_MSG_CHECKING(for MSG_DONTWAIT)
+    AC_MSG_RESULT($ac_cv_have_decl_MSG_DONTWAIT)
+    if test "$ac_cv_have_decl_MSG_DONTWAIT" = yes; then
+       AC_MSG_CHECKING(for CMSG_LEN)
+       AC_MSG_RESULT($ac_cv_have_decl_CMSG_LEN)
+       if test "$ac_cv_have_decl_CMSG_LEN" = yes; then
+          ac_cv_have_udp_l4s=yes
+	  AC_DEFINE([HAVE_UDP_L4S], 1, [Define to enable udp l4s support])
+	fi
+    fi
   fi
+  AC_MSG_CHECKING(for UDP L4S support)
   AC_MSG_RESULT($ac_cv_have_udp_l4s)
-  AM_CONDITIONAL([UDP_L4S], [test "x${ac_cv_have_udp_l4s}" = "xyes"])
 fi
+AM_CONDITIONAL([UDP_L4S], [test "x${ac_cv_have_udp_l4s}" = "xyes"])
 
 AS_IF([test "x$enable_af_packet" = "xyes"], [
    AC_CHECK_DECL([TPACKET_V2],

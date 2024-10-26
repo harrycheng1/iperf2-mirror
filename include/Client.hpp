@@ -59,8 +59,9 @@
 #include "isochronous.hpp"
 #include "iperf_multicast_api.h"
 #include "Mutex.h"
+#if HAVE_UDP_L4S
 #include "prague_cc.h"
-
+#endif
 /* ------------------------------------------------------------------- */
 class Client {
 public:
