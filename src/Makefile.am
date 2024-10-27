@@ -50,8 +50,7 @@ iperf_SOURCES = \
 		pdfs.c \
 		dscp.c \
 		iperf_formattime.c \
-		iperf_multicast_api.c \
-		prague_cc.cpp
+		iperf_multicast_api.c
 
 iperf_LDADD = $(LIBCOMPAT_LDADDS)
 
@@ -69,5 +68,9 @@ endif
 
 if AF_PACKET
 iperf_SOURCES += checksums.c
+endif
+
+if UDP_L4S
+iperf_SOURCES += prague_cc.cpp
 endif
 

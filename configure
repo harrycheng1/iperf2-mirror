@@ -647,6 +647,8 @@ STRIP_BEGIN
 STRIP_DUMMY
 AF_PACKET_FALSE
 AF_PACKET_TRUE
+UDP_L4S_FALSE
+UDP_L4S_TRUE
 LIBOBJS
 PTHREAD_CFLAGS
 PTHREAD_LIBS
@@ -689,8 +691,6 @@ DEBUG_SYMBOLS_FALSE
 DEBUG_SYMBOLS_TRUE
 CHECKPROGRAMS_FALSE
 CHECKPROGRAMS_TRUE
-UDP_L4S_FALSE
-UDP_L4S_TRUE
 SUMMING_DEBUG_FALSE
 SUMMING_DEBUG_TRUE
 PACKET_DEBUG_FALSE
@@ -4030,14 +4030,6 @@ fi
 if test ${enable_udp_l4s+y}
 then :
   enableval=$enable_udp_l4s;
-fi
-
- if test "x${ac_cv_udp_l4s}" = "xyes"; then
-  UDP_L4S_TRUE=
-  UDP_L4S_FALSE='#'
-else
-  UDP_L4S_TRUE='#'
-  UDP_L4S_FALSE=
 fi
 
 
@@ -9828,6 +9820,7 @@ printf "%s\n" "$ac_cv_have_decl_CMSG_LEN" >&6; }
 
 printf "%s\n" "#define HAVE_UDP_L4S 1" >>confdefs.h
 
+
 	fi
     fi
   fi
@@ -9836,6 +9829,14 @@ printf %s "checking for UDP L4S support... " >&6; }
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have_udp_l4s" >&5
 printf "%s\n" "$ac_cv_have_udp_l4s" >&6; }
 fi
+ if test "x${ac_cv_have_udp_l4s}" = "xyes"; then
+  UDP_L4S_TRUE=
+  UDP_L4S_FALSE='#'
+else
+  UDP_L4S_TRUE='#'
+  UDP_L4S_FALSE=
+fi
+
 
 if test "x$enable_af_packet" = "xyes"
 then :
@@ -10161,10 +10162,6 @@ if test -z "${SUMMING_DEBUG_TRUE}" && test -z "${SUMMING_DEBUG_FALSE}"; then
   as_fn_error $? "conditional \"SUMMING_DEBUG\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${UDP_L4S_TRUE}" && test -z "${UDP_L4S_FALSE}"; then
-  as_fn_error $? "conditional \"UDP_L4S\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
 if test -z "${CHECKPROGRAMS_TRUE}" && test -z "${CHECKPROGRAMS_FALSE}"; then
   as_fn_error $? "conditional \"CHECKPROGRAMS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -10186,6 +10183,10 @@ if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
+if test -z "${UDP_L4S_TRUE}" && test -z "${UDP_L4S_FALSE}"; then
+  as_fn_error $? "conditional \"UDP_L4S\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${AF_PACKET_TRUE}" && test -z "${AF_PACKET_FALSE}"; then
   as_fn_error $? "conditional \"AF_PACKET\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5

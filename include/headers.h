@@ -296,10 +296,6 @@ typedef struct sockaddr_in iperf_sockaddr;
     #define SHUT_RDWR 2
 #endif // SHUT_RD
 
-#if (HAVE_DECL_MSG_DONTWAIT) && (HAVE_DECL_IP_TOS) && (HAVE_DECL_CMSG_FIRSTHDR) && (HAVE_DECL_CMSG_LEN) && (HAVE_DECL_CMSG_SPACE)
-#define HAVE_UDP_L4S 1
-#endif
-
 /* Internal debug */
 //#define INITIAL_PACKETID 0x7FFFFF00LL
 //#define SHOW_PACKETID
