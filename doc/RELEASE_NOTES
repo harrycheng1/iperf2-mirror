@@ -2,8 +2,20 @@ See doc/DESIGN_NOTES for some description around the software design
 See doc/CLOCKSYNC_NOTES for some description around synchronizing the
 realtime clocks
 
-2.2.1 (as of June 11th, 2024)
+2.2.1 (as of Oct 26th, 2024)
 ------------------------------
+o man page updates
+o support (alpha level) for --udp-l4s (linux only, requires ./configure --enable-udp-l4s)
+o buffer overflow fixes (multiple places)
+o support of udp summing enhanced outputs in sum reports with -P > 1
+o SETABSTIME fix
+o connection report errors ouput to stderr (vs stdout)
+o fixes to --connectly-only regressions
+o remove --tcp-cca and --reverse restriction
+o fixes to ip_tos and cmsg
+o remove setsockopt for ip tos, use sendmsg and ancillary messages instead
+o sample tcp_info in the middle of a -i interval
+o multiple fixes for TCP_TX_DELAY
 o don't autoset --tcp-write-prefetch with --trip-times, warn instead
 o Add Android NDK example, add mingw64 example
 o set smallest prefetch to 256K
