@@ -61,7 +61,6 @@ AC_ARG_ENABLE(summing_debug, AS_HELP_STRING([--enable-summing-debug],[enable sup
 AM_CONDITIONAL([SUMMING_DEBUG], [test "x$enable_summing_debug" = "xyes"])
 
 AC_ARG_ENABLE(udp_l4s, AS_HELP_STRING([--enable-udp-l4s],[enable udp-l4s support (default is disable)]))
-AM_CONDITIONAL([UDP_L4S], [test "x${ac_cv_udp_l4s}" = "xyes"])
 
 AC_ARG_ENABLE(checkprograms, AS_HELP_STRING([--enable-checkprograms],[enable support for building support programs such as checkdelay, checkpdfs, etc. (default is disable)]))
 AM_CONDITIONAL([CHECKPROGRAMS], [test "x$enable_checkprograms" = "xyes"])
@@ -354,12 +353,14 @@ if test x"$enable_udp_l4s" = "xyes"; then
        if test "$ac_cv_have_decl_CMSG_LEN" = yes; then
           ac_cv_have_udp_l4s=yes
 	  AC_DEFINE([HAVE_UDP_L4S], 1, [Define to enable udp l4s support])
+
 	fi
     fi
   fi
   AC_MSG_CHECKING(for UDP L4S support)
   AC_MSG_RESULT($ac_cv_have_udp_l4s)
 fi
+AM_CONDITIONAL([UDP_L4S], [test "x${ac_cv_have_udp_l4s}" = "xyes"])
 
 AS_IF([test "x$enable_af_packet" = "xyes"], [
    AC_CHECK_DECL([TPACKET_V2],
