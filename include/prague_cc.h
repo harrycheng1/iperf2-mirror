@@ -17,6 +17,13 @@ typedef int64_t prob_tp;
 enum cs_tp {cs_init, cs_cong_avoid, cs_in_loss, cs_in_cwr};
 enum cca_tp {cca_fracwin, cca_rate};
 
+static const count_tp PRAGUE_INITWIN  = 10;          // Prague initial window size
+static const size_tp  PRAGUE_MINMTU   = 150;         // Prague minmum MTU suze
+static const size_tp  PRAGUE_INITMTU  = 1400;        // Prague initial MTU size
+static const rate_tp  PRAGUE_INITRATE = 12500;       // Prague initial rate 12500 Byte/s (equiv. 100kbps)
+static const rate_tp  PRAGUE_MINRATE  = 12500;       // Prague minimum rate 12500 Byte/s (equiv. 100kbps)
+static const rate_tp  PRAGUE_MAXRATE  = 12500000000; // Prague maximum rate 12500000000 Byte/s (equiv. 100Gbps)
+
 const time_tp BURST_TIME = 250;            // 250 us
 const time_tp REF_RTT = 25000;             // 25ms
 const uint8_t PROB_SHIFT = 20;             // enough as max value that can control up to 100Gbps with r [Mbps] = 1/p - 1, p = 1/(r + 1) = 1/100001
@@ -93,13 +100,13 @@ class PragueCC: private PragueState {
     time_tp start_ref;  // used to have a start time of 0
 public:
     PragueCC(
-        size_tp max_packet_size = 1400,   // use MTU detection, or a low enough value. Can be updated on the fly (todo)
-        fps_tp fps = 0,                   // only used for video; frames per second, 0 must be used for bulk transfer
-        time_tp frame_budget = 0,         // only used for video; over what time [µs] you want to pace the frame (max 1000000/fps [µs])
-        rate_tp init_rate = 12500,        // 12500 Byte/s (equiv. 100kbps)
-        count_tp init_window = 10,        // 10 packets
-        rate_tp min_rate = 12500,         // 12500 Byte/s (equiv. 100kbps)
-        rate_tp max_rate = 12500000000)   // 12500000000 Byte/s (equiv. 100Gbps)
+        size_tp max_packet_size = PRAGUE_INITMTU, // use MTU detection, or a low enough value. Can be updated on the fly (todo)
+        fps_tp fps = 0,                           // only used for video; frames per second, 0 must be used for bulk transfer
+        time_tp frame_budget = 0,                 // only used for video; over what time [µs] you want to pace the frame (max 1000000/fps [µs])
+        rate_tp init_rate = PRAGUE_INITRATE,
+        count_tp init_window = PRAGUE_INITWIN,
+        rate_tp min_rate = PRAGUE_MINRATE,
+        rate_tp max_rate = PRAGUE_MAXRATE)
     {
         start_ref = 0;
         time_tp ts_now = Now();
@@ -159,8 +166,8 @@ public:
         m_pacing_rate = init_rate;
         m_fractional_window = m_init_window;
         m_packet_size = m_pacing_rate * REF_RTT / 1000000 / 2;            // B/p = B/s * 25ms/burst / 2p/burst
-        if (m_packet_size < 150)
-            m_packet_size = 150;
+        if (m_packet_size < PRAGUE_MINMTU)
+            m_packet_size = PRAGUE_MINMTU;
         if (m_packet_size > m_max_packet_size)
             m_packet_size = m_max_packet_size;
         m_packet_burst = count_tp(m_pacing_rate * BURST_TIME / 1000000 / m_packet_size);  // p = B/s * 250µs / B/p

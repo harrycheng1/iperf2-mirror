@@ -1706,7 +1706,21 @@ void Client::RunUDPL4S () {
     int currLen;
     peerclose = false;
     struct client_udp_l4s_fwd* mBuf_UDP = reinterpret_cast<struct client_udp_l4s_fwd*>(mSettings->mBuf);
-    PragueCC l4s_pacer;
+    size_tp initmtu;
+    rate_tp maxrate = PRAGUE_MAXRATE;
+    if (mSettings->mAppRateUnits == kRate_BW && mSettings->mAppRate &&
+        mSettings->mAppRate * kBytes_to_Bits <= PRAGUE_MAXRATE ) {
+        if (mSettings->mAppRate <= PRAGUE_MINRATE * kBytes_to_Bits)
+            maxrate  = PRAGUE_MINRATE;
+        else
+            maxrate  = mSettings->mAppRate / kBytes_to_Bits;
+    }
+    if (!isIPV6(mSettings))
+        initmtu = mSettings->mBufLen + IPV4HDRLEN + UDPHDRLEN;
+    else
+        initmtu = mSettings->mBufLen + IPV6HDRLEN + UDPHDRLEN;
+    initmtu = (initmtu > PRAGUE_MINMTU) ? initmtu : PRAGUE_MINMTU;
+    PragueCC l4s_pacer(initmtu, 0, 0, PRAGUE_INITRATE, PRAGUE_INITWIN, PRAGUE_MINRATE, maxrate);
     time_tp nextSend = l4s_pacer.Now();
     count_tp seqnr = 1;
     count_tp inflight = 0;
