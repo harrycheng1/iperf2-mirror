@@ -47,6 +47,9 @@
  * by Robert J. McMahon (rjmcmahon@rjmcmahon.com, bob.mcmahon@broadcom.com)
  * -------------------------------------------------------------------
  */
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 #include "headers.h"
 
 /*
