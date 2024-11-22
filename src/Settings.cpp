@@ -447,6 +447,10 @@ void Settings_Copy (struct thread_Settings *from, struct thread_Settings **into,
 	    (*into)->mLoadCCA = new char[strlen(from->mLoadCCA) + 1];
 	    strcpy((*into)->mLoadCCA, from->mLoadCCA);
 	}
+	if (from->mBufBraKetGraph != NULL) {
+	    (*into)->mBufBraKetGraph = new char[strlen(from->mBufBraKetGraph) + 1];
+	    strcpy((*into)->mBufBraKetGraph, from->mBufBraKetGraph);
+	}
     } else {
 	(*into)->mHost = NULL;
 	(*into)->mOutputFileName = NULL;
@@ -520,6 +524,7 @@ void Settings_Destroy (struct thread_Settings *mSettings) {
     DELETE_ARRAY(mSettings->mSSMMulticastStr);
     DELETE_ARRAY(mSettings->mCongestion);
     DELETE_ARRAY(mSettings->mLoadCCA);
+    DELETE_ARRAY(mSettings->mBufBraKetGraph);
     FREE_ARRAY(mSettings->mIfrname);
     FREE_ARRAY(mSettings->mIfrnametx);
     FREE_ARRAY(mSettings->mTransferIDStr);
