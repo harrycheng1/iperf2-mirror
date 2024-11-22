@@ -47,9 +47,9 @@
  */
 #ifndef MARKOVC_H
 #define MARKOVC_H
-
-#include <stdarg.h>
-#include <stdlib.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct markov_entry {
     int len;
@@ -71,4 +71,8 @@ extern void markov_graph_free (struct markov_graph *graph);
 extern int markov_graph_next (struct markov_graph *graph);
 extern void markov_graph_set_seed (struct markov_graph *graph, int seed);
 extern void markov_graph_print(struct markov_graph *graph);
+
+#ifdef __cplusplus
+}
+#endif
 #endif // MARKOV_H

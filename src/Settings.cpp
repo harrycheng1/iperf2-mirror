@@ -447,9 +447,9 @@ void Settings_Copy (struct thread_Settings *from, struct thread_Settings **into,
 	    (*into)->mLoadCCA = new char[strlen(from->mLoadCCA) + 1];
 	    strcpy((*into)->mLoadCCA, from->mLoadCCA);
 	}
-	if (from->mBufBraKetGraph != NULL) {
-	    (*into)->mBufBraKetGraph = new char[strlen(from->mBufBraKetGraph) + 1];
-	    strcpy((*into)->mBufBraKetGraph, from->mBufBraKetGraph);
+	if (from->mBraKetGraph != NULL) {
+	    (*into)->mBraKetGraph = new char[strlen(from->mBraKetGraph) + 1];
+	    strcpy((*into)->mBraKetGraph, from->mBraKetGraph);
 	}
     } else {
 	(*into)->mHost = NULL;
@@ -524,7 +524,7 @@ void Settings_Destroy (struct thread_Settings *mSettings) {
     DELETE_ARRAY(mSettings->mSSMMulticastStr);
     DELETE_ARRAY(mSettings->mCongestion);
     DELETE_ARRAY(mSettings->mLoadCCA);
-    DELETE_ARRAY(mSettings->mBufBraKetGraph);
+    DELETE_ARRAY(mSettings->mBraKetGraph);
     FREE_ARRAY(mSettings->mIfrname);
     FREE_ARRAY(mSettings->mIfrnametx);
     FREE_ARRAY(mSettings->mTransferIDStr);
@@ -682,8 +682,17 @@ void Settings_Interpret (char option, const char *optarg, struct thread_Settings
     break;
 
     case 'l': // length of each buffer
-	mExtSettings->mBufLen = byte_atoi(optarg);
-	setBuflenSet(mExtSettings);
+	if (isdigit(optarg[0])) {
+	    mExtSettings->mBufLen = byte_atoi(optarg);
+	    setBuflenSet(mExtSettings);
+	} else if (optarg[0] == '<') {
+	    mExtSettings->mBraKetGraph = new char[strlen(optarg)+1];
+	    strcpy(mExtSettings->mBraKetGraph, optarg);
+	    mExtSettings->mBufLen = -1;
+	} else {
+	    fprintf(stderr, "Invalid value for -l or --len '%s'\n", optarg);
+	    exit(1);
+	}
 	break;
 
     case 'm': // print TCP MSS

@@ -50,7 +50,7 @@ obscure ip addresses in output (useful when wanting to publish results and not d
 sample or display interval reports every \fIt\fR seconds (default) or every frame or burst, i.e. if f is used then the interval will be each frame or burst. The frame interval reporting is experimental.  Also suggest a compile with fast-sampling, i.e. ./configure --enable-fastsampling
 .TP
 .BR -l ", " --len " \fIn\fR[kmKM]"
-set read/write buffer size (TCP) or length (UDP) to \fIn\fR (TCP default 128K, UDP default 1470)
+set read/write buffer size (TCP) or length (UDP) to \fIn\fR (TCP default 128K, UDP default 1470) Also supports Braket notation for markov chains
 .TP
 .BR "    --l2checks "
 perform layer 2 length checks on received UDP packets (requires systems that support packet sockets, e.g. Linux)
@@ -981,6 +981,9 @@ received on the eth0 interface, while iperf -s -B 224.0.0.1 will
 receive those packets on any interface,
 Finally, the device specifier is required for v6 link-local,
 e.g. -c [v6addr]%<dev> -V, to select the output interface.
+.P
+.B Braket notation
+Braket notation is defined as '<256|0.1,0.7,0.2<1024|0.2,0.5,0.3<1470|0.4,0.4,0.2'
 .P
 .B Reverse, full-duplex, dualtest (-d) and tradeoff (-r):
 The \fB--reverse\fR (-R) and \fB--full-duplex\fR options can be confusing when compared to the

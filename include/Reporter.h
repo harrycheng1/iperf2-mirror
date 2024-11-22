@@ -250,6 +250,7 @@ struct ReportCommon {
     char* Congestion;
     char* LoadCCA;
     char* transferIDStr;
+    char* BraKetGraph;
     char* PermitKey;
     int transferID;
     int peertransferID;

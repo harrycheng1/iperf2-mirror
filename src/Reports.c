@@ -92,6 +92,7 @@ static void common_copy (struct ReportCommon **common, struct thread_Settings *i
     my_str_copy(&(*common)->SSMMulticastStr, inSettings->mSSMMulticastStr);
     my_str_copy(&(*common)->Congestion, inSettings->mCongestion);
     my_str_copy(&(*common)->LoadCCA, inSettings->mLoadCCA);
+    my_str_copy(&(*common)->BraKetGraph, inSettings->mBraKetGraph);
     my_str_copy(&(*common)->transferIDStr, inSettings->mTransferIDStr);
     my_str_copy(&(*common)->PermitKey, inSettings->mPermitKey);
 
@@ -185,6 +186,8 @@ static void free_common_copy (struct ReportCommon *common) {
 	free(common->Congestion);
     if (common->LoadCCA)
 	free(common->LoadCCA);
+    if (common->BraKetGraph)
+	free(common->BraKetGraph);
     if (common->transferIDStr)
 	free(common->transferIDStr);
     if (common->PermitKey)

@@ -63,6 +63,7 @@
 #include "Thread.h"
 #include "Condition.h"
 #include "packet_ring.h"
+#include "markov.h"
 
 /* -------------------------------------------------------------------
  * constants
@@ -204,7 +205,7 @@ struct thread_Settings {
 #endif
     int Extractor_size;
     int mBufLen;                    // -l
-    char *mBufBraKetGraph;            // -l braket string
+    char *mBraKetGraph;            // -l braket string
     int mWriteAckLen;               // --write-ack
     int mMSS;                       // -M
     int mTCPWin;                    // -w

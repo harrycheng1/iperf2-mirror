@@ -45,8 +45,6 @@
  * by Robert J. McMahon (rjmcmahon@rjmcmahon.com, bob.mcmahon@broadcom.com)
  * -------------------------------------------------------------------
  */
-#include <stdio.h>
-#include <string.h>
 #include "headers.h"
 #include "markov.h"
 
@@ -62,17 +60,29 @@ static inline char * deblank (char *str) {
     return out;
 }
 
+void markov_graph_free (struct markov_graph *graph) {
+    if (graph) {
+	int ix;
+	struct markov_entry **tmp;
+	tmp = graph->entrys;
+	for (ix = 0; ix < graph->count; ix++) {
+	    free(tmp[ix]);
+	}
+	free(tmp);
+	free(graph);
+    }
+}
+
 struct markov_graph *markov_graph_init (char *braket_option) {
-    // <256|10,70,20<1024|30,40,30<1470|40,40,20
     struct markov_graph *graph = calloc(1, sizeof(struct markov_graph));
     char *tmp_bra= malloc(strlen(braket_option + 1));
     strcpy(tmp_bra, braket_option);
     tmp_bra = deblank(tmp_bra);
-    printf("***braket:%s\n", tmp_bra);        
+    // printf("***braket:%s\n", tmp_bra);
     int bracnt = 0;
 
     char *bra_next;
-    char *found;    
+    char *found;
     found = strtok(tmp_bra, "<");
     bra_next = found;
     while (found != NULL) {
@@ -89,14 +99,14 @@ struct markov_graph *markov_graph_init (char *braket_option) {
 	}
 	graph->cur_row = 0;
 	graph->cur_col = 0;
-	graph->count = count;	
+	graph->count = count;
 	graph->entrys = tmp;
 	int kx = 0;
 	char *pos;
 	while (kx < bracnt) {
-	    pos = strtok(bra_next, "|");	    
+	    pos = strtok(bra_next, "|");
 	    tmp[kx][0].value = atoi(pos);
-	    tmp[kx][0].len = tmp[kx][0].value;	    
+	    tmp[kx][0].len = tmp[kx][0].value;
 	    pos += strlen(pos) + 1;
 	    bra_next = pos + 1;
 	    int n = strlen(pos);
@@ -111,54 +121,62 @@ struct markov_graph *markov_graph_init (char *braket_option) {
 		tmp[kx][cx].prob = strtof(found, &end);
 		if (*end != '\0') {
 		    fprintf (stderr, "Invalid value of '%s'\n", found);
-		    exit(1);
+		    markov_graph_free(graph);
+		    free(ket_prob_list);
+		    graph = NULL;
+		    goto ERR_EXIT;
 		}
-		if ((tmp[kx][cx].prob < 0) ||  (tmp[kx][cx].prob > 1)) {
+		if ((tmp[kx][cx].prob < 0) ||  (tmp[kx][cx].prob > 1.0)) {
 		    fprintf (stderr, "Probability must be between 0 and 1 but is %f\n", tmp[kx][cx].prob);
-		    exit(1);		    
+		    markov_graph_free(graph);
+		    free(ket_prob_list);
+		    graph = NULL;
+		    goto ERR_EXIT;
 		}
-		tmp[kx][cx].prob_bound = tmp[kx][cx].prob + prevtot;					
-		if (tmp[kx][cx].prob_bound > 1) {
+		tmp[kx][cx].prob_bound = tmp[kx][cx].prob + prevtot;
+		if (tmp[kx][cx].prob_bound > 1.0) {
 		    fprintf (stderr, "Cummulative probability for row %d can't be greater than 1 but is %f\n", kx, tmp[kx][cx].prob_bound);
-		    exit(1);		    
+		    markov_graph_free(graph);
+		    free(ket_prob_list);
+		    graph = NULL;
+		    goto ERR_EXIT;
 		}
 		prevtot = tmp[kx][cx].prob_bound;
-		cx++;				
+		cx++;
 		found = strtok(NULL, ",");
 	    }
-	    kx++;
-	    if (cx != bracnt) 
-		fprintf (stderr, "malformed: row column expected %dx%d with '%s' row of %d\n", bracnt, bracnt, pos, cx);	    
-	    if (ket_prob_list)
+	    if (cx != bracnt) {
+		fprintf (stderr, "malformed: row column expected %dx%d with '%s' row of %d\n", bracnt, bracnt, pos, cx);
+	    }
+	    if (tmp[kx][bracnt-1].prob_bound < 1.0) {
+		fprintf (stderr, "Cummulative probability for row %d less than 1 and is %f\n", kx, tmp[kx][bracnt-1].prob_bound);
+		markov_graph_free(graph);
 		free(ket_prob_list);
+		graph = NULL;
+		goto ERR_EXIT;
+		return NULL;
+	    }
+	    kx++;
+	    if (ket_prob_list) {
+		free(ket_prob_list);
+		ket_prob_list = NULL;
+	    }
 	}
 	for (int cx = 0; cx < bracnt; cx++) {
-	    for (int rx = 0; rx < bracnt; rx++) { 
+	    for (int rx = 0; rx < bracnt; rx++) {
 		tmp[rx][cx].value = tmp[cx][0].len;
 	    }
 	}
     }
+  ERR_EXIT:
     if (tmp_bra)
 	free(tmp_bra);
     return graph;
 }
 
-void markov_graph_free (struct markov_graph *graph) {
-    if (graph) {
-	int ix;
-	struct markov_entry **tmp;
-	tmp = graph->entrys;
-	for (ix = 0; ix < graph->count; ix++) {
-	    free(tmp[ix]);
-	}
-	free(tmp);
-	free(graph);
-    }
-}
-
 void markov_graph_print(struct markov_graph *graph) {
     if (graph) {
-	struct markov_entry **tmp;	
+	struct markov_entry **tmp;
 	int ix, jx;
 	tmp = graph->entrys;
 	for (ix = 0; ix < graph->count; ix++) {
@@ -172,7 +190,7 @@ void markov_graph_print(struct markov_graph *graph) {
 }
 
 int markov_graph_next (struct markov_graph *graph) {
-    struct markov_entry **tmp;	
+    struct markov_entry **tmp;
     tmp = graph->entrys;
     float pull_rand = (float)rand()/(float)(RAND_MAX);
     int ix = 0;
@@ -190,7 +208,7 @@ void markov_graph_set_seed (struct markov_graph *graph, int seed) {
 int main () {
     char braket_option[] = "<256| 0.1,0.7,0.2<1024|0.3,0.4,0.3  <1470|0.4,0.4,0.2";
     struct markov_graph *graph = markov_graph_init(braket_option);
-    struct markov_entry **tmp;	
+    struct markov_entry **tmp;
     tmp = graph->entrys;
     markov_graph_print(graph);
     int ix;
@@ -201,6 +219,6 @@ int main () {
 	len = markov_graph_next(graph);
 	printf("*** len = %d:%d\n", prevlen, len);
     }
-    markov_graph_free(graph);    
+    markov_graph_free(graph);
 }
 #endif

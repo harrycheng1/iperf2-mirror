@@ -582,6 +582,8 @@ void Client::InitTrafficLoop () {
     }
     one_report = (!isUDP(mSettings) && !isEnhanced(mSettings) && (mSettings->mIntervalMode != kInterval_Time) \
                   && !isIsochronous(mSettings) && !isPeriodicBurst(mSettings) && !isTripTime(mSettings) && !isReverse(mSettings));
+    if (mSettings->mBraKetGraph)
+	markov_graph_len = markov_graph_init(mSettings->mBraKetGraph);
 }
 
 /* -------------------------------------------------------------------
@@ -597,6 +599,11 @@ void Client::Run () {
     // Initialize the report struct scratch pad
     // Peform common traffic setup
     InitTrafficLoop();
+    if (mSettings->mBraKetGraph && !markov_graph_len) {
+	FinishTrafficActions();
+	return;
+    }
+
     /*
      * UDP
      */
@@ -1386,7 +1393,10 @@ void Client::RunUDP () {
 	if (isModeAmount(mSettings)) {
 	    currLen = write(mySocket, mSettings->mBuf, (mSettings->mAmount < static_cast<unsigned>(mSettings->mBufLen)) ? mSettings->mAmount : mSettings->mBufLen);
 	} else {
-	    currLen = write(mySocket, mSettings->mBuf, mSettings->mBufLen);
+	    currLen = write(mySocket, mSettings->mBuf, (markov_graph_len ? markov_graph_next(markov_graph_len) : mSettings->mBufLen));
+	    if (markov_graph_len) {
+		//	delay_target = currLen * (kSecs_to_nsecs * kBytes_to_Bits);
+	    }
 	}
 	if (currLen <= 0) {
 	    reportstruct->emptyreport = true;
@@ -2046,6 +2056,9 @@ void Client::FinishTrafficActions () {
         int rc = close(mySocket);
         WARN_errno(rc == SOCKET_ERROR, "client close");
     }
+    if (markov_graph_len)
+	markov_graph_free(markov_graph_len);
+
     Iperf_remove_host(mSettings);
     FreeReport(myJob);
     if (framecounter)

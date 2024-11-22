@@ -2574,11 +2574,15 @@ static void reporter_output_client_settings (struct ReportSettings *report) {
     if ((isIPG(report->common) || isUDP(report->common)) && !isIsochronous(report->common)) {
 	byte_snprintf(outbuffer, sizeof(outbuffer), report->common->pktIPG, 'a');
 	outbuffer[(sizeof(outbuffer)-1)] = '\0';
+	if (report->common->BraKetGraph) {
+	    printf(client_datagram_braket, report->common->BraKetGraph);
+	} else {
 #ifdef HAVE_KALMAN
-        printf(client_datagram_size_kalman, report->common->BufLen, report->common->pktIPG);
+	    printf(client_datagram_size_kalman, report->common->BufLen, report->common->pktIPG);
 #else
-        printf(client_datagram_size, report->common->BufLen, report->common->pktIPG);
+	    printf(client_datagram_size, report->common->BufLen, report->common->pktIPG);
 #endif
+	}
     }
     if (isConnectOnly(report->common)) {
 	fprintf(stdout, "TCP three-way-handshake (3WHS) only\n");
