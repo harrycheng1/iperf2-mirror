@@ -291,7 +291,7 @@ const char client_datagram_size_kalman[] =
 "Sending %d byte datagrams, IPG target: %.2f us (kalman adjust)\n";
 
 const char client_datagram_braket[] =
-"Sending lengths using markov graph: %s\n";
+"Sending lengths using markov chain: %s\n";
 
 const char server_datagram_size[] =
 "Receiving %d byte datagrams\n";
