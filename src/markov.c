@@ -126,7 +126,7 @@ struct markov_graph *markov_graph_init (char *braket_option) {
 		    graph = NULL;
 		    goto ERR_EXIT;
 		}
-		if ((tmp[kx][cx].prob < 0) ||  (tmp[kx][cx].prob > 1.0)) {
+		if ((tmp[kx][cx].prob < 0.0) ||  ((tmp[kx][cx].prob - 1.0) > 0.0001)) {
 		    fprintf (stderr, "Probability must be between 0 and 1 but is %f\n", tmp[kx][cx].prob);
 		    markov_graph_free(graph);
 		    free(ket_prob_list);
@@ -134,7 +134,7 @@ struct markov_graph *markov_graph_init (char *braket_option) {
 		    goto ERR_EXIT;
 		}
 		tmp[kx][cx].prob_bound = tmp[kx][cx].prob + prevtot;
-		if (tmp[kx][cx].prob_bound > 1.0) {
+		if ((tmp[kx][cx].prob_bound - 1.0) > 0.0001) {
 		    fprintf (stderr, "Cummulative probability for row %d can't be greater than 1 but is %f\n", kx, tmp[kx][cx].prob_bound);
 		    markov_graph_free(graph);
 		    free(ket_prob_list);
@@ -148,7 +148,7 @@ struct markov_graph *markov_graph_init (char *braket_option) {
 	    if (cx != bracnt) {
 		fprintf (stderr, "malformed: row column expected %dx%d with '%s' row of %d\n", bracnt, bracnt, pos, cx);
 	    }
-	    if (tmp[kx][bracnt-1].prob_bound < 1.0) {
+	    if ((1.0 - tmp[kx][bracnt-1].prob_bound) > 0.0001) {
 		fprintf (stderr, "Cummulative probability for row %d less than 1 and is %f\n", kx, tmp[kx][bracnt-1].prob_bound);
 		markov_graph_free(graph);
 		free(ket_prob_list);
