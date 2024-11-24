@@ -91,7 +91,7 @@ void markov_graph_print(struct markov_graph *graph, char *prepend) {
 		for (jx = 0; jx < graph->count; jx++) {
 		    printf("%d(%d,%d)|%0.3f/%0.3f(%" PRIdMAX "/%0.3f) ", tmp[ix][jx].value, ix, jx, tmp[ix][jx].prob, tmp[ix][jx].prob_bound, tmp[ix][jx].transition_cnt, (float)tmp[ix][jx].transition_cnt / (float)pullcnt);
 		}
-		printf(" %" PRIdMAX "/%" PRIdMAX "(%0.3f%%)\n", pullcnt, graph->transition_cnt, (float) pullcnt / (float) graph->transition_cnt);
+		printf(" %" PRIdMAX "/%" PRIdMAX "(%0.1f%%)\n", pullcnt, graph->transition_cnt, 100.0 * (float) pullcnt / (float) graph->transition_cnt);
 	    }
 	}
     }
