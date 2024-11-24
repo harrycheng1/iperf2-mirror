@@ -1651,6 +1651,9 @@ void reporter_transfer_protocol_client_udp (struct ReporterData *data, bool fina
 	    fflush(stdout);
 	}
     }
+    if (final && stats->markov_graph_len) {
+	markov_graph_print(stats->markov_graph_len, stats->common->transferIDStr);
+    }
     reporter_reset_transfer_stats_client_udp(stats);
 }
 

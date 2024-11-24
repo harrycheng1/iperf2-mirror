@@ -157,6 +157,7 @@ private:
     bool peerclose;
     Timestamp write_start;
     struct markov_graph *markov_graph_len;
+
 #if HAVE_DECL_SO_MAX_PACING_RATE
     Timestamp PacingStepTime;
 #endif

@@ -59,6 +59,7 @@
 #include "Locale.h"
 #include "active_hosts.h"
 #include "payloads.h"
+#include "markov.h"
 
 static int transferid_counter = 0;
 
@@ -546,6 +547,9 @@ static void Free_iReport (struct ReporterData *ireport) {
     if (ireport->info.bbowdfro_histogram) {
 	histogram_delete(ireport->info.bbowdfro_histogram);
     }
+    if (ireport->info.markov_graph_len) {
+	markov_graph_free(ireport->info.markov_graph_len);
+    }
     free_common_copy(ireport->info.common);
     free(ireport);
 }
@@ -896,6 +900,10 @@ struct ReportHeader* InitIndividualReport (struct thread_Settings *inSettings) {
 							      inSettings->mHistci_lower, inSettings->mHistci_upper, ireport->info.common->transferID, name, false);
 	}
     }
+    if ((inSettings->mThreadMode == kMode_Client) && isUDP(inSettings) && inSettings->mBraKetGraph) {
+	ireport->info.markov_graph_len = markov_graph_init(inSettings->mBraKetGraph);
+    }
+
     if ((inSettings->mThreadMode == kMode_Client) && isBounceBack(inSettings)) {
 	char name[] = " BB8";
 	if (!isHistogram(inSettings)) {

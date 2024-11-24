@@ -388,6 +388,7 @@ struct TransferInfo {
     struct RunningMMMStats bbowdto;
     struct RunningMMMStats bbowdfro;
     struct RunningMMMStats bbasym;
+    struct markov_graph *markov_graph_len;
     uintmax_t bb_clocksync_error;
     struct MeanMinMaxStats schedule_error;
     struct L2Stats l2counts;

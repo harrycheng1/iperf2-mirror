@@ -49,13 +49,6 @@
 #include "headers.h"
 #include "markov.h"
 
-#define FLOATTOLERANCE 0.00001
-#define FloatEqualZero(val) (fabs(val) < FLOATTOLERANCE)
-#define FloatLessThanZero(val) (val < 0.0)
-#define FloatEqualOne(val) (fabs(val - 1.0) < FLOATTOLERANCE))
-#define FloatLessThanOne(val) ((1.0 - val) >  FLOATTOLERANCE)
-#define FloatGreaterThanOne(val) ((val - 1.0) > FLOATTOLERANCE)
-
 static inline char * deblank (char *str) {
     char *out = str, *put = str;
     for(; *str != '\0'; ++str) {
@@ -77,29 +70,39 @@ void markov_graph_free (struct markov_graph *graph) {
 	    free(tmp[ix]);
 	}
 	free(tmp);
+	free(graph->braket_str);
 	free(graph);
     }
 }
 
-void markov_graph_print(struct markov_graph *graph) {
+void markov_graph_print(struct markov_graph *graph, char *prepend) {
     if (graph) {
 	struct markov_entry **tmp;
 	int ix, jx;
 	tmp = graph->entrys;
-	for (ix = 0; ix < graph->count; ix++) {
-	    printf("%d=", tmp[ix][0].len);
-	    for (jx = 0; jx < graph->count; jx++) {
-		printf("%d|%f/%f ", tmp[ix][jx].value, tmp[ix][jx].prob, tmp[ix][jx].prob_bound);
+	if (tmp) {
+	    printf("%sMarkov chain: %s transitions: %" PRIdMAX "\n", prepend, graph->braket_str, graph->transition_cnt);
+	    for (ix = 0; ix < graph->count; ix++) {
+		printf("%s%d=", prepend, tmp[ix][0].len);
+		uint64_t pullcnt = 0;
+		for (jx = 0; jx < graph->count; jx++) {
+		    pullcnt += tmp[ix][jx].transition_cnt;
+		}
+		for (jx = 0; jx < graph->count; jx++) {
+		    printf("%d(%d,%d)|%0.3f/%0.3f(%" PRIdMAX "/%0.3f) ", tmp[ix][jx].value, ix, jx, tmp[ix][jx].prob, tmp[ix][jx].prob_bound, tmp[ix][jx].transition_cnt, (float)tmp[ix][jx].transition_cnt / (float)pullcnt);
+		}
+		printf(" %" PRIdMAX "/%" PRIdMAX "(%0.3f%%)\n", pullcnt, graph->transition_cnt, (float) pullcnt / (float) graph->transition_cnt);
 	    }
-	    printf("\n");
 	}
     }
 }
 
 struct markov_graph *markov_graph_init (char *braket_option) {
     struct markov_graph *graph = calloc(1, sizeof(struct markov_graph));
-    char *tmp_bra= malloc(strlen(braket_option + 1));
+    char *tmp_bra = malloc(strlen(braket_option + 1));
+    graph->braket_str = malloc(strlen(braket_option + 1));
     strcpy(tmp_bra, braket_option);
+    strcpy(graph->braket_str, braket_option);
     tmp_bra = deblank(tmp_bra);
     // printf("***braket:%s\n", tmp_bra);
     int bracnt = 0;
@@ -118,12 +121,13 @@ struct markov_graph *markov_graph_init (char *braket_option) {
 	struct markov_entry **tmp = (struct markov_entry **) malloc(sizeof(struct markov_entry *) * count);
 	for (ix = 0; ix < count; ix++) {
 	    //allocate memory for rows
-	    tmp[ix] = (struct markov_entry *) malloc(sizeof(struct markov_entry) * count);
+	    tmp[ix] = (struct markov_entry *) calloc(sizeof(struct markov_entry), count);
 	}
 	graph->cur_row = 0;
 	graph->cur_col = 0;
 	graph->count = count;
 	graph->entrys = tmp;
+	graph->transition_cnt = 0;
 	int kx = 0;
 	char *pos;
 	while (kx < bracnt) {
@@ -201,10 +205,12 @@ struct markov_graph *markov_graph_init (char *braket_option) {
 int markov_graph_next (struct markov_graph *graph) {
     struct markov_entry **tmp;
     tmp = graph->entrys;
+    graph->transition_cnt++;
     float pull_rand = (float)rand()/(float)(RAND_MAX);
     int ix = 0;
     while ((ix < graph->count) && (tmp[graph->cur_row][ix++].prob_bound < pull_rand)) {}
     while (FloatEqualZero(tmp[graph->cur_row][--ix].prob)) {}
+    tmp[graph->cur_row][ix].transition_cnt++;
     graph->cur_row = ix;
     return tmp[graph->cur_row][0].len;
 }
