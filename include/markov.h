@@ -51,6 +51,14 @@
 extern "C" {
 #endif
 
+
+#define FLOATTOLERANCE 0.00001
+#define FloatEqualZero(val) (fabs(val - 0.0) < FLOATTOLERANCE)
+#define FloatLessThanZero(val) (val < FLOATTOLERANCE)
+#define FloatEqualOne(val) (fabs(val - 1.0) < FLOATTOLERANCE))
+#define FloatLessThanOne(val) (1.0 - val >  FLOATTOLERANCE)
+#define FloatGreaterThanOne(val) (val -1.0 >  FLOATTOLERANCE)
+
 struct markov_entry {
     int len;
     int value;
@@ -65,6 +73,8 @@ struct markov_graph {
     int seed;
     struct markov_entry **entrys;
 };
+
+
 
 extern struct markov_graph *markov_graph_init (char *braket_option);
 extern void markov_graph_free (struct markov_graph *graph);

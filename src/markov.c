@@ -45,8 +45,16 @@
  * by Robert J. McMahon (rjmcmahon@rjmcmahon.com, bob.mcmahon@broadcom.com)
  * -------------------------------------------------------------------
  */
+#include <math.h>
 #include "headers.h"
 #include "markov.h"
+
+#define FLOATTOLERANCE 0.00001
+#define FloatEqualZero(val) (fabs(val) < FLOATTOLERANCE)
+#define FloatLessThanZero(val) (val < 0.0)
+#define FloatEqualOne(val) (fabs(val - 1.0) < FLOATTOLERANCE))
+#define FloatLessThanOne(val) ((1.0 - val) >  FLOATTOLERANCE)
+#define FloatGreaterThanOne(val) ((val - 1.0) > FLOATTOLERANCE)
 
 static inline char * deblank (char *str) {
     char *out = str, *put = str;
@@ -70,6 +78,21 @@ void markov_graph_free (struct markov_graph *graph) {
 	}
 	free(tmp);
 	free(graph);
+    }
+}
+
+void markov_graph_print(struct markov_graph *graph) {
+    if (graph) {
+	struct markov_entry **tmp;
+	int ix, jx;
+	tmp = graph->entrys;
+	for (ix = 0; ix < graph->count; ix++) {
+	    printf("%d=", tmp[ix][0].len);
+	    for (jx = 0; jx < graph->count; jx++) {
+		printf("%d|%f/%f ", tmp[ix][jx].value, tmp[ix][jx].prob, tmp[ix][jx].prob_bound);
+	    }
+	    printf("\n");
+	}
     }
 }
 
@@ -126,15 +149,15 @@ struct markov_graph *markov_graph_init (char *braket_option) {
 		    graph = NULL;
 		    goto ERR_EXIT;
 		}
-		if ((tmp[kx][cx].prob < 0.0) ||  ((tmp[kx][cx].prob - 1.0) > 0.0001)) {
+		if (FloatLessThanZero(tmp[kx][cx].prob) || FloatGreaterThanOne(tmp[kx][cx].prob)) {
 		    fprintf (stderr, "Probability must be between 0 and 1 but is %f\n", tmp[kx][cx].prob);
 		    markov_graph_free(graph);
 		    free(ket_prob_list);
 		    graph = NULL;
 		    goto ERR_EXIT;
 		}
-		tmp[kx][cx].prob_bound = tmp[kx][cx].prob + prevtot;
-		if ((tmp[kx][cx].prob_bound - 1.0) > 0.0001) {
+		tmp[kx][cx].prob_bound = FloatEqualZero(tmp[kx][cx].prob) ? prevtot : (tmp[kx][cx].prob + prevtot);
+		if (FloatGreaterThanOne(tmp[kx][cx].prob_bound)) {
 		    fprintf (stderr, "Cummulative probability for row %d can't be greater than 1 but is %f\n", kx, tmp[kx][cx].prob_bound);
 		    markov_graph_free(graph);
 		    free(ket_prob_list);
@@ -148,7 +171,7 @@ struct markov_graph *markov_graph_init (char *braket_option) {
 	    if (cx != bracnt) {
 		fprintf (stderr, "malformed: row column expected %dx%d with '%s' row of %d\n", bracnt, bracnt, pos, cx);
 	    }
-	    if ((1.0 - tmp[kx][bracnt-1].prob_bound) > 0.0001) {
+	    if (FloatLessThanOne(tmp[kx][bracnt-1].prob_bound)) {
 		fprintf (stderr, "Cummulative probability for row %d less than 1 and is %f\n", kx, tmp[kx][bracnt-1].prob_bound);
 		markov_graph_free(graph);
 		free(ket_prob_list);
@@ -168,25 +191,11 @@ struct markov_graph *markov_graph_init (char *braket_option) {
 	    }
 	}
     }
+    // markov_graph_print(graph);
   ERR_EXIT:
     if (tmp_bra)
 	free(tmp_bra);
     return graph;
-}
-
-void markov_graph_print(struct markov_graph *graph) {
-    if (graph) {
-	struct markov_entry **tmp;
-	int ix, jx;
-	tmp = graph->entrys;
-	for (ix = 0; ix < graph->count; ix++) {
-	    printf("%d=", tmp[ix][0].len);
-	    for (jx = 0; jx < graph->count; jx++) {
-		printf("%d|%f/%f ", tmp[ix][jx].value, tmp[ix][jx].prob, tmp[ix][jx].prob_bound);
-	    }
-	    printf("\n");
-	}
-    }
 }
 
 int markov_graph_next (struct markov_graph *graph) {
@@ -195,7 +204,8 @@ int markov_graph_next (struct markov_graph *graph) {
     float pull_rand = (float)rand()/(float)(RAND_MAX);
     int ix = 0;
     while ((ix < graph->count) && (tmp[graph->cur_row][ix++].prob_bound < pull_rand)) {}
-    graph->cur_row = ix - 1;
+    while (FloatEqualZero(tmp[graph->cur_row][--ix].prob)) {}
+    graph->cur_row = ix;
     return tmp[graph->cur_row][0].len;
 }
 
