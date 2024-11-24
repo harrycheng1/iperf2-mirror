@@ -99,8 +99,8 @@ void markov_graph_print(struct markov_graph *graph, char *prepend) {
 
 struct markov_graph *markov_graph_init (char *braket_option) {
     struct markov_graph *graph = calloc(1, sizeof(struct markov_graph));
-    char *tmp_bra = malloc(strlen(braket_option + 1));
-    graph->braket_str = malloc(strlen(braket_option + 1));
+    char *tmp_bra = malloc(strlen(braket_option) + 1);
+    graph->braket_str = malloc(strlen(braket_option) + 1);
     strcpy(tmp_bra, braket_option);
     strcpy(graph->braket_str, braket_option);
     tmp_bra = deblank(tmp_bra);
@@ -138,7 +138,7 @@ struct markov_graph *markov_graph_init (char *braket_option) {
 	    bra_next = pos + 1;
 	    int n = strlen(pos);
 	    bra_next += n;
-	    char *ket_prob_list = malloc(n);
+	    char *ket_prob_list = malloc(n + 1);
 	    strcpy(ket_prob_list, pos);
 	    found = strtok(ket_prob_list, ",");
 	    double prevtot = 0;
