@@ -136,6 +136,7 @@ static int ignoreshutdown = 0;
 static int skiprxcopy = 0;
 static int udpl4s = 0;
 static int udpl4svideo = 0;
+static int setrandseed = 0;
 
 void Settings_Interpret(char option, const char *optarg, struct thread_Settings *mExtSettings);
 // apply compound settings after the command line has been fully parsed
@@ -245,6 +246,7 @@ const struct option long_options[] =
 {"permit-key-timeout", required_argument, &permitkeytimeout, 1},
 {"burst-size", required_argument, &burstsize, 1},
 {"burst-period", required_argument, &burstperiodic, 1},
+{"set-rand-seed", required_argument, &setrandseed, 1},
 {"skip-rx-copy", no_argument, &skiprxcopy, 1},
 {"tos-override", required_argument, &overridetos, 1},
 {"tcp-rx-window-clamp", required_argument, &rxwinclamp, 1},
@@ -1495,6 +1497,11 @@ void Settings_Interpret (char option, const char *optarg, struct thread_Settings
 		mExtSettings->mBounceBackReplyBytes = byte_atoi(optarg);
 	    else
 		mExtSettings->mBounceBackReplyBytes = 0;
+	}
+	if (setrandseed) {
+	    setrandseed = 0;
+	    setRandSeed(mExtSettings);
+	    mExtSettings->rand_seed = atoi(optarg);
 	}
 	if (skiprxcopy) {
 	    skiprxcopy = 0;

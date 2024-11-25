@@ -99,6 +99,9 @@ Client::Client (thread_Settings *inSettings) {
     }
 
     pattern(mSettings->mBuf, mSettings->mBufLen);
+    if (isSetRandSeed(mSettings)) {
+	srand(mSettings->rand_seed);
+    }
     if (isIsochronous(mSettings))
 {        FAIL_errno(!(mSettings->mFPS > 0.0), "Invalid value for frames per second in the isochronous settings\n", mSettings);
     }
@@ -1388,7 +1391,8 @@ void Client::RunUDP () {
 	if (isModeAmount(mSettings)) {
 	    currLen = write(mySocket, mSettings->mBuf, (mSettings->mAmount < static_cast<unsigned>(mSettings->mBufLen)) ? mSettings->mAmount : mSettings->mBufLen);
 	} else {
-	    currLen = write(mySocket, mSettings->mBuf, (markov_graph_len ? markov_graph_next(markov_graph_len) : mSettings->mBufLen));
+	    int markov_len = (markov_graph_len ? markov_graph_next(markov_graph_len) : mSettings->mBufLen);
+	    currLen = write(mySocket, mSettings->mBuf, markov_len);
 	    if (markov_graph_len) {
 		//	delay_target = currLen * (kSecs_to_nsecs * kBytes_to_Bits);
 	    }

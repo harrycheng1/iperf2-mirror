@@ -331,6 +331,7 @@ struct thread_Settings {
     double connecttime;
     double connect_retry_time;    // units in seconds
     unsigned int connect_retry_timer; // units in usecs
+    int rand_seed;
     struct Condition receiving;
 };
 
@@ -441,6 +442,7 @@ struct thread_Settings {
 #define FLAG_SKIPRXCOPY      0x04000000
 #define FLAG_UDPL4S          0x08000000
 #define FLAG_UDPL4SVIDEO     0x10000000
+#define FLAG_SETRANDSEED     0x20000000
 
 #define isBuflenSet(settings)      ((settings->flags & FLAG_BUFLENSET) != 0)
 #define isCompat(settings)         ((settings->flags & FLAG_COMPAT) != 0)
@@ -530,6 +532,7 @@ struct thread_Settings {
 #define isSkipRxCopy(settings)         ((settings->flags_extend2 & FLAG_SKIPRXCOPY) != 0)
 #define isUDPL4S(settings)         ((settings->flags_extend2 & FLAG_UDPL4S) != 0)
 #define isUDPL4SVideo(settings)    ((settings->flags_extend2 & FLAG_UDPL4SVIDEO) != 0)
+#define isSetRandSeed(settings)    ((settings->flags_extend2 & FLAG_SETRANDSEED) != 0)
 
 #define setBuflenSet(settings)     settings->flags |= FLAG_BUFLENSET
 #define setCompat(settings)        settings->flags |= FLAG_COMPAT
@@ -614,8 +617,9 @@ struct thread_Settings {
 #define setIgnoreShutdown(settings) settings->flags_extend2 |= FLAG_IGNORESHUTDOWN
 #define setSetTOS(settings)         settings->flags_extend2 |= FLAG_SETTOS
 #define setSkipRxCopy(settings)     settings->flags_extend2 |= FLAG_SKIPRXCOPY
-#define setUDPL4S(settings)     settings->flags_extend2 |= FLAG_UDPL4S
-#define setUDPL4SVideo(settings)     settings->flags_extend2 |= FLAG_UDPL4SVIDEO
+#define setUDPL4S(settings)         settings->flags_extend2 |= FLAG_UDPL4S
+#define setUDPL4SVideo(settings)    settings->flags_extend2 |= FLAG_UDPL4SVIDEO
+#define setRandSeed(settings)      settings->flags_extend2 |= FLAG_SETRANDSEED
 
 #define unsetBuflenSet(settings)   settings->flags &= ~FLAG_BUFLENSET
 #define unsetCompat(settings)      settings->flags &= ~FLAG_COMPAT
@@ -699,8 +703,9 @@ struct thread_Settings {
 #define unsetIgnoreShutdown(settings) settings->flags_extend2 &= ~FLAG_IGNORESHUTDOWN
 #define unsetSetTOS(settings)         settings->flags_extend2 &= ~FLAG_SETTOS
 #define unsetSkipRxCopy(settings)     settings->flags_extend2 &= ~FLAG_SKIPRXCOPY
-#define unsetUDPL4S(settings)           settings->flags_extend2 &= ~FLAG_UDPL4S
-#define unsetUDPL4SVideo(settings)      settings->flags_extend2 &= ~FLAG_UDPL4SVIDEO
+#define unsetUDPL4S(settings)         settings->flags_extend2 &= ~FLAG_UDPL4S
+#define unsetUDPL4SVideo(settings)    settings->flags_extend2 &= ~FLAG_UDPL4SVIDEO
+#define unsetRandSeed(settings)       settings->flags_extend2 &= ~FLAG_SETRANDSEED
 
 // set to defaults
 void Settings_Initialize(struct thread_Settings* main);

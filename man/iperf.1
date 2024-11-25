@@ -70,6 +70,9 @@ Set a key value that must match for the server to accept traffic on a connection
 .BR -p ", " --port " \fIm\fR[-\fIn\fR]"
 set client or server port(s) to send or listen on per \fIm\fR (default 5001) w/optional port range per m-n (e.g. -p 6002-6008) (see NOTES)
 .TP
+.BR "    --set-rand-seed " \fI<value>\fR
+Set the random number generator seed to integer value n.
+.TP
 .BR "    --sum-dstip"
 sum traffic threads based upon the destination IP address (default is source ip address)
 .TP
