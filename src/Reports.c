@@ -137,12 +137,12 @@ static void common_copy (struct ReportCommon **common, struct thread_Settings *i
     (*common)->size_local = inSettings->size_local;
     (*common)->multicast_group = inSettings->multicast_group;
     (*common)->size_multicast_group = inSettings->size_multicast_group;
-    (*common)->HistBins =inSettings->mHistBins;
-    (*common)->HistBinsize =inSettings->mHistBinsize;
-    (*common)->HistUnits =inSettings->mHistUnits;
-    (*common)->pktIPG =inSettings->mBurstIPG;
+    (*common)->HistBins = inSettings->mHistBins;
+    (*common)->HistBinsize = inSettings->mHistBinsize;
+    (*common)->HistUnits = inSettings->mHistUnits;
+    (*common)->pktIPG = inSettings->mBurstIPG;
     (*common)->rtt_weight = inSettings->rtt_nearcongest_weight_factor;
-    (*common)->ListenerTimeout =inSettings->mListenerTimeout;
+    (*common)->ListenerTimeout = inSettings->mListenerTimeout;
     (*common)->FPS = (inSettings->mFPS > 0) ? inSettings->mFPS : 0;
 #if HAVE_DECL_TCP_TX_DELAY
     (*common)->TcpTxDelay = inSettings->mTcpTxDelayMean;
