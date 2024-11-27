@@ -2150,6 +2150,8 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 			    mExtSettings->mHistci_upper = atof(results);
 			}
 		    }
+		} else {
+		  mExtSettings->mHistBins = 100000;
 		}
 	    }
 	}
