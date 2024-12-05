@@ -1022,6 +1022,10 @@ bool Listener::apply_client_settings_tcp (thread_Settings *server) {
         readptr += nread;
         struct client_tcp_testhdr *hdr = reinterpret_cast<struct client_tcp_testhdr *>(server->mBuf);
         uint32_t flags = ntohl(hdr->base.flags);
+	if (!(flags & HEADER_KEYCHECK) && (flags & HEADER_KEYLEN_MASK)) {
+	    WARN(1, "invalid header field ignored");
+	    goto DONE;
+	}
         if (flags & HEADER_BOUNCEBACK) {
             if (!isServerModeTime(server)) {
                 unsetModeTime(server);
