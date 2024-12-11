@@ -105,6 +105,8 @@ extern const char server_pid_portrange[];
 
 extern const char client_pid_port[];
 
+extern const char client_pid_portrange[];
+
 extern const char client_pid_port_dev[];
 
 extern const char bind_address[];

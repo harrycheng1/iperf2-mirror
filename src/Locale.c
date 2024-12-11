@@ -258,6 +258,9 @@ const char server_pid_portrange[] =
 const char client_pid_port[] =
 "Client connecting to %s, %s port %d with pid %d (%d/%d flows/load)\n";
 
+const char client_pid_portrange[] =
+"Client connecting to %s, %s ports %d-%d with pid %d (%d/%d flows/load)\n";
+
 const char client_pid_port_dev[] =
 "Client connecting to %s, %s port %d with pid %d via %s (%d/%d flows/load)\n";
 

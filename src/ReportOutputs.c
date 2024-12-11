@@ -2432,11 +2432,20 @@ static void reporter_output_client_settings (struct ReportSettings *report) {
     char *hoststr = (isHideIPs(report->common) ? report->common->HideHost \
 		      : report->common->Host);
     if (!report->common->Ifrnametx) {
-	printf(isEnhanced(report->common) ? client_pid_port : client_port, hoststr,
-	       (isUDP(report->common) ? (isUDPL4S(report->common) ? (isUDPL4SVideo(report->common) ? "UDP L4S Video" : "UDP L4S") : "UDP") : "TCP"),
-	       report->common->Port, report->pid,
-	       (!report->common->threads ? 1 : report->common->threads),
-	       (!report->common->threads ? 1 : report->common->working_load_threads));
+	if (report->common->PortLast > report->common->Port) {
+	    printf(client_pid_portrange, hoststr,
+		   (isUDP(report->common) ? (isUDPL4S(report->common) ? (isUDPL4SVideo(report->common) ? "UDP L4S Video" : "UDP L4S") : "UDP") : "TCP"),
+		   report->common->Port, report->common->PortLast, report->pid,
+		   (!report->common->threads ? 1 : report->common->threads),
+		   (!report->common->threads ? 1 : report->common->working_load_threads));
+	} else {
+	    printf(isEnhanced(report->common) ? client_pid_port : client_port, hoststr,
+		   (isUDP(report->common) ? (isUDPL4S(report->common) ? (isUDPL4SVideo(report->common) ? "UDP L4S Video" : "UDP L4S") : "UDP") : "TCP"),
+		   report->common->Port, report->pid,
+		   (!report->common->threads ? 1 : report->common->threads),
+		   (!report->common->threads ? 1 : report->common->working_load_threads));
+
+	}
     } else {
 	printf(client_pid_port_dev, hoststr,
 	       (isUDP(report->common) ? (isUDPL4S(report->common) ? (isUDPL4SVideo(report->common) ? "UDP L4S Video" : "UDP L4S") : "UDP") : "TCP"),
