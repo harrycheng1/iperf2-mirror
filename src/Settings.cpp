@@ -2742,7 +2742,7 @@ int Settings_GenerateClientHdr (struct thread_Settings *client, void *testhdr, s
 	if (isUDPL4S(client)) {
 	    flags |= (HEADER_UDPTESTS | HEADER_EXTEND) ;
 	    upperflags |= HEADER_UDPL4S;
-    }
+	}
 	if (isReverse(client) || isFullDuplex(client)) {
 	    flags |= (HEADER_UDPTESTS | HEADER_VERSION2);
 	}
