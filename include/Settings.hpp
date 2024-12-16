@@ -243,6 +243,7 @@ struct thread_Settings {
     uintmax_t mAppRate;            // -b or -u
     char mAppRateUnits;            // -b is either bw or pps
     uintmax_t mAmount;             // -n or -t time unit is 10 ms
+    uintmax_t mOmitAmount;             // -n or -t time unit is 10 ms
     unsigned int mInterval;               // -i integer time units is usec
     enum IntervalMode mIntervalMode;
     // shorts
@@ -326,7 +327,6 @@ struct thread_Settings {
 #if HAVE_DECL_TCP_TX_DELAY
     double mTcpTxDelayMean;
 #endif
-    bool mOmit;
     int sendfirst_pacing;
     double connecttime;
     double connect_retry_time;    // units in seconds
@@ -434,7 +434,7 @@ struct thread_Settings {
 #define FLAG_LOAD_CCA       0x00040000
 #define FLAG_BURSTSIZE      0x00080000
 #define FLAG_TCPTXDELAY     0x00100000
-#define FLAG_FQPACINGSTEP     0x00200000
+#define FLAG_FQPACINGSTEP   0x00200000
 #define FLAG_FQPACINGSTEPINTERVAL 0x00400000
 #define FLAG_SYNCTRANSFERID 0x00800000
 #define FLAG_IGNORESHUTDOWN  0x01000000
@@ -443,6 +443,7 @@ struct thread_Settings {
 #define FLAG_UDPL4S          0x08000000
 #define FLAG_UDPL4SVIDEO     0x10000000
 #define FLAG_SETRANDSEED     0x20000000
+#define FLAG_OMIT            0x40000000
 
 #define isBuflenSet(settings)      ((settings->flags & FLAG_BUFLENSET) != 0)
 #define isCompat(settings)         ((settings->flags & FLAG_COMPAT) != 0)
@@ -524,8 +525,9 @@ struct thread_Settings {
 #define isLoadCCA(settings) ((settings->flags_extend2 & FLAG_LOAD_CCA) != 0)
 #define isBurstSize(settings)      ((settings->flags_extend2 & FLAG_BURSTSIZE) != 0)
 #define isTcpTxDelay(settings)     ((settings->flags_extend2 & FLAG_TCPTXDELAY) != 0)
-#define isFQPacingStep(settings)       ((settings->flags_extend2 & FLAG_FQPACINGSTEP) != 0)
+#define isFQPacingStep(settings)   ((settings->flags_extend2 & FLAG_FQPACINGSTEP) != 0)
 #define isFQPacingStepInterval(settings) ((settings->flags_extend2 & FLAG_FQPACINGSTEPINTERVAL) != 0)
+#define isOmit(settings)           ((settings->flags_extend2 & FLAG_OMIT) != 0)
 #define isSyncTransferID(settings) ((settings->flags_extend2 & FLAG_SYNCTRANSFERID) != 0)
 #define isIgnoreShutdown(settings) ((settings->flags_extend2 & FLAG_IGNORESHUTDOWN) != 0)
 #define isSetTOS(settings)         ((settings->flags_extend2 & FLAG_SETTOS) != 0)
@@ -608,11 +610,12 @@ struct thread_Settings {
 #define setWorkingLoadDown(settings) settings->flags_extend2 |= FLAG_WORKING_LOAD_DOWN
 #define setJitterHistogram(settings) settings->flags_extend2 |= FLAG_JITTER_HISTOGRAM
 #define setUTC(settings)           settings->flags_extend2 |= FLAG_UTC
-#define setLoadCCA(settings)    settings->flags_extend2 |= FLAG_LOAD_CCA
+#define setLoadCCA(settings)       settings->flags_extend2 |= FLAG_LOAD_CCA
 #define setBurstSize(settings)     settings->flags_extend2 |= FLAG_BURSTSIZE
 #define setTcpTxDelay(settings)    settings->flags_extend2 |= FLAG_TCPTXDELAY
-#define setFQPacingStep(settings) settings->flags_extend2 |= FLAG_FQPACINGSTEP
+#define setFQPacingStep(settings)  settings->flags_extend2 |= FLAG_FQPACINGSTEP
 #define setFQPacingStepInterval(settings) settings->flags_extend2 |= FLAG_FQPACINGSTEPINTERVAL
+#define setOmit(settings)          settings->flags_extend2 |= FLAG_OMIT
 #define setSyncTransferID(settings) settings->flags_extend2 |= FLAG_SYNCTRANSFERID
 #define setIgnoreShutdown(settings) settings->flags_extend2 |= FLAG_IGNORESHUTDOWN
 #define setSetTOS(settings)         settings->flags_extend2 |= FLAG_SETTOS
@@ -699,6 +702,7 @@ struct thread_Settings {
 #define unsetTcpTxDelay(settings)    settings->flags_extend2 &= ~FLAG_TCPTXDELAY
 #define unsetFQPacingStep(settings)  settings->flags_extend2 &= ~FLAG_FQPACINGSTEP
 #define unsetFQPacingStepInterval(settings) settings->flags_extend2 &= ~FLAG_FQPACINGSTEPINTERVAL
+#define unsetOmit(settings)          settings->flags_extend2 &= ~FLAG_OMIT
 #define unsetSyncTransferID(settings) settings->flags_extend2 &= ~FLAG_SYNCTRANSFERID
 #define unsetIgnoreShutdown(settings) settings->flags_extend2 &= ~FLAG_IGNORESHUTDOWN
 #define unsetSetTOS(settings)         settings->flags_extend2 &= ~FLAG_SETTOS

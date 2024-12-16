@@ -173,6 +173,16 @@ static inline void _print_stats_common (struct TransferInfo *stats) {
     assert(stats!=NULL);
     outbuffer[0] = '\0';
     outbufferext[0] = '\0';
+    if (!stats->final) {
+	if (isOmit(stats->common) && (stats->ts.iStart < stats->ts.iOmit)) {
+	    stats->common->Omit = true;
+	} else {
+	    stats->common->Omit = false;
+	}
+    } else {
+	stats->ts.iStart = stats->ts.iOmit;
+	stats->cntBytes -= stats->cntOmitBytes;
+    }
     byte_snprintf(outbuffer, sizeof(outbuffer), (double) stats->cntBytes, toupper((int)stats->common->Format));
     if (stats->ts.iEnd < SMALLEST_INTERVAL_SEC) {
         stats->cntBytes = 0;

@@ -979,6 +979,9 @@ void reporter_handle_packet_client (struct ReporterData *data, struct ReportStru
 	stats->sock_callstats.write.totWriteErr++;
     case WriteSuccess :
 	stats->total.Bytes.current += packet->packetLen;
+	if(isOmit(stats->common) && (TimeDifference(stats->ts.omitTime, stats->ts.packetTime)  > 0)) {
+	    stats->cntOmitBytes += packet->packetLen;
+	}
 	// These are valid packets that need standard iperf accounting
 	stats->sock_callstats.write.WriteCnt += packet->writecnt;
 	stats->sock_callstats.write.totWriteCnt += packet->writecnt;
@@ -1074,6 +1077,9 @@ inline void reporter_handle_packet_server_tcp (struct ReporterData *data, struct
     if (packet->packetLen > 0) {
 	int bin;
 	stats->total.Bytes.current += packet->packetLen;
+	if(isOmit(stats->common) && (TimeDifference(stats->ts.omitTime, stats->ts.packetTime)  > 0)) {
+	    stats->cntOmitBytes += packet->packetLen;
+	}
 	// mean min max tests
 	stats->sock_callstats.read.ReadCnt.current++;
 	bin = (int)floor((packet->packetLen -1)/stats->sock_callstats.read.binsize);
@@ -1193,6 +1199,7 @@ static inline void reporter_set_timestamps_time (struct TransferInfo *stats, enu
 	times->iEnd = 0;
 	times->iStart = 0;
     } else {
+	times->iOmit = TimeDifference(times->omitTime, times->startTime);
 	switch (tstype) {
 	case INTERVAL:
 	    times->iStart = times->iEnd;

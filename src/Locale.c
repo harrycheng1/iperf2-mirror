@@ -436,7 +436,7 @@ const char report_bw_write_enhanced_header[] =
 "[ ID] Interval" IPERFTimeSpace "Transfer    Bandwidth       Write/Err  Rtry     InF(pkts)/Cwnd(pkts)/RTT(var)        NetPwr\n";
 
 const char report_bw_write_enhanced_format[] =
-"%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %" PRIdMAX "/%" PRIdMAX "%10" PRIdMAX " %8" PRIdMAX "K(%" PRIuLEAST32 ")/%" PRIdMAX "K(%" PRIuLEAST32 ")/%" PRIuLEAST32 "(%" PRIuLEAST32 ") us  %s\n";
+"%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %" PRIdMAX "/%" PRIdMAX "%10" PRIdMAX " %8" PRIdMAX "K(%" PRIuLEAST32 ")/%" PRIdMAX "K(%" PRIuLEAST32 ")/%" PRIuLEAST32 "(%" PRIuLEAST32 ") us  %s%s\n";
 
 const char report_write_enhanced_nocwnd_write_format[] =
 "%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %" PRIdMAX "/%" PRIdMAX " %10" PRIdMAX "       NA/%" PRIuLEAST32 "(%" PRIuLEAST32 ") us  %s  %.3f/%.3f/%.3f/%.3f ms (%" PRIdMAX ")%s\n";
@@ -926,7 +926,7 @@ const char error_starttime_exceeds[] =
 const char error_delaytime_exceeds[] =
 "ERROR: --txdelay-time of %d seconds is more than the supported delay of %d seconds\n";
 
-const char report_omitted[] = "  (omitted)";
+const char report_omitted[] = "  (omit)";
 
 #ifdef __cplusplus
 } /* end extern "C" */

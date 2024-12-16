@@ -555,6 +555,13 @@ inline void Server::SetReportStartTime () {
         myReport->info.ts.nextTime = myReport->info.ts.startTime;
         TimeAdd(myReport->info.ts.nextTime, myReport->info.ts.intervalTime);
     }
+    if (isOmit(mSettings) && (mSettings->mOmitAmount > 0)) {
+	myReport->info.ts.omitTime = myReport->info.ts.startTime;
+	TimeAddIntUsec(myReport->info.ts.omitTime, mSettings->mOmitAmount);
+#if 0
+	printf("**** start %ld.%ld omit %ld.%ld\n", myReport->info.ts.startTime.tv_sec, myReport->info.ts.startTime.tv_usec, myReport->info.ts.omitTime.tv_sec, myReport->info.ts.omitTime.tv_usec);
+#endif
+    }
     if (myReport->GroupSumReport) {
         struct TransferInfo *sumstats = &myReport->GroupSumReport->info;
         assert(sumstats != NULL);

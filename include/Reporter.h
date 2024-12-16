@@ -338,6 +338,7 @@ enum TimeStampType {
 struct ReportTimeStamps {
     double iStart;
     double iEnd;
+    double iOmit;
     double significant_partial;
     struct timeval startTime;
     struct timeval packetTime;
@@ -347,6 +348,7 @@ struct ReportTimeStamps {
     struct timeval nextTime;
     struct timeval intervalTime;
     struct timeval nextTCPSampleTime;
+    struct timeval omitTime;
 };
 
 struct TransferInfo {
@@ -362,6 +364,7 @@ struct TransferInfo {
     int slot_thread_downcount; // increments on a thread's interval sum output
     bool isMaskOutput;
     uintmax_t cntBytes;
+    uintmax_t cntOmitBytes;
     uintmax_t cntRxBytes;
     uintmax_t cntTxBytes;
     intmax_t cntError;

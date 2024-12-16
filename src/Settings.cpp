@@ -106,6 +106,7 @@ static int numreportstructs = 0;
 static int sumonly = 0;
 static int so_dontroute = 0;
 static int nearcongest = 0;
+static int omit = 0;
 static int permitkey = 0;
 static int permitkeytimeout = 0;
 static int rxwinclamp = 0;
@@ -241,6 +242,7 @@ const struct option long_options[] =
 {"isochronous", optional_argument, &isochronous, 1},
 {"sum-only", no_argument, &sumonly, 1},
 {"local-only", optional_argument, &so_dontroute, 1},
+{"omit", required_argument, &omit, 1},
 {"near-congestion", optional_argument, &nearcongest, 1},
 {"permit-key", optional_argument, &permitkey, 1},
 {"permit-key-timeout", required_argument, &permitkeytimeout, 1},
@@ -359,6 +361,7 @@ void Settings_Initialize (struct thread_Settings *main) {
     // mMode    = kTest_Normal;          // -r,  mMode == kTest_TradeOff
     main->mThreadMode   = kMode_Unknown; // -s,  or -c, none
     main->mAmount       = 1000;          // -t,  10 seconds, units is 10 ms
+    main->mOmitAmount   = 100;           // --omit,  1 seconds, units is 10 ms
     main->mIntervalMode = kInterval_None;// -i   none, time, packets, or bursts
     // skip version                      // -v,
     //main->mTCPWin       = 0;           // -w,  ie. don't set window
@@ -1143,6 +1146,35 @@ void Settings_Interpret (char option, const char *optarg, struct thread_Settings
 		mExtSettings->rtt_nearcongest_weight_factor = atof(optarg);
 	    } else {
 		mExtSettings->rtt_nearcongest_weight_factor = NEARCONGEST_DEFAULT;
+	    }
+	}
+	if (omit) {
+	    omit = 0;
+	    double val;
+#if HAVE_STRTOD
+	    char *end;
+	    errno = 0;
+	    val = strtod(optarg, &end);
+	    if (errno || (*end != '\0')) {
+		fprintf(stderr, "ERROR: --omit value of '%s' not recognized\n", optarg);
+		exit(1);
+	    }
+#else
+	    val = atof(optarg);
+#endif
+	    if (val > 0.0) {
+		if (val > (UINT_MAX / 1e6)) {
+		    fprintf (stderr, "Too large value of '%s' for --omit, max is %f\n", optarg, (UINT_MAX / 1e6));
+		    exit(1);
+		}
+		if (val < (1e-6)) {
+		    fprintf (stderr, "Too small value of '%s' for --omit, min is 0.000001\n", optarg);
+		    exit(1);
+		}
+		setOmit(mExtSettings);
+		mExtSettings->mOmitAmount = static_cast<unsigned int> (val * 1000000); // units usecs
+	    } else {
+		mExtSettings->mOmitAmount = 0;
 	    }
 	}
 	if (permitkey) {
@@ -2742,7 +2774,7 @@ int Settings_GenerateClientHdr (struct thread_Settings *client, void *testhdr, s
 	if (isUDPL4S(client)) {
 	    flags |= (HEADER_UDPTESTS | HEADER_EXTEND) ;
 	    upperflags |= HEADER_UDPL4S;
-	}
+    }
 	if (isReverse(client) || isFullDuplex(client)) {
 	    flags |= (HEADER_UDPTESTS | HEADER_VERSION2);
 	}
