@@ -338,7 +338,6 @@ enum TimeStampType {
 struct ReportTimeStamps {
     double iStart;
     double iEnd;
-    double iOmit;
     double significant_partial;
     struct timeval startTime;
     struct timeval packetTime;

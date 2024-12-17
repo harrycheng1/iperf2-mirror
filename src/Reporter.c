@@ -1199,7 +1199,6 @@ static inline void reporter_set_timestamps_time (struct TransferInfo *stats, enu
 	times->iEnd = 0;
 	times->iStart = 0;
     } else {
-	times->iOmit = TimeDifference(times->omitTime, times->startTime);
 	switch (tstype) {
 	case INTERVAL:
 	    times->iStart = times->iEnd;
@@ -1208,10 +1207,12 @@ static inline void reporter_set_timestamps_time (struct TransferInfo *stats, enu
 	    stats->final = false;
 	    break;
 	case TOTAL:
-	    times->iStart = 0;
+	{
+	    times->iStart = (isOmit(stats->common) ? TimeDifference(times->omitTime, times->startTime) : 0);
 	    times->iEnd = TimeDifference(times->packetTime, times->startTime);
 	    stats->final = true;
 	    break;
+	}
 	case FINALPARTIAL:
 	    times->iStart = times->iEnd;
 	    times->iEnd = TimeDifference(times->packetTime, times->startTime);
@@ -1681,6 +1682,12 @@ void reporter_transfer_protocol_server_tcp (struct ReporterData *data, bool fina
 	thisInP  = lambda * meantransit;
 	stats->iInP = thisInP;
         stats->sock_callstats.read.cntRead = stats->sock_callstats.read.ReadCnt.current - stats->sock_callstats.read.ReadCnt.prev;
+//	printf("**** delta %f\n", TimeDifference(stats->ts.omitTime, stats->ts.packetTime));
+	if (isOmit(stats->common) && (TimeDifference(stats->ts.omitTime, stats->ts.packetTime) > -0.001)) {
+	    stats->common->Omit = true;
+	} else {
+	    stats->common->Omit = false;
+	}
     } else {
 	double bytecnt = (double) stats->cntBytes;
 	double lambda = (stats->IPGsum > 0.0) ? (bytecnt / stats->IPGsum) : 0.0;
@@ -1688,6 +1695,9 @@ void reporter_transfer_protocol_server_tcp (struct ReporterData *data, bool fina
 	thisInP  = lambda * meantransit;
 	stats->fInP = thisInP;
         stats->sock_callstats.read.cntRead = stats->sock_callstats.read.ReadCnt.current;
+	if (isOmit(stats->common)) {
+	    stats->total.Bytes.current -= stats->cntOmitBytes;
+	}
     }
     if (sumstats) {
 	sumstats->total.Bytes.current += stats->cntBytes;
@@ -1712,6 +1722,9 @@ void reporter_transfer_protocol_server_tcp (struct ReporterData *data, bool fina
 		   sumstats->slot_thread_upcount, sumstats->slot_thread_downcount, \
 		   sumstats->uplevel, data->packetring->uplevel);
 #endif
+	    if (isOmit(stats->common)) {
+		sumstats->total.Bytes.current -= stats->cntOmitBytes;
+	    }
 	}
     }
     if (fullduplexstats) {
@@ -1781,6 +1794,11 @@ void reporter_transfer_protocol_client_tcp (struct ReporterData *data, bool fina
     if (stats->write_histogram) {
         stats->write_histogram->final = final;
     }
+    if (isOmit(stats->common) && !final && (TimeDifference(stats->ts.omitTime, stats->ts.packetTime) > -0.001)) {
+	stats->common->Omit = true;
+    } else {
+	stats->common->Omit = false;
+    }
     if (isIsochronous(stats->common)) {
 	if (final) {
 	    stats->isochstats.cntFrames = stats->isochstats.framecnt.current;
@@ -1811,6 +1829,9 @@ void reporter_transfer_protocol_client_tcp (struct ReporterData *data, bool fina
 		   sumstats->slot_thread_upcount, sumstats->slot_thread_downcount, \
 		   sumstats->uplevel, data->packetring->uplevel);
 #endif
+	    if (isOmit(stats->common)) {
+		sumstats->total.Bytes.current -= stats->cntOmitBytes;
+	    }
 	}
 #if HAVE_SUMMING_DEBUG
 	reporter_dump_timestamps(NULL, stats, sumstats, final);
@@ -1859,6 +1880,9 @@ void reporter_transfer_protocol_client_tcp (struct ReporterData *data, bool fina
 	    stats->framelatency_histogram->final = true;
 	}
 	stats->cntBytes = stats->total.Bytes.current;
+	if (isOmit(stats->common)) {
+	    stats->cntBytes -= stats->cntOmitBytes;
+	}
 	stats->write_mmm.current = stats->write_mmm.total;
 	reporter_set_timestamps_time(stats, TOTAL);
     } else if (isIsochronous(stats->common)) {
