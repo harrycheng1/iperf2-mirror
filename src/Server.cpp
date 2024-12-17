@@ -571,7 +571,13 @@ inline void Server::SetReportStartTime () {
             if (mSettings->mIntervalMode == kInterval_Time) {
                 sumstats->ts.nextTime = myReport->info.ts.nextTime;
             }
-        }
+	    if (isOmit(mSettings) && (mSettings->mOmitAmount > 0)) {
+		sumstats->ts.omitTime = myReport->info.ts.omitTime;
+#if 0
+		printf("**** start %ld.%ld omit %ld.%ld\n", sumstats->ts.startTime.tv_sec, sumstats->ts.startTime.tv_usec, sumstats->ts.omitTime.tv_sec, sumstats->ts.omitTime.tv_usec);
+#endif
+	    }
+	}
         Mutex_Unlock(&myReport->GroupSumReport->reference.lock);
     }
 #ifdef HAVE_THREAD_DEBUG

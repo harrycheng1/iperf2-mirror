@@ -484,6 +484,12 @@ inline void Client::SetReportStartTime () {
 #ifdef HAVE_THREAD_DEBUG
             thread_debug("Client group sum report start=%ld.%06ld next=%ld.%06ld", sumstats->ts.startTime.tv_sec, sumstats->ts.startTime.tv_usec, sumstats->ts.nextTime.tv_sec, sumstats->ts.nextTime.tv_usec);
 #endif
+	    if (isOmit(mSettings) && (mSettings->mOmitAmount > 0)) {
+		sumstats->ts.omitTime = myReport->info.ts.omitTime;
+#if 0
+		printf("**** start %ld.%ld omit %ld.%ld\n", sumstats->ts.startTime.tv_sec, sumstats->ts.startTime.tv_usec, sumstats->ts.omitTime.tv_sec, sumstats->ts.omitTime.tv_usec);
+#endif
+	    }
         }
         Mutex_Unlock(&myReport->GroupSumReport->reference.lock);
     }
