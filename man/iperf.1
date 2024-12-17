@@ -61,6 +61,9 @@ print TCP maximum segment size
 .BR "    --NUM_REPORT_STRUCTS " \fI<count>\fR
 Override the default shared memory size between the traffic thread(s) and reporter thread in order to mitigate mutex lock contentions. The default value of 5000 should be sufficient for 1Gb/s networks. Increase this upon seeing the Warning message of reporter thread too slow. If the Warning message isn't seen, then increasing this won't have any significant effect (other than to use some additional memory.)
 .TP
+.BR "    --omit " \fIn\fR
+omit n seconds of samples (TCP only)
+.TP
 .BR -o ", " --output " \fIfilename\fR"
 output the report or error message to this specified file
 .TP

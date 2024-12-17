@@ -1195,17 +1195,22 @@ static inline void reporter_set_timestamps_time (struct TransferInfo *stats, enu
     // from app level syscall) is greater than the packetTime (which come for kernel level SO_TIMESTAMP)
     // For this case set the start and end time to both zero.
     struct ReportTimeStamps *times = &stats->ts;
+    stats->common->Omit = false;
     if (TimeDifference(times->packetTime, times->startTime) < 0) {
 	times->iEnd = 0;
 	times->iStart = 0;
     } else {
 	switch (tstype) {
 	case INTERVAL:
+	{
+	    if (isOmit(stats->common))
+		stats->common->Omit = ((TimeDifference(times->omitTime, times->nextTime) >= 0) ? true : false);
 	    times->iStart = times->iEnd;
 	    times->iEnd = TimeDifference(times->nextTime, times->startTime);
 	    TimeAdd(times->nextTime, times->intervalTime);
 	    stats->final = false;
 	    break;
+	}
 	case TOTAL:
 	{
 	    times->iStart = (isOmit(stats->common) ? TimeDifference(times->omitTime, times->startTime) : 0);
@@ -1682,12 +1687,6 @@ void reporter_transfer_protocol_server_tcp (struct ReporterData *data, bool fina
 	thisInP  = lambda * meantransit;
 	stats->iInP = thisInP;
         stats->sock_callstats.read.cntRead = stats->sock_callstats.read.ReadCnt.current - stats->sock_callstats.read.ReadCnt.prev;
-//	printf("**** delta %f\n", TimeDifference(stats->ts.omitTime, stats->ts.packetTime));
-	if (isOmit(stats->common) && (TimeDifference(stats->ts.omitTime, stats->ts.packetTime) > -0.001)) {
-	    stats->common->Omit = true;
-	} else {
-	    stats->common->Omit = false;
-	}
     } else {
 	double bytecnt = (double) stats->cntBytes;
 	double lambda = (stats->IPGsum > 0.0) ? (bytecnt / stats->IPGsum) : 0.0;
@@ -1793,11 +1792,6 @@ void reporter_transfer_protocol_client_tcp (struct ReporterData *data, bool fina
     }
     if (stats->write_histogram) {
         stats->write_histogram->final = final;
-    }
-    if (isOmit(stats->common) && !final && (TimeDifference(stats->ts.omitTime, stats->ts.packetTime) > -0.001)) {
-	stats->common->Omit = true;
-    } else {
-	stats->common->Omit = false;
     }
     if (isIsochronous(stats->common)) {
 	if (final) {
