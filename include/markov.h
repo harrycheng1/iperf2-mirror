@@ -59,10 +59,10 @@ extern "C" {
 #define FloatGreaterThanOne(val) ((val - 1.0) > FLOATTOLERANCE)
 
 struct markov_entry {
-    int len;
-    int value;
+    int node_len;
+    int adjacent_node_len;
     uint64_t transition_cnt;
-    float prob_bound;
+    float prob_cummulative;
     float prob;
 };
 
@@ -70,9 +70,11 @@ struct markov_graph {
     char *braket_str;
     int count;
     uint64_t transition_cnt;
+    uint64_t unknown_cnt;
     int seed;
     int cur_row;
     int cur_col;
+    bool node_known;
     struct markov_entry **entrys;
 };
 
@@ -81,6 +83,7 @@ extern void markov_graph_free (struct markov_graph *graph);
 extern int markov_graph_next (struct markov_graph *graph);
 extern void markov_graph_set_seed (struct markov_graph *graph, int seed);
 extern void markov_graph_print(struct markov_graph *graph, char *prepend);
+extern bool markov_graph_count_edge_transition (struct markov_graph *graph, int node_len);
 
 #ifdef __cplusplus
 }

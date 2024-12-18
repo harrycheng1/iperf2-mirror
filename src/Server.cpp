@@ -85,6 +85,7 @@ Server::Server (thread_Settings *inSettings) {
     memset(&scratchpad, 0, sizeof(struct ReportStruct));
     mySocket = inSettings->mSock;
     peerclose = false;
+    markov_graph_len = NULL;
 #if defined(HAVE_LINUX_FILTER_H) && defined(HAVE_AF_PACKET)
     myDropSocket = inSettings->mSockDrop;
     if (isL2LengthCheck(mSettings)) {
@@ -751,6 +752,7 @@ bool Server::InitTrafficLoop (void) {
         mEndTime.setnow();
         mEndTime.add(mSettings->mAmount / 100.0);
     }
+    markov_graph_len = myReport->info.markov_graph_len;
     if (!isSingleUDP(mSettings))
         PostReport(myJob);
     // The first payload is different for TCP so read it and report it
@@ -813,7 +815,7 @@ inline int Server::ReadWithRxTimestamp () {
     currLen = recv(mSettings->mSock, mSettings->mBuf, mSettings->mBufLen, mSettings->recvflags);
 #endif
     // RJM clean up
-    if (currLen <=0) {
+    if (currLen <= 0) {
         // Socket read timeout or read error
         reportstruct->emptyreport = true;
         if (currLen == 0) {
@@ -1058,6 +1060,9 @@ void Server::RunUDP () {
             // will also set empty report or not
             rxlen=ReadWithRxTimestamp();
             if (!peerclose && (rxlen > 0)) {
+		if (markov_graph_len) {
+		    markov_graph_count_edge_transition(markov_graph_len, rxlen);
+		}
                 reportstruct->emptyreport = false;
                 reportstruct->packetLen = rxlen;
                 if (isL2LengthCheck(mSettings)) {

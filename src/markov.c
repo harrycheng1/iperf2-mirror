@@ -81,15 +81,15 @@ void markov_graph_print(struct markov_graph *graph, char *prepend) {
 	int ix, jx;
 	tmp = graph->entrys;
 	if (tmp) {
-	    printf("%sMarkov chain: %s transitions: %" PRIdMAX "\n", prepend, graph->braket_str, graph->transition_cnt);
+	    printf("%sMarkov chain: %s transitions: %" PRIdMAX " unknowns: %" PRIdMAX "\n", prepend, graph->braket_str, graph->transition_cnt, graph->unknown_cnt);
 	    for (ix = 0; ix < graph->count; ix++) {
-		printf("%s%d=", prepend, tmp[ix][0].len);
+		printf("%s%d=", prepend, tmp[ix][0].node_len);
 		uint64_t pullcnt = 0;
 		for (jx = 0; jx < graph->count; jx++) {
 		    pullcnt += tmp[ix][jx].transition_cnt;
 		}
 		for (jx = 0; jx < graph->count; jx++) {
-		    printf("%d(%d,%d)|%0.3f/%0.3f(%" PRIdMAX "/%0.3f) ", tmp[ix][jx].value, ix, jx, tmp[ix][jx].prob, tmp[ix][jx].prob_bound, tmp[ix][jx].transition_cnt, (float)tmp[ix][jx].transition_cnt / (float)pullcnt);
+		    printf("%d(%d,%d)|%0.3f/%0.3f(%" PRIdMAX "/%0.3f) ", tmp[ix][jx].adjacent_node_len, ix, jx, tmp[ix][jx].prob, tmp[ix][jx].prob_cummulative, tmp[ix][jx].transition_cnt, (float)tmp[ix][jx].transition_cnt / (float)pullcnt);
 		}
 		printf(" %" PRIdMAX "/%" PRIdMAX "(%0.1f%%)\n", pullcnt, graph->transition_cnt, 100.0 * (float) pullcnt / (float) graph->transition_cnt);
 	    }
@@ -132,8 +132,8 @@ struct markov_graph *markov_graph_init (char *braket_option) {
 	char *pos;
 	while (kx < bracnt) {
 	    pos = strtok(bra_next, "|");
-	    tmp[kx][0].value = atoi(pos);
-	    tmp[kx][0].len = tmp[kx][0].value;
+	    tmp[kx][0].adjacent_node_len = atoi(pos);
+	    tmp[kx][0].node_len = tmp[kx][0].adjacent_node_len;
 	    pos += strlen(pos) + 1;
 	    bra_next = pos + 1;
 	    int n = strlen(pos);
@@ -160,23 +160,23 @@ struct markov_graph *markov_graph_init (char *braket_option) {
 		    graph = NULL;
 		    goto ERR_EXIT;
 		}
-		tmp[kx][cx].prob_bound = FloatEqualZero(tmp[kx][cx].prob) ? prevtot : (tmp[kx][cx].prob + prevtot);
-		if (FloatGreaterThanOne(tmp[kx][cx].prob_bound)) {
-		    fprintf (stderr, "Cummulative probability for row %d can't be greater than 1 but is %f\n", kx, tmp[kx][cx].prob_bound);
+		tmp[kx][cx].prob_cummulative = FloatEqualZero(tmp[kx][cx].prob) ? prevtot : (tmp[kx][cx].prob + prevtot);
+		if (FloatGreaterThanOne(tmp[kx][cx].prob_cummulative)) {
+		    fprintf (stderr, "Cummulative probability for row %d can't be greater than 1 but is %f\n", kx, tmp[kx][cx].prob_cummulative);
 		    markov_graph_free(graph);
 		    free(ket_prob_list);
 		    graph = NULL;
 		    goto ERR_EXIT;
 		}
-		prevtot = tmp[kx][cx].prob_bound;
+		prevtot = tmp[kx][cx].prob_cummulative;
 		cx++;
 		found = strtok(NULL, ",");
 	    }
 	    if (cx != bracnt) {
 		fprintf (stderr, "malformed: row column expected %dx%d with '%s' row of %d\n", bracnt, bracnt, pos, cx);
 	    }
-	    if (FloatLessThanOne(tmp[kx][bracnt-1].prob_bound)) {
-		fprintf (stderr, "Cummulative probability for row %d less than 1 and is %f\n", kx, tmp[kx][bracnt-1].prob_bound);
+	    if (FloatLessThanOne(tmp[kx][bracnt-1].prob_cummulative)) {
+		fprintf (stderr, "Cummulative probability for row %d less than 1 and is %f\n", kx, tmp[kx][bracnt-1].prob_cummulative);
 		markov_graph_free(graph);
 		free(ket_prob_list);
 		graph = NULL;
@@ -191,9 +191,10 @@ struct markov_graph *markov_graph_init (char *braket_option) {
 	}
 	for (int cx = 0; cx < bracnt; cx++) {
 	    for (int rx = 0; rx < bracnt; rx++) {
-		tmp[rx][cx].value = tmp[cx][0].len;
+		tmp[rx][cx].adjacent_node_len = tmp[cx][0].node_len;
 	    }
 	}
+	graph->node_known = false;
     }
     // markov_graph_print(graph);
   ERR_EXIT:
@@ -208,11 +209,49 @@ int markov_graph_next (struct markov_graph *graph) {
     graph->transition_cnt++;
     float pull_rand = (float)rand()/(float)(RAND_MAX);
     int ix = 0;
-    while ((ix < graph->count) && (tmp[graph->cur_row][ix++].prob_bound < pull_rand)) {}
+    while ((ix < graph->count) && (tmp[graph->cur_row][ix++].prob_cummulative < pull_rand)) {}
     while (FloatEqualZero(tmp[graph->cur_row][--ix].prob)) {}
     tmp[graph->cur_row][ix].transition_cnt++;
     graph->cur_row = ix;
-    return tmp[graph->cur_row][0].len;
+    return tmp[graph->cur_row][0].node_len;
+}
+
+bool markov_graph_count_edge_transition (struct markov_graph *graph, int node_len) {
+    struct markov_entry **tmp;
+    tmp = graph->entrys;
+    graph->transition_cnt++;
+    int ix = 0;
+    bool found = false;
+    if (!graph->node_known) {
+	for (ix = 0; ix < graph->count; ix++) {
+	    if (tmp[ix][0].node_len == node_len) {
+		graph->node_known = true;
+		break;
+	    }
+	}
+	if (graph->node_known) {
+	    graph->cur_row = ix;
+	} else {
+	    graph->unknown_cnt++;
+	}
+    } else {
+	while (!found && (ix < graph->count)) {
+	    if (tmp[graph->cur_row][ix].adjacent_node_len == node_len) {
+		found = true;
+	    } else {
+		ix++;
+	    }
+	}
+	if (found) {
+	    tmp[graph->cur_row][ix].transition_cnt++;
+	    graph->cur_row = ix;
+	} else {
+	    graph->unknown_cnt++;
+	    ix = 0;
+	    graph->node_known = false;
+	}
+    }
+    return found;
 }
 
 void markov_graph_set_seed (struct markov_graph *graph, int seed) {

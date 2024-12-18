@@ -111,7 +111,7 @@ private:
 #endif
     struct ReportHeader *myJob;
     struct ReporterData *myReport;
-
+    struct markov_graph *markov_graph_len;
 #if HAVE_DECL_SO_TIMESTAMP
     // Structures needed for recvmsg
     // Use to get kernel timestamps of packets

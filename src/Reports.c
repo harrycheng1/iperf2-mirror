@@ -899,7 +899,7 @@ struct ReportHeader* InitIndividualReport (struct thread_Settings *inSettings) {
 							      inSettings->mHistci_lower, inSettings->mHistci_upper, ireport->info.common->transferID, name, false);
 	}
     }
-    if ((inSettings->mThreadMode == kMode_Client) && isUDP(inSettings) && inSettings->mBraKetGraph) {
+    if (isUDP(inSettings) && inSettings->mBraKetGraph) {
 	ireport->info.markov_graph_len = markov_graph_init(inSettings->mBraKetGraph);
     }
 

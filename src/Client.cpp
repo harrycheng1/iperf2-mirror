@@ -87,7 +87,7 @@ Client::Client (thread_Settings *inSettings) {
     one_report = false;
     udp_payload_minimum = 1;
     apply_first_udppkt_delay = false;
-
+    markov_graph_len = NULL;
     memset(&scratchpad, 0, sizeof(struct ReportStruct));
     reportstruct = &scratchpad;
     reportstruct->packetID = 1;
@@ -1406,9 +1406,6 @@ void Client::RunUDP () {
 	} else {
 	    int markov_len = (markov_graph_len ? markov_graph_next(markov_graph_len) : mSettings->mBufLen);
 	    currLen = write(mySocket, mSettings->mBuf, markov_len);
-	    if (markov_graph_len) {
-		//	delay_target = currLen * (kSecs_to_nsecs * kBytes_to_Bits);
-	    }
 	}
 	if (currLen <= 0) {
 	    reportstruct->emptyreport = true;

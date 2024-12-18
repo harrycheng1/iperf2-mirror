@@ -1524,8 +1524,11 @@ void reporter_transfer_protocol_server_udp (struct ReporterData *data, bool fina
     }
     if ((stats->output_handler) && !(stats->isMaskOutput))
 	(*stats->output_handler)(stats);
-    if (!final)
+    if (!final) {
 	reporter_reset_transfer_stats_server_udp(stats);
+    } else if (stats->markov_graph_len) {
+	markov_graph_print(stats->markov_graph_len, stats->common->transferIDStr);
+    }
 }
 
 void reporter_transfer_protocol_sum_server_udp (struct TransferInfo *stats, bool final) {
@@ -1664,10 +1667,11 @@ void reporter_transfer_protocol_client_udp (struct ReporterData *data, bool fina
 	    fflush(stdout);
 	}
     }
-    if (final && stats->markov_graph_len) {
+    if (!final) {
+	reporter_reset_transfer_stats_client_udp(stats);
+    } else if (final && stats->markov_graph_len) {
 	markov_graph_print(stats->markov_graph_len, stats->common->transferIDStr);
     }
-    reporter_reset_transfer_stats_client_udp(stats);
 }
 
 void reporter_transfer_protocol_server_tcp (struct ReporterData *data, bool final) {
