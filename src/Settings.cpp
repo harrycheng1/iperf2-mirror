@@ -2139,7 +2139,10 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 	fprintf(stderr, "ERROR: option of --omit not supported with -u UDP\n");
 	bail = true;
     }
-
+    if (!isUDP(mExtSettings) && mExtSettings->mBraKetGraph) {
+	fprintf(stderr, "ERROR: length markov chains only supported with -u UDP\n");
+	bail = true;
+    }
     if (bail)
 	exit(1);
 
