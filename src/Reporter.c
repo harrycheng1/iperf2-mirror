@@ -1203,11 +1203,12 @@ static inline void reporter_set_timestamps_time (struct TransferInfo *stats, enu
 	switch (tstype) {
 	case INTERVAL:
 	{
-	    if (isOmit(stats->common))
-		stats->common->Omit = ((TimeDifference(times->omitTime, times->nextTime) >= 0) ? true : false);
 	    times->iStart = times->iEnd;
 	    times->iEnd = TimeDifference(times->nextTime, times->startTime);
 	    TimeAdd(times->nextTime, times->intervalTime);
+	    if (isOmit(stats->common)) {
+		stats->common->Omit = ((TimeDifference(times->omitTime, times->startTime) > times->iStart) ? true : false);
+	    }
 	    stats->final = false;
 	    break;
 	}
