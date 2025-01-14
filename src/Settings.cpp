@@ -1810,7 +1810,7 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 		bail = true;
 	    }
 	}
-	if (isTripTime(mExtSettings) && (mExtSettings->mBufLen < static_cast<int> (sizeof(struct TCP_burst_payload)))) {
+	if (!isUDP(mExtSettings) && isTripTime(mExtSettings) && (mExtSettings->mBufLen < static_cast<int> (sizeof(struct TCP_burst_payload)))) {
 	    fprintf(stderr, "ERROR: payload (-l) size of %d too small for --trip-times, must be %d or greater\n",\
 		    mExtSettings->mBufLen, static_cast<int> (sizeof(struct TCP_burst_payload)));
 	    bail = true;
