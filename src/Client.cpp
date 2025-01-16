@@ -2214,14 +2214,12 @@ int Client::SendFirstPayload () {
                 tmphdr->seqno_ts.tv_sec  = htonl(reportstruct->packetTime.tv_sec);
                 tmphdr->seqno_ts.tv_usec = htonl(reportstruct->packetTime.tv_usec);
                 udp_payload_minimum = pktlen;
-		if (!isUDPL4S(mSettings)) {
 #if HAVE_DECL_MSG_DONTWAIT
-		    pktlen = send(mySocket, mSettings->mBuf, (pktlen > mSettings->mBufLen) ? pktlen : mSettings->mBufLen, MSG_DONTWAIT);
+		pktlen = send(mySocket, mSettings->mBuf, (pktlen > mSettings->mBufLen) ? pktlen : mSettings->mBufLen, MSG_DONTWAIT);
 #else
-		    pktlen = send(mySocket, mSettings->mBuf, (pktlen > mSettings->mBufLen) ? pktlen : mSettings->mBufLen, 0);
+		pktlen = send(mySocket, mSettings->mBuf, (pktlen > mSettings->mBufLen) ? pktlen : mSettings->mBufLen, 0);
 #endif
-		    apply_first_udppkt_delay = true;
-		}
+		apply_first_udppkt_delay = true;
             } else {
                 // Set the send timeout for the very first write which has the test exchange
                 int sosndtimer = DEFAULT_TESTEXCHANGETIMEOUT; //in usecs
