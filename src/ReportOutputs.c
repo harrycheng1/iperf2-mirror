@@ -151,6 +151,10 @@ void reporter_default_heading_flags (int flag) {
     HEADING_FLAG(reportCSV_client_bb_bw_tcp) = 0;
 }
 
+#define PKTLOSS_PERCENT_PRECISION(loss_percent, loss_precision, pkterrors, datagrams)	\
+    float loss_percent = (datagrams > 0) ? ((100.0 * (double) pkterrors) / (double) datagrams) : 0.0; \
+    int loss_precision = ((loss_percent > 99.0) ? 2 : (((loss_percent < 1.0) && (loss_percent > 0.0)) ? 2 : 0));
+
 //
 // flush when
 //
@@ -955,7 +959,6 @@ void udp_output_fullduplex_sum (struct TransferInfo *stats) {
     cond_flush(stats);
 }
 
-
 void udp_output_read (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_bw_jitter_loss);
     _print_stats_common(stats);
@@ -965,14 +968,16 @@ void udp_output_read (struct TransferInfo *stats) {
 	       outbuffer, outbufferext,
 	       0.0, stats->cntError,
 	       stats->cntDatagrams,
-	       0.0,(stats->common->Omit ? report_omitted : ""));
+	       0.0,0,(stats->common->Omit ? report_omitted : ""));
     } else {
+	PKTLOSS_PERCENT_PRECISION(pktloss_percent, precision, stats->cntError, stats->cntDatagrams);
 	printf(report_bw_jitter_loss_format, stats->common->transferIDStr,
 	       stats->ts.iStart, stats->ts.iEnd,
 	       outbuffer, outbufferext,
 	       (stats->final) ? ((stats->inline_jitter.total.sum / (double) stats->inline_jitter.total.cnt) * 1e3) : (stats->jitter * 1e3),  \
 	       stats->cntError, stats->cntDatagrams,
-	       (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+	       precision, // set precision to either 99% or 99.98%)
+	       pktloss_percent,
 	       (stats->common->Omit ? report_omitted : ""));
     }
     _output_outoforder(stats);
@@ -982,14 +987,15 @@ void udp_output_read (struct TransferInfo *stats) {
 void udp_output_read_triptime (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_bw_jitter_loss_enhanced_triptime);
     _print_stats_common(stats);
-
+    PKTLOSS_PERCENT_PRECISION(pktloss_percent, precision, stats->cntError, stats->cntDatagrams);
     if (!stats->cntIPG) {
 	printf(report_bw_jitter_loss_suppress_enhanced_format, stats->common->transferIDStr,
 	       stats->ts.iStart, stats->ts.iEnd,
 	       outbuffer, outbufferext,
 	       0.0, stats->cntError,
 	       stats->cntDatagrams,
-	       (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+	       precision,
+	       pktloss_percent,
 	       0.0, // pps
 	       stats->sock_callstats.read.cntRead,
 	       stats->sock_callstats.read.cntReadTimeo,
@@ -1003,7 +1009,8 @@ void udp_output_read_triptime (struct TransferInfo *stats) {
 		   outbuffer, outbufferext,
 		   (stats->final) ? ((stats->inline_jitter.total.sum / (double) stats->inline_jitter.total.cnt) * 1e3) : (stats->jitter * 1e3),
 		   stats->cntError, stats->cntDatagrams,
-		   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+		   precision,
+		   pktloss_percent,
 		   (stats->IPGsum ? (stats->cntIPG / (stats->IPGsum + stats->IPGsumcarry)) : 0), // pps
 		   stats->sock_callstats.read.cntRead,
 		   stats->sock_callstats.read.cntReadTimeo,
@@ -1026,12 +1033,14 @@ void udp_output_read_triptime (struct TransferInfo *stats) {
 	    }
 	    llaw_bufstr[sizeof(llaw_bufstr)-1] = '\0';
 	    set_netpowerbuf(meantransit, stats);
+	    PKTLOSS_PERCENT_PRECISION(pktloss_percent, precision, stats->cntError, stats->cntDatagrams);
 	    printf(report_bw_jitter_loss_enhanced_triptime_format, stats->common->transferIDStr,
 		   stats->ts.iStart, stats->ts.iEnd,
 		   outbuffer, outbufferext,
 		   (stats->final) ? ((stats->inline_jitter.total.sum / (double) stats->inline_jitter.total.cnt) * 1e3) : (stats->jitter * 1e3),  \
 		   stats->cntError, stats->cntDatagrams,
-		   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+		   precision,
+		   pktloss_percent,
 		   (meantransit * 1e3),
 		   ((stats->final ? stats->transit.total.min : stats->transit.current.min) * 1e3),
 		   ((stats->final ? stats->transit.total.max : stats->transit.current.max) * 1e3),
@@ -1095,12 +1104,14 @@ void udp_output_read_enhanced (struct TransferInfo *stats) {
 		    (sqrt(stats->transit.total.m2 / (stats->transit.total.cnt - 1)));
 	    }
 	    set_netpowerbuf(meantransit, stats);
+	    PKTLOSS_PERCENT_PRECISION(pktloss_percent, precision, stats->cntError, stats->cntDatagrams);
 	    printf(report_bw_jitter_loss_enhanced_format, stats->common->transferIDStr,
 		   stats->ts.iStart, stats->ts.iEnd,
 		   outbuffer, outbufferext,
 		   (stats->final) ? ((stats->inline_jitter.total.sum / (double) stats->inline_jitter.total.cnt) * 1e3) : (stats->jitter * 1e3),  \
 		   stats->cntError, stats->cntDatagrams,
-		   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+		   precision,
+		   pktloss_percent,
 		   (meantransit * 1e3),
 		   ((stats->final ? stats->transit.total.min : stats->transit.current.min) * 1e3),
 		   ((stats->final ? stats->transit.total.max : stats->transit.current.max) * 1e3),
@@ -1124,13 +1135,15 @@ void udp_output_read_enhanced (struct TransferInfo *stats) {
 void udp_output_read_triptime_isoch (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_bw_jitter_loss_enhanced_isoch_triptime);
     _print_stats_common(stats);
+    PKTLOSS_PERCENT_PRECISION(pktloss_percent, precision, stats->cntError, stats->cntDatagrams);
     if (!stats->cntIPG) {
 	printf(report_bw_jitter_loss_suppress_isoch_format, stats->common->transferIDStr,
 	       stats->ts.iStart, stats->ts.iEnd,
 	       outbuffer, outbufferext,
 	       0.0, stats->cntError,
 	       stats->cntDatagrams,
-	       (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+	       precision,
+	       pktloss_percent,
 	       0.0, // pps
 	       stats->isochstats.cntFrames, stats->isochstats.cntFramesMissed,
 	       (stats->common->Omit ? report_omitted : ""));
@@ -1145,7 +1158,8 @@ void udp_output_read_triptime_isoch (struct TransferInfo *stats) {
 		   outbuffer, outbufferext,
 		   (stats->final) ? ((stats->inline_jitter.total.sum / (double) stats->inline_jitter.total.cnt) * 1e3) : (stats->jitter * 1e3),
 		   stats->cntError, stats->cntDatagrams,
-		   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+		   precision,
+		   pktloss_percent,
 		   (stats->IPGsum ? (stats->cntIPG / (stats->IPGsum + stats->IPGsumcarry)) : 0), // pps
 		   stats->isochstats.cntFrames, stats->isochstats.cntFramesMissed,
 		   (stats->cntIPG / (stats->IPGsum + stats->IPGsumcarry)), (stats->common->Omit ? report_omitted : ""));
@@ -1153,12 +1167,14 @@ void udp_output_read_triptime_isoch (struct TransferInfo *stats) {
 	    double frame_meantransit = (stats->isochstats.transit.current.cnt > 0) ? (stats->isochstats.transit.current.sum / stats->isochstats.transit.current.cnt) : 0;
 	    double meantransit = (stats->transit.current.cnt > 0) ? (stats->transit.current.sum / stats->transit.current.cnt) : 0;
 	    set_netpowerbuf(meantransit, stats);
+	    PKTLOSS_PERCENT_PRECISION(pktloss_percent, precision, stats->cntError, stats->cntDatagrams);
 	    printf(report_bw_jitter_loss_enhanced_isoch_format, stats->common->transferIDStr,
 		   stats->ts.iStart, stats->ts.iEnd,
 		   outbuffer, outbufferext,
 		   (stats->final) ? ((stats->inline_jitter.total.sum / (double) stats->inline_jitter.total.cnt) * 1e3) : (stats->jitter * 1e3),  \
 		   stats->cntError, stats->cntDatagrams,
-		   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+		   precision,
+		   pktloss_percent,
 		   (meantransit * 1e3),
 		   stats->transit.current.min * 1e3,
 		   stats->transit.current.max * 1e3,
@@ -1170,11 +1186,6 @@ void udp_output_read_triptime_isoch (struct TransferInfo *stats) {
 		   stats->isochstats.transit.current.max * 1e3,
 		   (stats->isochstats.transit.current.cnt < 2) ? 0 : 1e3 * (sqrt(stats->isochstats.transit.current.m2 / (stats->isochstats.transit.current.cnt - 1))),
 		   netpower_buf, (stats->common->Omit ? report_omitted : ""));
-#if 0
-	    if (stats->final) {
-	      printf("***** Jitter MMM = %f/%f/%f\n",stats->inline_jitter.total.mean, stats->inline_jitter.total.min, stats->inline_jitter.total.max);
-	    }
-#endif
 	}
     }
     if (stats->latency_histogram) {
@@ -1227,11 +1238,13 @@ void udp_output_write_enhanced_isoch (struct TransferInfo *stats) {
 void udp_output_sum_read (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_bw);
     _print_stats_common(stats);
+    PKTLOSS_PERCENT_PRECISION(pktloss_percent, precision, stats->cntError, stats->cntDatagrams);
     printf(report_sum_bw_jitter_loss_format,
 	   stats->ts.iStart, stats->ts.iEnd,
 	   outbuffer, outbufferext,
 	   stats->cntError, stats->cntDatagrams,
-	   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+	   precision,
+	   pktloss_percent,
            (stats->common->Omit ? report_omitted : ""));
     if ((stats->cntOutofOrder > 0)  && stats->final) {
 	printf(report_sum_outoforder,
@@ -1264,7 +1277,7 @@ void udp_output_sumcnt_enhanced (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_sumcnt_bw_jitter_loss);
     _print_stats_common(stats);
     printf(report_sumcnt_bw_jitter_loss_format, (stats->final ? stats->threadcnt_final: stats->slot_thread_downcount), stats->ts.iStart, stats->ts.iEnd, outbuffer, outbufferext, \
-	   stats->cntError, stats->cntDatagrams, (stats->cntIPG && (stats->IPGsum > 0.0) ? (stats->cntIPG / stats->IPGsum) : 0.0), (stats->common->Omit ? report_omitted : ""));
+	   stats->cntError, stats->cntDatagrams, 0, (stats->cntIPG && (stats->IPGsum > 0.0) ? (stats->cntIPG / stats->IPGsum) : 0.0), (stats->common->Omit ? report_omitted : ""));
     if ((stats->cntOutofOrder > 0)  && stats->final) {
 	if (isSumOnly(stats->common)) {
 	    printf(report_sumcnt_outoforder,
@@ -1292,7 +1305,7 @@ void udp_output_sumcnt_read_enhanced (struct TransferInfo *stats) {
 	   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
 	   ((transit->cnt > 0) ? (1e3 * (transit->sum / transit->cnt)) : 0),
 	   (1e3 * transit->min), (1e3 * transit->max),
-	   (stats->cntIPG && (stats->IPGsum > 0.0) ? (stats->cntIPG / stats->IPGsum) : 0.0),
+	   0, (stats->cntIPG && (stats->IPGsum > 0.0) ? (stats->cntIPG / stats->IPGsum) : 0.0),
 	   (stats->common->Omit ? report_omitted : ""));
     if ((stats->cntOutofOrder > 0) && stats->final) {
 	if (isSumOnly(stats->common)) {
@@ -1322,7 +1335,7 @@ void udp_output_sumcnt_read_triptime (struct TransferInfo *stats) {
 	   (1e3 * transit->min), (1e3 * transit->max),
 	   stats->cntIPG,
 	   (stats->final ? stats->fInP : stats->iInP),			\
-	   (stats->cntIPG && (stats->IPGsum > 0.0) ? (stats->cntIPG / stats->IPGsum) : 0.0), (stats->common->Omit ? report_omitted : ""));
+	   0, (stats->cntIPG && (stats->IPGsum > 0.0) ? (stats->cntIPG / stats->IPGsum) : 0.0), (stats->common->Omit ? report_omitted : ""));
     if ((stats->cntOutofOrder > 0) && stats->final) {
 	if (isSumOnly(stats->common)) {
 	    printf(report_sumcnt_outoforder,
