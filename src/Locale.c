@@ -671,7 +671,7 @@ const char report_burst_read_tcp_header[] =
 "[ ID] Burst (start-end)" IPERFFTimeSpace "Transfer     Bandwidth       XferTime  (DC%)     Reads=Dist          NetPwr\n";
 
 const char report_burst_read_tcp_format[] =
-"%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %6.3f ms (%.f%%)    %" PRIdMAX "=%d:%d:%d:%d:%d:%d:%d:%d %s%s\n";
+"%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %6.3f ms (%.0f%%)    %" PRIdMAX "=%d:%d:%d:%d:%d:%d:%d:%d %s%s\n";
 
 const char report_burst_read_tcp_final_format[] =
 "%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %.3f/%.3f/%.3f/%.3f ms  %" PRIdMAX "=%d:%d:%d:%d:%d:%d:%d:%d\n";

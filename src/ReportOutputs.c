@@ -1327,15 +1327,17 @@ void udp_output_sumcnt_read_triptime (struct TransferInfo *stats) {
     _print_stats_common(stats);
     struct MeanMinMaxStats *transit;
     transit = (stats->final ? &stats->transit.total : &stats->transit.current);
+    PKTLOSS_PERCENT_PRECISION(pktloss_percent, precision, stats->cntError, stats->cntDatagrams);
     printf(report_sumcnt_udp_triptime_format, (stats->final ? stats->threadcnt_final : stats->slot_thread_downcount), \
 	   stats->ts.iStart, stats->ts.iEnd, outbuffer, outbufferext,	\
 	   stats->cntError, stats->cntDatagrams,
-	   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+	   precision,
+	   pktloss_percent,
 	   ((transit->cnt > 0) ? (1e3 * (transit->sum / transit->cnt)) : 0),
 	   (1e3 * transit->min), (1e3 * transit->max),
 	   stats->cntIPG,
 	   (stats->final ? stats->fInP : stats->iInP),			\
-	   0, (stats->cntIPG && (stats->IPGsum > 0.0) ? (stats->cntIPG / stats->IPGsum) : 0.0), (stats->common->Omit ? report_omitted : ""));
+	   (stats->cntIPG && (stats->IPGsum > 0.0) ? (stats->cntIPG / stats->IPGsum) : 0.0), (stats->common->Omit ? report_omitted : ""));
     if ((stats->cntOutofOrder > 0) && stats->final) {
 	if (isSumOnly(stats->common)) {
 	    printf(report_sumcnt_outoforder,
