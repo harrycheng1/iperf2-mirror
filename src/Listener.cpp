@@ -82,6 +82,7 @@
 #include "SocketAddr.h"
 #include "payloads.h"
 #include "delay.h"
+#include "bpfs.h"
 
 /* -------------------------------------------------------------------
 
@@ -407,7 +408,7 @@ bool Listener::my_listen () {
         ListenSocket = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
         FAIL_errno(ListenSocket == SOCKET_ERROR, "tuntap socket()", mSettings);
         mSettings->mSock = ListenSocket;
-        rc = SockAddr_v4_Accept_BPF(ListenSocket, mSettings->mPort);
+        rc = SockBPF_v4_Accept(ListenSocket, mSettings->mPort);
         WARN_errno((rc == SOCKET_ERROR), "tap accept bpf");
         SetSocketOptions(mSettings);
     } else
@@ -566,7 +567,7 @@ bool Listener::L2_setup (thread_Settings *server, int sockfd) {
     // socket descriptors will also free the cBPF.)
     //
     server->mSockDrop = sockfd;
-    rc = SockAddr_Drop_All_BPF(sockfd);
+    rc = SockBPF_Drop_All(sockfd);
     WARN_errno(rc == SOCKET_ERROR, "l2 all drop bpf");
 
     // Now optimize packet flow up the raw socket
@@ -576,11 +577,11 @@ bool Listener::L2_setup (thread_Settings *server, int sockfd) {
         struct in6_addr *v6peer = SockAddr_get_in6_addr(&server->peer);
         struct in6_addr *v6local = SockAddr_get_in6_addr(&server->local);
         if (isIPV6(server)) {
-            rc = SockAddr_v6_Connect_BPF(server->mSock, v6local, v6peer, (reinterpret_cast<struct sockaddr_in6 *>(l))->sin6_port, (reinterpret_cast<struct sockaddr_in6 *>(p))->sin6_port);
+            rc = SockBPF_v6_Connect(server->mSock, v6local, v6peer, (reinterpret_cast<struct sockaddr_in6 *>(l))->sin6_port, (reinterpret_cast<struct sockaddr_in6 *>(p))->sin6_port);
             WARN_errno(rc == SOCKET_ERROR, "l2 connect ipv6 bpf");
         } else {
             // This is an ipv4 address in a v6 family (structure), just pull the lower 32 bits for the v4 addr
-            rc = SockAddr_v4_Connect_BPF(server->mSock, v6local->s6_addr32[3], v6peer->s6_addr32[3], (reinterpret_cast<struct sockaddr_in6 *>(l))->sin6_port, (reinterpret_cast<struct sockaddr_in6 *>(p))->sin6_port);
+            rc = SockBPF_v4_Connect(server->mSock, v6local->s6_addr32[3], v6peer->s6_addr32[3], (reinterpret_cast<struct sockaddr_in6 *>(l))->sin6_port, (reinterpret_cast<struct sockaddr_in6 *>(p))->sin6_port);
             WARN_errno(rc == SOCKET_ERROR, "l2 v4in6 connect ip bpf");
         }
 #else
@@ -588,7 +589,7 @@ bool Listener::L2_setup (thread_Settings *server, int sockfd) {
         return false;
 #endif /* HAVE_IPV6 */
     } else {
-        rc = SockAddr_v4_Connect_BPF(server->mSock, (reinterpret_cast<struct sockaddr_in *>(l))->sin_addr.s_addr, (reinterpret_cast<struct sockaddr_in *>(p))->sin_addr.s_addr, (reinterpret_cast<struct sockaddr_in *>(l))->sin_port, (reinterpret_cast<struct sockaddr_in *>(p))->sin_port);
+        rc = SockBPF_v4_Connect(server->mSock, (reinterpret_cast<struct sockaddr_in *>(l))->sin_addr.s_addr, (reinterpret_cast<struct sockaddr_in *>(p))->sin_addr.s_addr, (reinterpret_cast<struct sockaddr_in *>(l))->sin_port, (reinterpret_cast<struct sockaddr_in *>(p))->sin_port);
         WARN_errno(rc == SOCKET_ERROR, "l2 connect ip bpf");
     }
     return rc >= 0;
@@ -771,7 +772,7 @@ int Listener::tuntap_accept(thread_Settings *server) {
     peer->sin_port = l4hdr->source;
     local->sin_port = l4hdr->dest;
     server->l4offset = sizeof(struct iphdr) + sizeof(struct ether_header);
-    SockAddr_v4_Connect_TAP_BPF(server->mSock, local->sin_addr.s_addr, peer->sin_addr.s_addr, local->sin_port, peer->sin_port);
+    SockBPF_v4_Connect_TAP(server->mSock, local->sin_addr.s_addr, peer->sin_addr.s_addr, local->sin_port, peer->sin_port);
     server->l4payloadoffset = sizeof(struct iphdr) + sizeof(struct ether_header) + sizeof(struct udphdr);
     server->firstreadbytes = rc;
     return server->mSock;

@@ -51,7 +51,8 @@ iperf_SOURCES = \
 		dscp.c \
 		iperf_formattime.c \
 		iperf_multicast_api.c \
-		markov.c
+		markov.c \
+		bpfs.c
 
 iperf_LDADD = $(LIBCOMPAT_LDADDS)
 
