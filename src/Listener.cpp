@@ -727,6 +727,15 @@ int Listener::udp_accept (thread_Settings *server) {
             goto RETRYREAD;
         } else {
             int rc;
+	    if (isUDP(server)) {
+		if (isSeqNo64b(server)) {
+		    // New client - Signed PacketID packed into unsigned id2,id
+		    server->first_packetID = (static_cast<uint32_t>(ntohl(mBuf_UDP->id))) | (static_cast<uintmax_t>(ntohl(mBuf_UDP->id2)) << 32);
+		} else {
+		    // Old client - Signed PacketID in Signed id
+		    server->first_packetID = static_cast<int32_t>(ntohl(mBuf_UDP->id));
+		}
+	    }
             // We have a new UDP flow (based upon key of quintuple)
             // so let's hand off this socket
             // to the server and create a new listener socket

@@ -265,6 +265,7 @@ struct ReportCommon {
     int bbhold;
     int bbcount;
     int jitter_binwidth;
+    intmax_t first_packetID;
 #if WIN32
     SOCKET socket;
 #else

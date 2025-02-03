@@ -153,6 +153,7 @@ static void common_copy (struct ReportCommon **common, struct thread_Settings *i
     (*common)->bbreplysize = inSettings->mBounceBackReplyBytes;
     (*common)->bbhold = inSettings->mBounceBackHold;
     (*common)->bbcount = inSettings->mBounceBackBurst;
+    (*common)->first_packetID = inSettings->first_packetID;
 #if HAVE_DECL_TCP_WINDOW_CLAMP
     (*common)->ClampSize = inSettings->mClampSize;
 #endif

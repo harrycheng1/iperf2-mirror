@@ -2668,6 +2668,12 @@ void reporter_print_connection_report (struct ConnectionInfo *report) {
     linebuffer[SNBUFFERSIZE] = '\0';
     linebuffer[0] = '\0';
     int n = 0;
+    if (isUDP(report->common) && isEnhanced(report->common) &&		\
+	(report->common->ThreadMode != kMode_Client) && (report->common->first_packetID > 1)) {
+	n = snprintf(b, SNBUFFERSIZE-strlen(linebuffer), " (%" PRIdMAX ")", report->common->first_packetID);
+	FAIL_exit((n < 0), "fail append seq no");
+	b += n;
+    }
 #if HAVE_DECL_TCP_WINDOW_CLAMP
     if (!isUDP(report->common) && isRxClamp(report->common)) {
 	n = snprintf(b, (SNBUFFERSIZE-strlen(linebuffer)), " (%s%d)", "clamp=", report->common->ClampSize);
@@ -2726,10 +2732,10 @@ void reporter_print_connection_report (struct ConnectionInfo *report) {
     if (isBounceBack(report->common)) {
 	if (isTcpQuickAck(report->common)) {
 	    n = snprintf(b, SNBUFFERSIZE-strlen(linebuffer), " (bb w/quickack req/reply/hold=%d/%d/%d)", report->common->bbsize, \
-		     report->common->bbreplysize, report->common->bbhold);
+			 report->common->bbreplysize, report->common->bbhold);
 	} else {
 	    n = snprintf(b, SNBUFFERSIZE-strlen(linebuffer), " (bb req/reply/hold=%d/%d/%d)", report->common->bbsize, \
-		     report->common->bbreplysize, report->common->bbhold);
+			 report->common->bbreplysize, report->common->bbhold);
 	}
 	FAIL_exit((n < 0), "fail append bb");
 	FAIL_exit((strlen(linebuffer) >= SNBUFFERSIZE), "buffer overflow bb");
@@ -2781,12 +2787,12 @@ void reporter_print_connection_report (struct ConnectionInfo *report) {
 	n  = 0;
 	if (isFullDuplex(report->common)) {
 	    n = snprintf(b, SNBUFFERSIZE-strlen(linebuffer), " (tos rx/tx=0x%x,dscp=%d,ecn=%d, /0x%x,dscp=%d,ecn=%d)", report->common->TOS, \
-		     DSCP_VALUE(report->common->TOS), ECN_VALUE(report->common->TOS), \
-		     report->common->RTOS, \
-		     DSCP_VALUE(report->common->RTOS), ECN_VALUE(report->common->RTOS));
+			 DSCP_VALUE(report->common->TOS), ECN_VALUE(report->common->TOS), \
+			 report->common->RTOS, \
+			 DSCP_VALUE(report->common->RTOS), ECN_VALUE(report->common->RTOS));
 	} else if (isReverse(report->common)) {
 	    n = snprintf(b, SNBUFFERSIZE-strlen(linebuffer), " (tos rx=0x%x,dscp=%d,ecn=%d)", report->common->TOS,  \
-		     DSCP_VALUE(report->common->TOS), ECN_VALUE(report->common->TOS));
+			 DSCP_VALUE(report->common->TOS), ECN_VALUE(report->common->TOS));
 	}
 	FAIL_exit((n < 0 ), "fail append o-tos");
 	FAIL_exit((strlen(linebuffer) >= SNBUFFERSIZE), "buffer overflow o-tos");
@@ -2794,15 +2800,15 @@ void reporter_print_connection_report (struct ConnectionInfo *report) {
     } else if (report->common->TOS) {
 	if (isFullDuplex(report->common) || isBounceBack(report->common)) {
 	    n = snprintf(b, SNBUFFERSIZE-strlen(linebuffer), " (tos rx/tx=0x%x,dscp=%d,ecn=%d/0x%x,dscp=%d,ecn=%d)", report->common->TOS, \
-		     DSCP_VALUE(report->common->TOS), ECN_VALUE(report->common->TOS), \
-		     report->common->TOS, \
-		     DSCP_VALUE(report->common->TOS), ECN_VALUE(report->common->TOS));
+			 DSCP_VALUE(report->common->TOS), ECN_VALUE(report->common->TOS), \
+			 report->common->TOS, \
+			 DSCP_VALUE(report->common->TOS), ECN_VALUE(report->common->TOS));
 	} else if (isReverse(report->common)) {
 	    n = snprintf(b, SNBUFFERSIZE-strlen(linebuffer), " (tos rx=0x%x,dscp=%d,ecn=%d)", report->common->TOS, \
-		     DSCP_VALUE(report->common->TOS), ECN_VALUE(report->common->TOS));
+			 DSCP_VALUE(report->common->TOS), ECN_VALUE(report->common->TOS));
 	} else {
 	    n = snprintf(b, SNBUFFERSIZE-strlen(linebuffer), " (tos tx=0x%x,dscp=%d,ecn=%d)", report->common->TOS, \
-		     DSCP_VALUE(report->common->TOS), ECN_VALUE(report->common->TOS));
+			 DSCP_VALUE(report->common->TOS), ECN_VALUE(report->common->TOS));
 	}
 	FAIL_exit((n < 0), "fail append tos");
 	FAIL_exit((strlen(linebuffer) >= SNBUFFERSIZE), "buffer overflow tos");
@@ -2827,7 +2833,7 @@ void reporter_print_connection_report (struct ConnectionInfo *report) {
 #if HAVE_TCP_STATS
     if (!isUDP(report->common) && (report->tcpinitstats.isValid) && isEnhanced(report->common)) {
 	n = snprintf(b, SNBUFFERSIZE-strlen(linebuffer), " (icwnd/mss/irtt=%" PRIdMAX "/%" PRIuLEAST32 "/%" PRIuLEAST32 ")", \
-		 report->tcpinitstats.cwnd, report->tcpinitstats.mss_negotiated, report->tcpinitstats.rtt);
+		     report->tcpinitstats.cwnd, report->tcpinitstats.mss_negotiated, report->tcpinitstats.rtt);
 	FAIL_exit((n < 0), "fail append tcpstats");
 	FAIL_exit((strlen(linebuffer) >= SNBUFFERSIZE), "buffer overflow tcpstats");
 	b += n;
@@ -2895,7 +2901,6 @@ void reporter_print_connection_report (struct ConnectionInfo *report) {
 	       remote_addr, (peer->sa_family == AF_INET ? ntohs(((struct sockaddr_in*)peer)->sin_port) : \
 			     ntohs(((struct sockaddr_in6*)peer)->sin6_port)), linebuffer);
     }
-
 #else
     if (report->common->KeyCheck) {
 	if (isEnhanced(report->common) && report->common->Ifrname) {

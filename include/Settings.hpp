@@ -333,6 +333,7 @@ struct thread_Settings {
     unsigned int connect_retry_timer; // units in usecs
     int rand_seed;
     struct Condition receiving;
+    intmax_t first_packetID;
 };
 
 /*
