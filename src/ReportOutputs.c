@@ -2415,9 +2415,11 @@ static void reporter_output_listener_settings (struct ReportSettings *report) {
     } else if (isSingleClient(report->common)) {
 	fprintf(stdout, "Server set to single client traffic mode (serialize traffic tests)\n");
     }
-    if (isMulticast(report->common) && (report->common->Port == report->common->PortLast)) {
-	fprintf(stdout, "Server set to single client traffic mode (per multicast receive)\n");
+#if defined(HAVE_LINUX_FILTER_H) && defined(HAVE_AF_PACKET) && 0 // take this out for now
+    if (isEnhanced(report->common) && isMulticast(report->common) && (report->common->Port == report->common->PortLast)) {
+	fprintf(stdout, "Listener thread will use BPF drops (per multicast recvfrom)\n");
     }
+#endif
     if (isHistogram(report->common)) {
 	fprintf(stdout, "Enabled receive histograms bin-width=%0.3f ms, bins=%d (clients should use --trip-times)\n", \
 		((1e3 * report->common->HistBinsize) / pow(10,report->common->HistUnits)), report->common->HistBins);

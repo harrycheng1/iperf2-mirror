@@ -100,6 +100,8 @@ Listener::Listener (thread_Settings *inSettings) {
      * 3) Server thread
      */
     mSettings = inSettings;
+    drain_count=0;
+    duplicate_count=0;
 } // end Listener
 
 /* -------------------------------------------------------------------
@@ -167,8 +169,7 @@ void Listener::Run () {
         }
         // Serialize in the event the -1 option or --singleclient is set
         int tc = 0;
-        if ((isSingleClient(mSettings) || (isUDP(mSettings) && isMulticast(mSettings))) && \
-            mCount && (tc = (thread_numtrafficthreads()) > 0)) {
+        if (isSingleClient(mSettings) && mCount && (tc = (thread_numtrafficthreads()) > 0)) {
             // Start with a delay in the event some traffic
             // threads are pending to be scheduled and haven't
             // had a chance to update the traffic thread count.
@@ -179,6 +180,7 @@ void Listener::Run () {
 #ifdef HAVE_THREAD_DEBUG
             thread_debug("Listener single client loop mc/t/mcast/sc %d/%d/%d/%d",mCount, tc, isMulticast(mSettings), isSingleClient(mSettings));
 #endif
+	    printf("*** here\n");
             continue;
         }
         // This will set ListenSocket to a new sock fd
@@ -384,6 +386,19 @@ void Listener::Run () {
             Condition_TimedWait(&server->receiving, 1);
         }
     }
+#if HAVE_THREAD_DEBUG
+    if (isUDP(mSettings) && isEnhanced(mSettings) && ((drain_count > 0) || (duplicate_count > 0))) {
+	int len = snprintf(NULL, 0, "[Info] Listener thread filtered and dropped %" PRIdMAX " packets (stale/duplicates=%" PRIdMAX "/%" PRIdMAX ")\n", \
+			   (drain_count + duplicate_count), drain_count, duplicate_count);
+	char *text = (char *) calloc(len+1, sizeof(char));
+	if (text) {
+	    snprintf(text, len, "[Info] Listener thread filtered and dropped %" PRIdMAX " packets (stale/duplicates=%" PRIdMAX "/%" PRIdMAX ")\n", \
+		     (drain_count + duplicate_count), drain_count, duplicate_count);
+	    PostReport(InitStringReport(text));
+	    FREE_ARRAY(text);
+	}
+    }
+#endif
 #ifdef HAVE_THREAD_DEBUG
     thread_debug("Listener exiting port/sig/threads %d/%d/%d", mSettings->mPort, sInterupted, mCount);
 #endif
@@ -697,6 +712,8 @@ int Listener::udp_accept (thread_Settings *server) {
                 if (packetID32 > 0)
                     drainstalepkts = false;
             }
+	    if (drainstalepkts)
+		drain_count++;
         }
     } while ((nread > 0) && drainstalepkts && !sInterupted);
     FAIL_errno(nread == SOCKET_ERROR, "recvfrom", mSettings);
@@ -707,6 +724,7 @@ int Listener::udp_accept (thread_Settings *server) {
         // Drop duplicates, may need to use a BPF drop for better performance
         // or ebfs
         if (!Iperf_push_host(server)) {
+	    duplicate_count++;
             goto RETRYREAD;
         } else {
             int rc;
@@ -732,6 +750,8 @@ int Listener::udp_accept (thread_Settings *server) {
                 iperf_sockaddr sent_dstaddr;
                 getsockname(server->mSock, reinterpret_cast<sockaddr*>(&sent_dstaddr), &server->size_multicast_group);
                 int join_send_match = SockAddr_Hostare_Equal(&sent_dstaddr, &server->multicast_group);
+		rc = connect(server->mSock, reinterpret_cast<struct sockaddr*>(&server->peer), server->size_peer);
+		FAIL_errno(rc == SOCKET_ERROR, "mcast connect UDP", mSettings);
 #if DEBUG_MCAST
                 char joinaddr[200];
                 char pktaddr[200];

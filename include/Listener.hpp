@@ -91,6 +91,8 @@ private:
     bool tap_setup(thread_Settings *server, int sockfd);
     void UDPSingleServer(thread_Settings *server);
     bool test_permit_key(uint32_t flags, thread_Settings *server, int keyoffset);
+    uintmax_t drain_count;
+    uintmax_t duplicate_count;
 #if WIN32
     SOCKET ListenSocket;
 #else
