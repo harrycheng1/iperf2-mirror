@@ -180,7 +180,6 @@ void Listener::Run () {
 #ifdef HAVE_THREAD_DEBUG
             thread_debug("Listener single client loop mc/t/mcast/sc %d/%d/%d/%d",mCount, tc, isMulticast(mSettings), isSingleClient(mSettings));
 #endif
-	    printf("*** here\n");
             continue;
         }
         // This will set ListenSocket to a new sock fd
