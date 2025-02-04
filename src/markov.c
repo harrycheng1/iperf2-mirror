@@ -84,7 +84,7 @@ void markov_graph_print(struct markov_graph *graph, char *prepend) {
 	    printf("%sMarkov chain: %s transitions: %" PRIdMAX " unknowns: %" PRIdMAX "\n", prepend, graph->braket_str, graph->transition_cnt, graph->unknown_cnt);
 	    for (ix = 0; ix < graph->count; ix++) {
 		printf("%s%d=", prepend, tmp[ix][0].node_len);
-		uint64_t pullcnt = 0;
+		uintmax_t pullcnt = 0;
 		for (jx = 0; jx < graph->count; jx++) {
 		    pullcnt += tmp[ix][jx].transition_cnt;
 		}

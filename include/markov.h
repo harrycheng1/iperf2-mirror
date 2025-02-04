@@ -61,7 +61,7 @@ extern "C" {
 struct markov_entry {
     int node_len;
     int adjacent_node_len;
-    uint64_t transition_cnt;
+    uintmax_t transition_cnt;
     float prob_cummulative;
     float prob;
 };
@@ -69,8 +69,8 @@ struct markov_entry {
 struct markov_graph {
     char *braket_str;
     int count;
-    uint64_t transition_cnt;
-    uint64_t unknown_cnt;
+    uintmax_t transition_cnt;
+    uintmax_t unknown_cnt;
     int seed;
     int cur_row;
     int cur_col;
