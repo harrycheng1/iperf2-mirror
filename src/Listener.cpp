@@ -133,7 +133,7 @@ Listener::~Listener () {
  * ------------------------------------------------------------------- */
 void Listener::Run () {
     // mCount is set True if -P was passed to the server
-    int mCount = ((mSettings->mThreads != 0) ?  mSettings->mThreads : -1);
+    mCount = ((mSettings->mThreads != 0) ?  mSettings->mThreads : -1);
 
     // This is a listener launched by the client per -r or -d
     if (mSettings->clientListener) {
@@ -416,6 +416,9 @@ bool Listener::my_listen () {
     int type;
     int domain;
     SockAddr_localAddr(mSettings);
+
+    if (ListenSocket != INVALID_SOCKET)
+	return true;
 
 #if (((HAVE_TUNTAP_TUN) || (HAVE_TUNTAP_TAP)) && (AF_PACKET))
     if (isTapDev(mSettings)) {
@@ -747,9 +750,20 @@ int Listener::udp_accept (thread_Settings *server) {
             // This connect() routing is only supported with AF_INET or AF_INET6 sockets,
             // e.g. AF_PACKET sockets can't do this.  We'll handle packet sockets later
             // All UDP accepts here will use AF_INET.  This is intentional and needed
+	    //
+	    // There are two choices for connect() and full quintuple matching
+	    // 1) Open a new socket and connect it as the server thread socket
+	    // 2) Use the listener thread socket, connect it, and hand it to the server, then openb/bind a new listener socket
+	    //
+	    // In case 1, the challenge is packets enqueued won't be made available to the server thread
+	    // In case 2, there is time period that there is no recvfrom open on the Listener port, can cause port refusal ICMP messages
+	    //
+	    // See ticket 357 https://sourceforge.net/p/iperf2/tickets/357/
             if (!isMulticast(server)) {
                 rc = connect(server->mSock, reinterpret_cast<struct sockaddr*>(&server->peer), server->size_peer);
                 FAIL_errno(rc == SOCKET_ERROR, "connect UDP", mSettings);
+		if ((mCount < 0) || (mCount > 1))
+		    my_listen();
                 server->size_local = sizeof(iperf_sockaddr);
                 getsockname(server->mSock, reinterpret_cast<sockaddr*>(&server->local), &server->size_local);
                 SockAddr_Ifrname(server);
@@ -760,6 +774,8 @@ int Listener::udp_accept (thread_Settings *server) {
                 int join_send_match = SockAddr_Hostare_Equal(&sent_dstaddr, &server->multicast_group);
 		rc = connect(server->mSock, reinterpret_cast<struct sockaddr*>(&server->peer), server->size_peer);
 		FAIL_errno(rc == SOCKET_ERROR, "mcast connect UDP", mSettings);
+		if ((mCount < 0) || (mCount > 1))
+		    my_listen();
 #if DEBUG_MCAST
                 char joinaddr[200];
                 char pktaddr[200];

@@ -73,6 +73,7 @@ public:
 
 private:
     int mClients;
+    int mCount;
     struct ether_header *eth_hdr;
     struct iphdr *ip_hdr;
     struct udphdr *udp_hdr;
