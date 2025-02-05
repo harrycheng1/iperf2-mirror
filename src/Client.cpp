@@ -1734,11 +1734,7 @@ void Client::RunUDPL4S () {
         else
             maxrate  = mSettings->mAppRate / kBytes_to_Bits;
     }
-    if (!isIPV6(mSettings))
-        initmtu = mSettings->mBufLen + IPV4HDRLEN + UDPHDRLEN;
-    else
-        initmtu = mSettings->mBufLen + IPV6HDRLEN + UDPHDRLEN;
-    initmtu = (initmtu > PRAGUE_MINMTU) ? initmtu : PRAGUE_MINMTU;
+    initmtu = ((size_tp)mSettings->mBufLen > PRAGUE_MINMTU) ? mSettings->mBufLen : PRAGUE_MINMTU;
     PragueCC l4s_pacer(initmtu, 0, 0, PRAGUE_INITRATE, PRAGUE_INITWIN, PRAGUE_MINRATE, maxrate);
     time_tp nextSend = l4s_pacer.Now();
     count_tp seqnr = 1;
@@ -1748,13 +1744,14 @@ void Client::RunUDPL4S () {
     count_tp packet_burst;
     size_tp packet_size;
     l4s_pacer.GetCCInfo(pacing_rate, packet_window, packet_burst, packet_size);
+
     while (InProgress()) {
 	count_tp inburst = 0;
         // [TODO] Add timout functionality
         // time_tp timeout = 0;
         time_tp startSend = 0;
         time_tp pacer_now = l4s_pacer.Now();
-        while ((inflight < packet_window) && (inburst < packet_burst) && (nextSend <= pacer_now)) {
+        while ((inflight < packet_window) && (inburst < packet_burst) && (nextSend - pacer_now <= 0)) {
             ecn_tp new_ecn;
 	    time_tp sender_ts;
 	    time_tp echoed_ts;
