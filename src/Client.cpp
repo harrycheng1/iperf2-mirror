@@ -1743,6 +1743,7 @@ void Client::RunUDPL4S () {
     count_tp packet_window;
     count_tp packet_burst;
     size_tp packet_size;
+    time_tp compRecv = 0;
     l4s_pacer.GetCCInfo(pacing_rate, packet_window, packet_burst, packet_size);
 
     while (InProgress()) {
@@ -1828,14 +1829,17 @@ void Client::RunUDPL4S () {
 		}
 	    }
 	}
-	if (startSend != 0)
-            nextSend = startSend + packet_size * inburst * 1000000 / pacing_rate;
+	if (startSend != 0) {
+            if (compRecv + packet_size * inburst * 1000000 / pacing_rate <= 0)
+                nextSend = time_tp(startSend + 1);
+            else
+                nextSend = time_tp(startSend + compRecv + packet_size * inburst * 1000000 / pacing_rate);
+            compRecv = 0;
+	}
 
-        time_tp waitTimeout = 0;
+        time_tp waitTimeout = nextSend;
         pacer_now = l4s_pacer.Now();
-        if (inflight < packet_window)
-            waitTimeout = nextSend;
-        else
+        if (inflight >= packet_window)
             waitTimeout = pacer_now + 1000000; // units usec
 
 	time_tp ack_timeout = waitTimeout - pacer_now; // units usec;
@@ -1858,8 +1862,15 @@ void Client::RunUDPL4S () {
 	    }
         }
         else // timeout, reset state
-            if (inflight >= packet_window)
+            if (inflight >= packet_window) {
                 l4s_pacer.ResetCCInfo();
+                inflight = 0;
+            }
+        pacer_now = l4s_pacer.Now();
+        if (waitTimeout - pacer_now <= 0) {
+            if (inflight > 0)
+                compRecv += (waitTimeout - pacer_now);
+        }
         l4s_pacer.GetCCInfo(pacing_rate, packet_window, packet_burst, packet_size);
     }
     FinishTrafficActions();
