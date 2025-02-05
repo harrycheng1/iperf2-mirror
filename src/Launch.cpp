@@ -157,6 +157,7 @@ void server_spawn(struct thread_Settings *thread) {
     if (isUDP(thread)) {
 #if HAVE_UDP_L4S
         if (isUDPL4S(thread)) {
+            SetSocketOptionsIPRCVTos(thread);
             theServer->RunUDPL4S();
         } else
 #endif

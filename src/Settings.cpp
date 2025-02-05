@@ -2505,6 +2505,7 @@ void Settings_GenerateClientSettings (struct thread_Settings *server, struct thr
     assert(mBuf != NULL);
     uint32_t flags = isUDP(server) ? ntohl(*(uint32_t *)((char *)mBuf + sizeof(struct UDP_datagram))) : ntohl(*(uint32_t *)mBuf);
     uint16_t upperflags = 0;
+    uint16_t lowerflags = 0;
     thread_Settings *reversed_thread = NULL;
     *client = NULL;
     bool v1test = (flags & HEADER_VERSION1) && !(flags & HEADER_VERSION2);
@@ -2568,6 +2569,10 @@ void Settings_GenerateClientSettings (struct thread_Settings *server, struct thr
 #ifdef HAVE_INT64_T
 		reversed_thread->mFQPacingRate |= (static_cast<uint64_t>(ntohl(hdr->start_fq.fqrateu)) << 32);
 #endif
+	    }
+	    lowerflags = ntohs(hdr->extend.lowerflags);
+	    if ((lowerflags & HEADER_UDPL4S) == HEADER_UDPL4S) {
+		setUDPL4S(reversed_thread);
 	    }
 	}
     } else { //tcp first payload

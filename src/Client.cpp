@@ -1851,8 +1851,11 @@ void Client::RunUDPL4S () {
 	    count_tp pkts_ce = ntohl(UDPAckBuf.CE_cnt);
 	    count_tp pkts_lost = ntohl(UDPAckBuf.lost_cnt);
 	    bool l4s_err = (htons(UDPAckBuf.flags) & L4S_ECN_ERR);
-	    l4s_pacer.PacketReceived(timestamp, echoed_timestamp);
-	    l4s_pacer.ACKReceived(pkts_rx, pkts_ce, pkts_lost, seqnr, l4s_err, inflight);
+	    if (!UDPAckBuf.reserved1) {
+	        // To distinguish L4S ACK from retrnasmitted client_udp_testhdr (reverse mode)
+	        l4s_pacer.PacketReceived(timestamp, echoed_timestamp);
+	        l4s_pacer.ACKReceived(pkts_rx, pkts_ce, pkts_lost, seqnr, l4s_err, inflight);
+	    }
         }
         else // timeout, reset state
             if (inflight >= packet_window)
