@@ -328,7 +328,7 @@ if test "$ac_cv_have_ipv6" = yes; then
     AC_MSG_CHECKING(for IPv6 multicast support)
     ac_cv_have_ipv6_multicast=no
     if test "$ac_cv_type_struct_ipv6_mreq" = yes; then
-      if test "$ac_cv_have_decl_IPV6_ADD_MEMBERSHIP" = yes; then  || test "$ac_cv_have_decl_IPV6_JOIN_GROUP" = yes; then
+      if test "$ac_cv_have_decl_IPV6_ADD_MEMBERSHIP" = yes || test "$ac_cv_have_decl_IPV6_JOIN_GROUP" = yes; then
         if test "$ac_cv_have_decl_IPV6_MULTICAST_HOPS" = yes; then
           AC_DEFINE([HAVE_IPV6_MULTICAST], 1, [Define to enable IPv6 multicast support])
           ac_cv_have_ipv6_multicast=yes
