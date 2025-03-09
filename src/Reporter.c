@@ -1108,7 +1108,7 @@ inline void reporter_handle_packet_server_udp (struct ReporterData *data, struct
 	reporter_reset_mmm(&stats->transit.current);
     } else if (!packet->emptyreport && (packet->packetID > 0)) {
 	if (packet->err_readwrite == ReadWrongSrcPort) {
-	    stats->cntSrcPortMismatch++;
+	    stats->total.SrcPortMismatch.current++;
 	    // ignore packets on the wrong quintuple
 	} else {
 	    bool ooo_packet = false;
@@ -1353,6 +1353,7 @@ static inline void reporter_reset_transfer_stats_server_udp (struct TransferInfo
     stats->total.Bytes.prev = stats->total.Bytes.current;
     stats->total.Datagrams.prev = stats->PacketID;
     stats->total.OutofOrder.prev = stats->total.OutofOrder.current;
+    stats->total.SrcPortMismatch.prev = stats->total.SrcPortMismatch.current;
     stats->total.Lost.prev = stats->total.Lost.current;
     stats->total.IPG.prev = stats->total.IPG.current;
     reporter_reset_mmm(&stats->transit.current);
@@ -1382,6 +1383,7 @@ void reporter_transfer_protocol_server_udp (struct ReporterData *data, bool fina
     // print a interval report and possibly a partial interval report if this a final
     stats->cntBytes = stats->total.Bytes.current - stats->total.Bytes.prev;
     stats->cntOutofOrder = stats->total.OutofOrder.current - stats->total.OutofOrder.prev;
+    stats->cntSrcPortMismatch = stats->total.SrcPortMismatch.current - stats->total.SrcPortMismatch.prev;
     // assume most of the  time out-of-order packets are
     // duplicate packets, so conditionally subtract them from the lost packets.
     stats->cntError = stats->total.Lost.current - stats->total.Lost.prev - stats->cntOutofOrder;
@@ -1419,6 +1421,7 @@ void reporter_transfer_protocol_server_udp (struct ReporterData *data, bool fina
     }
     if (sumstats) {
 	sumstats->total.OutofOrder.current += stats->total.OutofOrder.current - stats->total.OutofOrder.prev;
+	sumstats->total.SrcPortMismatch.current += stats->total.SrcPortMismatch.current - stats->total.SrcPortMismatch.prev;
 	// assume most of the  time out-of-order packets are not
 	// duplicate packets, so conditionally subtract them from the lost packets.
 	sumstats->total.Lost.current += stats->total.Lost.current - stats->total.Lost.prev;
@@ -1460,6 +1463,7 @@ void reporter_transfer_protocol_server_udp (struct ReporterData *data, bool fina
     if (final) {
 	if ((stats->cntBytes > 0) && !TimeZero(stats->ts.intervalTime)) {
 	    stats->cntOutofOrder = stats->total.OutofOrder.current - stats->total.OutofOrder.prev;
+	    stats->cntSrcPortMismatch = stats->total.SrcPortMismatch.current - stats->total.SrcPortMismatch.prev;
 	    // assume most of the  time out-of-order packets are not
 	    // duplicate packets, so conditionally subtract them from the lost packets.
 	    stats->cntError = stats->total.Lost.current - stats->total.Lost.prev;
@@ -1476,6 +1480,7 @@ void reporter_transfer_protocol_server_udp (struct ReporterData *data, bool fina
 	reporter_set_timestamps_time(stats, TOTAL);
 	stats->IPGsum = TimeDifference(stats->ts.packetTime, stats->ts.startTime);
 	stats->cntOutofOrder = stats->total.OutofOrder.current;
+	stats->cntSrcPortMismatch = stats->total.SrcPortMismatch.current;
 	// assume most of the  time out-of-order packets are not
 	// duplicate packets, so conditionally subtract them from the lost packets.
 	stats->cntError = stats->total.Lost.current;
@@ -1541,6 +1546,7 @@ void reporter_transfer_protocol_sum_server_udp (struct TransferInfo *stats, bool
     if (final) {
 	reporter_set_timestamps_time(stats, TOTAL);
 	stats->cntOutofOrder = stats->total.OutofOrder.current;
+	stats->cntSrcPortMismatch = stats->total.SrcPortMismatch.current;
 	// assume most of the  time out-of-order packets are not
 	// duplicate packets, so conditionally subtract them from the lost packets.
 	stats->cntError = stats->total.Lost.current;
@@ -1555,6 +1561,7 @@ void reporter_transfer_protocol_sum_server_udp (struct TransferInfo *stats, bool
 	stats->cntOutofOrder = stats->total.OutofOrder.current - stats->total.OutofOrder.prev;
 	// assume most of the  time out-of-order packets are not
 	// duplicate packets, so conditionally subtract them from the lost packets.
+	stats->cntSrcPortMismatch = stats->total.SrcPortMismatch.current - stats->total.SrcPortMismatch.prev;
 	stats->cntError = stats->total.Lost.current - stats->total.Lost.prev;
 	stats->cntError -= stats->cntOutofOrder;
 	if (stats->cntError < 0)
@@ -2156,6 +2163,7 @@ bool reporter_condprint_frame_interval_report_server_udp (struct ReporterData *d
 	stats->ts.iEnd = TimeDifference(packet->packetTime, stats->ts.startTime);
 	stats->cntBytes = stats->total.Bytes.current - stats->total.Bytes.prev;
 	stats->cntOutofOrder = stats->total.OutofOrder.current - stats->total.OutofOrder.prev;
+	stats->cntSrcPortMismatch = stats->total.SrcPortMismatch.current - stats->total.SrcPortMismatch.prev;
 	// assume most of the  time out-of-order packets are not
 	// duplicate packets, so conditionally subtract them from the lost packets.
 	stats->cntError = stats->total.Lost.current - stats->total.Lost.prev;
