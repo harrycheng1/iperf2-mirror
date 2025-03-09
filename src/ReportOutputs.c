@@ -193,6 +193,11 @@ static inline void _output_outoforder(struct TransferInfo *stats) {
 	       stats->common->transferIDStr, stats->ts.iStart,
 	       stats->ts.iEnd, stats->cntOutofOrder, (stats->common->Omit ? report_omitted : ""));
     }
+    if (stats->cntSrcPortMismatch > 0) {
+	printf(report_quintuple_error,
+	       stats->common->transferIDStr, stats->ts.iStart,
+	       stats->ts.iEnd, stats->cntSrcPortMismatch, (stats->common->Omit ? report_omitted : ""));
+    }
     if (stats->l2counts.cnt) {
 	printf(report_l2statistics,
 	       stats->common->transferIDStr, stats->ts.iStart,

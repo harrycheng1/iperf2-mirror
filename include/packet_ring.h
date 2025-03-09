@@ -63,6 +63,7 @@ enum ReadWriteExtReturnVals {
     ReadTimeoFatal,
     ReadErrLen,
     ReadNoAccount,
+    ReadWrongSrcPort,
     WriteSuccess,
     WriteSelectRetry,
     WriteErrAccount,

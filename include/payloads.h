@@ -499,6 +499,7 @@ struct isoch_payload {
 struct client_udp_l4s_fwd {
     struct UDP_datagram seqno_ts;
     struct client_hdr_v1 base;
+    struct hdr_typelen typelen;
     int16_t upperflags;
     int16_t lowerflags;
     uint32_t version_u;

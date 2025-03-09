@@ -788,7 +788,18 @@ inline int Server::ReadWithRxTimestamp () {
             reportstruct->err_readwrite = ReadErrLen;
         }
 #endif
-        if (!(message.msg_flags & MSG_CTRUNC)) {
+	uint16_t msg_port, peer_port;
+	if ((reinterpret_cast<struct sockaddr *>(&mSettings->peer))->sa_family == AF_INET) {
+	    msg_port = ntohs((reinterpret_cast<struct sockaddr_in *>(message.msg_name))->sin_port);
+	    peer_port = ntohs((reinterpret_cast<struct sockaddr_in *>(&mSettings->peer))->sin_port);
+	} else {
+	    msg_port = ntohs((reinterpret_cast<struct sockaddr_in6 *>(message.msg_name))->sin6_port);
+	    peer_port = ntohs((reinterpret_cast<struct sockaddr_in6 *>(&mSettings->peer))->sin6_port);
+	}
+	if (msg_port != peer_port) {
+	    reportstruct->err_readwrite = ReadWrongSrcPort;
+	}
+	if (!(message.msg_flags & MSG_CTRUNC)) {
             for (cmsg = CMSG_FIRSTHDR(&message); cmsg != NULL;
                  cmsg = CMSG_NXTHDR(&message, cmsg)) {
                 if (cmsg->cmsg_level == SOL_SOCKET &&
@@ -1059,7 +1070,7 @@ void Server::RunUDP () {
             // read the next packet with timestamp
             // will also set empty report or not
             rxlen=ReadWithRxTimestamp();
-            if (!peerclose && (rxlen > 0)) {
+            if (!peerclose && (rxlen > 0) && (reportstruct->err_readwrite != ReadWrongSrcPort)) {
 		if (markov_graph_len) {
 		    markov_graph_count_edge_transition(markov_graph_len, rxlen);
 		}
@@ -1085,7 +1096,7 @@ void Server::RunUDP () {
                         udp_isoch_processing(rxlen);
                     }
                 }
-            }
+	    }
             ReportPacket(myReport, reportstruct);
         }
     }
@@ -1137,73 +1148,78 @@ void Server::RunUDPL4S () {
             // will also set empty report or not
             rxlen=ReadWithRxTimestamp();
             if (!peerclose && (rxlen > 0)) {
-                reportstruct->emptyreport = false;
-                reportstruct->packetLen = rxlen;
-		// ReadPacketID returns true if this is the last UDP packet sent by the client
-		// also sets the packet rx time in the reportstruct
-		reportstruct->prevSentTime = myReport->info.ts.prevsendTime;
-		reportstruct->prevPacketTime = myReport->info.ts.prevpacketTime;
-		isLastPacket = ReadPacketID(mSettings->l4payloadoffset);
-		myReport->info.ts.prevsendTime = reportstruct->sentTime;
-		myReport->info.ts.prevpacketTime = reportstruct->packetTime;
-		// Read L4S fields from UDP payload, ECN bits came from earlier cmsg
-		struct client_udp_l4s_fwd *udp_l4spkt =			\
-		    reinterpret_cast<struct client_udp_l4s_fwd *>(mSettings->mBuf);
-		l4s_pacer.PacketReceived(ntohl(udp_l4spkt->sender_ts),ntohl(udp_l4spkt->echoed_ts));
-		l4s_pacer.DataReceivedSequence(ecn_tp(reportstruct->tos & 0x03), \
-					       ntohl(udp_l4spkt->sender_seqno));
-		ReportPacket(myReport, reportstruct);
-		// Send l4s ack
-		//
-		time_tp timestamp;
-		time_tp echoed_timestamp;
-		ecn_tp ip_ecn;
-		l4s_pacer.GetTimeInfo(timestamp, echoed_timestamp,ip_ecn);
-                struct udp_l4s_ack udp_l4s_pkt_ack;
-		udp_l4s_pkt_ack.rx_ts = htonl((int32_t) timestamp);
-		udp_l4s_pkt_ack.echoed_ts = htonl((int32_t) echoed_timestamp);
-		count_tp pkts_rx;
-		count_tp pkts_ce;
-		count_tp pkts_lost;
-		bool l4s_err;
-		l4s_pacer.GetACKInfo(pkts_rx, pkts_ce, pkts_lost, l4s_err);
-		udp_l4s_pkt_ack.rx_cnt = htonl(pkts_rx);
-		udp_l4s_pkt_ack.CE_cnt = htonl(pkts_ce);
-		udp_l4s_pkt_ack.lost_cnt = htonl(pkts_lost);
-		udp_l4s_pkt_ack.flags = (l4s_err ? htons(L4S_ECN_ERR) : 0);
-		udp_l4s_pkt_ack.l4sreserved = 0;
-		struct msghdr msg;
-		struct iovec iov[1];
-		unsigned char cmsg[CMSG_SPACE(sizeof(int))];
-		struct cmsghdr *cmsgptr = NULL;
+                if (!reportstruct->reportstruct->err_readwrite != ReadWrongSrcPort) {
+                    reportstruct->emptyreport = false;
+                    reportstruct->packetLen = rxlen;
+                    // ReadPacketID returns true if this is the last UDP packet sent by the client
+                    // also sets the packet rx time in the reportstruct
+                    reportstruct->prevSentTime = myReport->info.ts.prevsendTime;
+                    reportstruct->prevPacketTime = myReport->info.ts.prevpacketTime;
+                    isLastPacket = ReadPacketID(mSettings->l4payloadoffset);
+                    myReport->info.ts.prevsendTime = reportstruct->sentTime;
+                    myReport->info.ts.prevpacketTime = reportstruct->packetTime;
+                    // Read L4S fields from UDP payload, ECN bits came from earlier cmsg
+                    struct client_udp_l4s_fwd *udp_l4spkt =			\
+                        reinterpret_cast<struct client_udp_l4s_fwd *>(mSettings->mBuf);
+                    l4s_pacer.PacketReceived(ntohl(udp_l4spkt->sender_ts),ntohl(udp_l4spkt->echoed_ts));
 
-		memset(&iov, 0, sizeof(iov));
-		memset(&cmsg, 0, sizeof(cmsg));
-		memset(&msg, 0, sizeof (struct msghdr));
+                    l4s_pacer.DataReceivedSequence(ecn_tp(reportstruct->tos & 0x03), \
+                                                   ntohl(udp_l4spkt->sender_seqno));
+                    ReportPacket(myReport, reportstruct);
+                    // Send l4s ack
+                    //
+                    time_tp timestamp;
+                    time_tp echoed_timestamp;
+                    ecn_tp ip_ecn;
+                    l4s_pacer.GetTimeInfo(timestamp, echoed_timestamp,ip_ecn);
+                    struct udp_l4s_ack udp_l4s_pkt_ack;
+                    udp_l4s_pkt_ack.rx_ts = htonl((int32_t) timestamp);
+                    udp_l4s_pkt_ack.echoed_ts = htonl((int32_t) echoed_timestamp);
+                    count_tp pkts_rx;
+                    count_tp pkts_ce;
+                    count_tp pkts_lost;
+                    bool l4s_err;
+                    l4s_pacer.GetACKInfo(pkts_rx, pkts_ce, pkts_lost, l4s_err);
+                    udp_l4s_pkt_ack.rx_cnt = htonl(pkts_rx);
+                    udp_l4s_pkt_ack.CE_cnt = htonl(pkts_ce);
+                    udp_l4s_pkt_ack.lost_cnt = htonl(pkts_lost);
+                    udp_l4s_pkt_ack.flags = (l4s_err ? htons(L4S_ECN_ERR) : 0);
+                    udp_l4s_pkt_ack.l4sreserved = 0;
+                    struct msghdr msg;
+                    struct iovec iov[1];
+                    unsigned char cmsg[CMSG_SPACE(sizeof(int))];
+                    struct cmsghdr *cmsgptr = NULL;
 
-		iov[0].iov_base = reinterpret_cast<char *> (&(udp_l4s_pkt_ack));
-		iov[0].iov_len = sizeof(struct udp_l4s_ack);
-		msg.msg_iov = iov;
-		msg.msg_iovlen = 1;
-		msg.msg_control = cmsg;
-		msg.msg_controllen = sizeof(cmsg);
-		cmsgptr = CMSG_FIRSTHDR(&msg);
-		cmsgptr->cmsg_level = IPPROTO_IP;
-		cmsgptr->cmsg_type  = IP_TOS;
-		cmsgptr->cmsg_len  = CMSG_LEN(sizeof(u_char));
-		u_char tos = (mSettings->mTOS | ip_ecn);
-		memcpy(CMSG_DATA(cmsgptr), (u_char*)&tos, sizeof(u_char));
-		msg.msg_controllen = CMSG_SPACE(sizeof(u_char));
-		int ackLen = sendmsg(mySocket, &msg, 0);
-		if (ackLen <= 0) {
-		    if (ackLen == 0) {
-			WARN_errno(1, "write l4s ack timeout");
-			reportstruct->err_readwrite = WriteTimeo;
-		    } else if (FATALUDPWRITERR(errno)) {
-			WARN_errno(1, "write l4s ack fatal");
-		    }
+                    memset(&iov, 0, sizeof(iov));
+                    memset(&cmsg, 0, sizeof(cmsg));
+                    memset(&msg, 0, sizeof (struct msghdr));
+
+                    iov[0].iov_base = reinterpret_cast<char *> (&(udp_l4s_pkt_ack));
+                    iov[0].iov_len = sizeof(struct udp_l4s_ack);
+                    msg.msg_iov = iov;
+                    msg.msg_iovlen = 1;
+                    msg.msg_control = cmsg;
+                    msg.msg_controllen = sizeof(cmsg);
+                    cmsgptr = CMSG_FIRSTHDR(&msg);
+                    cmsgptr->cmsg_level = IPPROTO_IP;
+                    cmsgptr->cmsg_type  = IP_TOS;
+                    cmsgptr->cmsg_len  = CMSG_LEN(sizeof(u_char));
+                    u_char tos = (mSettings->mTOS | ip_ecn);
+                    memcpy(CMSG_DATA(cmsgptr), (u_char*)&tos, sizeof(u_char));
+                    msg.msg_controllen = CMSG_SPACE(sizeof(u_char));
+                    int ackLen = sendmsg(mySocket, &msg, 0);
+                    if (ackLen <= 0) {
+                        if (ackLen == 0) {
+                            WARN_errno(1, "write l4s ack timeout");
+                            reportstruct->err_readwrite = WriteTimeo;
+                        } else if (FATALUDPWRITERR(errno)) {
+                            WARN_errno(1, "write l4s ack fatal");
+                        }
+                    }
+                } else {
+                    ReportPacket(myReport, reportstruct);
 		}
-	    }
+            }
         }
     }
     disarm_itimer();

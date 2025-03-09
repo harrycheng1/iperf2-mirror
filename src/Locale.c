@@ -726,6 +726,9 @@ const char report_outoforder[] =
 const char report_sumcnt_outoforder[] =
 "[SUM-%d] " IPERFTimeFrmt " sec  %" PRIdMAX " datagrams  received out-of-order%s\n";
 
+const char report_quintuple_error[] =
+"%s" IPERFTimeFrmt " sec  %" PRIdMAX " datagrams received on wrong quintuple%s\n";
+
 const char report_l2statistics[] =
 "%s" IPERFTimeFrmt " sec   L2 processing detected errors, total(length/checksum/unknown) = %" PRIdMAX "(%" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX ")\n";
 

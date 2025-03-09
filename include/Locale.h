@@ -360,6 +360,8 @@ extern const char report_sumcnt_udp_triptime_format[];
 
 extern const char report_outoforder[];
 
+extern const char report_quintuple_error[];
+
 extern const char report_sumcnt_outoforder[];
 
 extern const char report_l2statistics[];
