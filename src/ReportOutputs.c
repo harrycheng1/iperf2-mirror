@@ -2675,7 +2675,7 @@ void reporter_print_connection_report (struct ConnectionInfo *report) {
     int n = 0;
     if (isUDP(report->common) && isEnhanced(report->common) &&		\
 	(report->common->ThreadMode != kMode_Client) && (report->common->first_packetID > 1)) {
-	n = snprintf(b, SNBUFFERSIZE-strlen(linebuffer), " (%" PRIdMAX ")", report->common->first_packetID);
+	n = snprintf(b, SNBUFFERSIZE-strlen(linebuffer), " (seq no=%" PRIdMAX ")", report->common->first_packetID);
 	FAIL_exit((n < 0), "fail append seq no");
 	b += n;
     }
