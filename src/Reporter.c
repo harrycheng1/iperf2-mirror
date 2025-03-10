@@ -1106,60 +1106,58 @@ inline void reporter_handle_packet_server_udp (struct ReporterData *data, struct
 	// Hence, set the per interval min to infinity
 	// and the per interval max and sum to zero
 	reporter_reset_mmm(&stats->transit.current);
+    } else if (packet->err_readwrite == ReadWrongSrcPort) {
+	// ignore packets on the wrong quintuple
+	stats->total.SrcPortMismatch.current++;
     } else if (!packet->emptyreport && (packet->packetID > 0)) {
-	if (packet->err_readwrite == ReadWrongSrcPort) {
-	    stats->total.SrcPortMismatch.current++;
-	    // ignore packets on the wrong quintuple
-	} else {
-	    bool ooo_packet = false;
-	    // packet loss occured if the datagram numbers aren't sequential
-	    if (packet->packetID != stats->PacketID + 1) {
-		if (packet->packetID < stats->PacketID + 1) {
-		    stats->total.OutofOrder.current++;
-		    ooo_packet = true;
-		} else {
-		    stats->total.Lost.current += packet->packetID - stats->PacketID - 1;
-		}
+	bool ooo_packet = false;
+	// packet loss occured if the datagram numbers aren't sequential
+	if (packet->packetID != stats->PacketID + 1) {
+	    if (packet->packetID < stats->PacketID + 1) {
+		stats->total.OutofOrder.current++;
+		ooo_packet = true;
+	    } else {
+		stats->total.Lost.current += packet->packetID - stats->PacketID - 1;
 	    }
-	    // never decrease datagramID (e.g. if we get an out-of-order packet)
-	    if (packet->packetID > stats->PacketID) {
-		stats->PacketID = packet->packetID;
+	}
+	// never decrease datagramID (e.g. if we get an out-of-order packet)
+	if (packet->packetID > stats->PacketID) {
+	    stats->PacketID = packet->packetID;
+	}
+	// These are valid packets that need standard iperf accounting
+	// Do L2 accounting first (if needed)
+	if (packet->l2errors && (stats->total.Datagrams.current > L2DROPFILTERCOUNTER)) {
+	    stats->l2counts.cnt++;
+	    stats->l2counts.tot_cnt++;
+	    if (packet->l2errors & L2UNKNOWN) {
+		stats->l2counts.unknown++;
+		stats->l2counts.tot_unknown++;
 	    }
-	    // These are valid packets that need standard iperf accounting
-	    // Do L2 accounting first (if needed)
-	    if (packet->l2errors && (stats->total.Datagrams.current > L2DROPFILTERCOUNTER)) {
-		stats->l2counts.cnt++;
-		stats->l2counts.tot_cnt++;
-		if (packet->l2errors & L2UNKNOWN) {
-		    stats->l2counts.unknown++;
-		    stats->l2counts.tot_unknown++;
-		}
-		if (packet->l2errors & L2LENERR) {
-		    stats->l2counts.lengtherr++;
-		    stats->l2counts.tot_lengtherr++;
-		}
-		if (packet->l2errors & L2CSUMERR) {
-		    stats->l2counts.udpcsumerr++;
-		    stats->l2counts.tot_udpcsumerr++;
-		}
+	    if (packet->l2errors & L2LENERR) {
+		stats->l2counts.lengtherr++;
+		stats->l2counts.tot_lengtherr++;
 	    }
-	    if (packet->err_readwrite == ReadErrLen) {
-		stats->sock_callstats.read.ReadErrLenCnt.current++;
+	    if (packet->l2errors & L2CSUMERR) {
+		stats->l2counts.udpcsumerr++;
+		stats->l2counts.tot_udpcsumerr++;
 	    }
-	    if (!ooo_packet && \
-		((packet->err_readwrite == ReadSuccess) ||
-		 ((packet->err_readwrite == ReadErrLen) && (packet->packetLen >= sizeof(struct UDP_datagram))))) {
-		reporter_handle_packet_oneway_transit(stats, packet);
-	    }
-	    stats->total.Bytes.current += packet->packetLen;
-	    reporter_compute_packet_pps(stats, packet);
+	}
+	if (packet->err_readwrite == ReadErrLen) {
+	    stats->sock_callstats.read.ReadErrLenCnt.current++;
+	}
+	if (!ooo_packet && \
+	    ((packet->err_readwrite == ReadSuccess) ||
+	     ((packet->err_readwrite == ReadErrLen) && (packet->packetLen >= sizeof(struct UDP_datagram))))) {
+	    reporter_handle_packet_oneway_transit(stats, packet);
+	}
+	stats->total.Bytes.current += packet->packetLen;
+	reporter_compute_packet_pps(stats, packet);
 
-	    if (packet->transit_ready) {
-		if (isIsochronous(stats->common)) {
-		    reporter_handle_isoch_oneway_transit_udp(stats, packet);
-		} else if (isPeriodicBurst(stats->common)) {
-		    reporter_handle_txmsg_oneway_transit(stats, packet);
-		}
+	if (packet->transit_ready) {
+	    if (isIsochronous(stats->common)) {
+		reporter_handle_isoch_oneway_transit_udp(stats, packet);
+	    } else if (isPeriodicBurst(stats->common)) {
+		reporter_handle_txmsg_oneway_transit(stats, packet);
 	    }
 	}
     }
