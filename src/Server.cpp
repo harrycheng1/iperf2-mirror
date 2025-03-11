@@ -1148,7 +1148,7 @@ void Server::RunUDPL4S () {
             // will also set empty report or not
             rxlen=ReadWithRxTimestamp();
             if (!peerclose && (rxlen > 0)) {
-                if (!reportstruct->reportstruct->err_readwrite != ReadWrongSrcPort) {
+                if (reportstruct->err_readwrite != ReadWrongSrcPort) {
                     reportstruct->emptyreport = false;
                     reportstruct->packetLen = rxlen;
                     // ReadPacketID returns true if this is the last UDP packet sent by the client
