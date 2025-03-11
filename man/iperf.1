@@ -1,4 +1,4 @@
-.TH IPERF 1 "April 2024" NLANR/DAST "User Manuals"
+.TH IPERF 1 "March 2025" NLANR/DAST "User Manuals"
 .SH NAME
 iperf \- perform network traffic tests using network sockets. Metrics include throughput and latency or link capacity and responsiveness.
 .SH SYNOPSIS
@@ -334,7 +334,7 @@ Measure the socket write times
 time in seconds to transmit traffic, use zero for infinite (default is 10 secs)
 .TP
 .BR "    --trip-times "
-enable the measurement of end to end write to read latencies (client and server clocks must be synchronized.) See notes about tcp-write-prefetch being enabled.
+enable the measurement of end to end write to read latencies (client and server clocks must be synchronized.)
 .TP
 .BR "    --txdelay-time "
 time in seconds to hold back or delay after the TCP connect and prior to the socket writes. For UDP it's the delay between the traffic thread starting and the first write.
@@ -983,10 +983,7 @@ The --tos-override allows one to test the reflected TOS feature of APs. This is 
 If there is no --tos setting then the setsockopt will never be called and the default values are used.
 .P
 .B --trip-times
-The --trip-times option enables many one way delay (OWD) metrics. Also note that using --trip-times on a TCP client
-will cause --tcp-write-prefetch to be set to a small value if tcp-write-prefetch hasn't hasn't also been set. This is
-done to reduce send side bloat latency (which is unrelated to network induced latency.) Set --tcp-write-prefetch
-to zero to disable this (which will disable TCP_NOTSENT_LOWAT) and will allow for send side bloat.
+The --trip-times option enables many one way delay (OWD) metrics.
 .P
 .B Synchronized clocks:
 The --trip-times option indicates that the client's and server's clocks are synchronized to a common reference.
