@@ -1218,7 +1218,43 @@ void Server::RunUDPL4S () {
                     }
                 } else {
                     ReportPacket(myReport, reportstruct);
-		}
+                }
+            }
+        }
+        if (!isLastPacket) {
+            struct udp_l4s_ack udp_l4s_pkt_fin;
+            memset(&udp_l4s_pkt_fin, 0, sizeof(udp_l4s_pkt_fin));
+            udp_l4s_pkt_fin.flags = htons(L4S_PKT_FIN);
+
+            struct msghdr msg;
+            struct iovec iov[1];
+            unsigned char cmsg[CMSG_SPACE(sizeof(int))];
+            struct cmsghdr *cmsgptr = NULL;
+            memset(&iov, 0, sizeof(iov));
+            memset(&cmsg, 0, sizeof(cmsg));
+            memset(&msg, 0, sizeof (struct msghdr));
+
+            iov[0].iov_base = reinterpret_cast<char *> (&(udp_l4s_pkt_fin));
+            iov[0].iov_len = sizeof(struct udp_l4s_ack);
+            msg.msg_iov = iov;
+            msg.msg_iovlen = 1;
+            msg.msg_control = cmsg;
+            msg.msg_controllen = sizeof(cmsg);
+            cmsgptr = CMSG_FIRSTHDR(&msg);
+            cmsgptr->cmsg_level = IPPROTO_IP;
+            cmsgptr->cmsg_type  = IP_TOS;
+            cmsgptr->cmsg_len  = CMSG_LEN(sizeof(u_char));
+            u_char tos = (mSettings->mTOS | ecn_l4s_id);
+            memcpy(CMSG_DATA(cmsgptr), (u_char*)&tos, sizeof(u_char));
+            msg.msg_controllen = CMSG_SPACE(sizeof(u_char));
+            int ackLen = sendmsg(mySocket, &msg, 0);
+            if (ackLen <= 0) {
+                if (ackLen == 0) {
+                    WARN_errno(1, "write l4s fin timeout");
+                    reportstruct->err_readwrite = WriteTimeo;
+                } else if (FATALUDPWRITERR(errno)) {
+                    WARN_errno(1, "write l4s fin fatal");
+                }
             }
         }
     }

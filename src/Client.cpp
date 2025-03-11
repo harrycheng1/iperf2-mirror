@@ -1737,6 +1737,7 @@ void Client::RunUDPL4S () {
     initmtu = ((size_tp)mSettings->mBufLen > PRAGUE_MINMTU) ? mSettings->mBufLen : PRAGUE_MINMTU;
     PragueCC l4s_pacer(initmtu, 0, 0, PRAGUE_INITRATE, PRAGUE_INITWIN, PRAGUE_MINRATE, maxrate);
     time_tp nextSend = l4s_pacer.Now();
+    time_tp last_acktime = 0;
     count_tp seqnr = 1;
     count_tp inflight = 0;
     rate_tp pacing_rate;
@@ -1748,8 +1749,6 @@ void Client::RunUDPL4S () {
 
     while (InProgress()) {
 	count_tp inburst = 0;
-        // [TODO] Add timout functionality
-        // time_tp timeout = 0;
         time_tp startSend = 0;
         time_tp pacer_now = l4s_pacer.Now();
         while ((inflight < packet_window) && (inburst < packet_burst) && (nextSend - pacer_now <= 0)) {
@@ -1849,12 +1848,14 @@ void Client::RunUDPL4S () {
 	    // ecn_tp rcv_ecn = ecn_tp(reportstruct->tos & 0x3);
 	    time_tp timestamp;
 	    time_tp echoed_timestamp;
+	    last_acktime = pacer_now;
 	    timestamp = ntohl(UDPAckBuf.rx_ts);
 	    echoed_timestamp = ntohl(UDPAckBuf.echoed_ts);
 	    count_tp pkts_rx = ntohl(UDPAckBuf.rx_cnt);
 	    count_tp pkts_ce = ntohl(UDPAckBuf.CE_cnt);
 	    count_tp pkts_lost = ntohl(UDPAckBuf.lost_cnt);
 	    bool l4s_err = (htons(UDPAckBuf.flags) & L4S_ECN_ERR);
+	    peerclose = (htons(UDPAckBuf.flags) & L4S_PKT_FIN);
 	    if (!UDPAckBuf.reserved1) {
 	        // To distinguish L4S ACK from retrnasmitted client_udp_testhdr (reverse mode)
 	        l4s_pacer.PacketReceived(timestamp, echoed_timestamp);
@@ -1863,6 +1864,8 @@ void Client::RunUDPL4S () {
         }
         else // timeout, reset state
             if (inflight >= packet_window) {
+                if (last_acktime - pacer_now + 1000000 <= 0)
+                    peerclose = true;
                 l4s_pacer.ResetCCInfo();
                 inflight = 0;
             }

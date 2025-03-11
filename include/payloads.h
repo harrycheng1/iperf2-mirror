@@ -133,6 +133,7 @@ extern "C" {
 
 // L4S Flags
 #define L4S_ECN_ERR 0x0001
+#define L4S_PKT_FIN 0x0002
 
 /*
  * Structures used for test messages which
