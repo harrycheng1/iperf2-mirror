@@ -797,9 +797,6 @@ void Settings_Interpret (char option, const char *optarg, struct thread_Settings
 
     case 'w': // TCP window size (socket buffer size)
 	mExtSettings->mTCPWin = byte_atoi(optarg);
-	if (mExtSettings->mTCPWin < 2048) {
-	    fprintf(stderr, warn_window_small, mExtSettings->mTCPWin);
-	}
 	break;
 
     case 'x': // Limit Reports
@@ -1677,6 +1674,9 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 		    setPeriodicBurst(mExtSettings);
 		}
 	    } else {
+		if (mExtSettings->mTCPWin < 2048) {
+		    fprintf(stderr, warn_window_small, mExtSettings->mTCPWin);
+		}
 		if ((mExtSettings->mAppRateUnits == kRate_PPS) && \
 		    ((static_cast<int> (mExtSettings->mBurstSize) != 0) || isPeriodicBurst(mExtSettings))) {
 		    mExtSettings->mAppRateUnits = kRate_BW;
