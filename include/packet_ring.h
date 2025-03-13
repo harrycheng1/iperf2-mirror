@@ -58,7 +58,7 @@ extern "C" {
 #define ACKRING_DEFAULTSIZE 100
 
 enum ReadWriteExtReturnVals {
-    ReadSuccess  = 1,
+    ReadSuccess  = 0,
     ReadTimeo,
     ReadTimeoFatal,
     ReadErrLen,
