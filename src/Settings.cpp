@@ -1674,9 +1674,6 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 		    setPeriodicBurst(mExtSettings);
 		}
 	    } else {
-		if (mExtSettings->mTCPWin < 2048) {
-		    fprintf(stderr, warn_window_small, mExtSettings->mTCPWin);
-		}
 		if ((mExtSettings->mAppRateUnits == kRate_PPS) && \
 		    ((static_cast<int> (mExtSettings->mBurstSize) != 0) || isPeriodicBurst(mExtSettings))) {
 		    mExtSettings->mAppRateUnits = kRate_BW;
@@ -1691,6 +1688,10 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 		}
 	    }
 //	    printf("**** fps = %f %f %f\n", mExtSettings->mFPS, static_cast<double> (mExtSettings->mAppRate), static_cast<double> (mExtSettings->mBurstSize));
+	} else {
+	    if (mExtSettings->mTCPWin < 2048) {
+		fprintf(stderr, warn_window_small, mExtSettings->mTCPWin);
+	    }
 	}
     }
     if (isHideIPs(mExtSettings)) {
