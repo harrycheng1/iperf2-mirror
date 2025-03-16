@@ -1161,59 +1161,61 @@ void Server::RunUDPL4S () {
                     // Read L4S fields from UDP payload, ECN bits came from earlier cmsg
                     struct client_udp_l4s_fwd *udp_l4spkt =			\
                         reinterpret_cast<struct client_udp_l4s_fwd *>(mSettings->mBuf);
-                    l4s_pacer.PacketReceived(ntohl(udp_l4spkt->sender_ts),ntohl(udp_l4spkt->echoed_ts));
+                    if (udp_l4spkt->l4s_data_type == L4SPKTDATA) {
+                        l4s_pacer.PacketReceived(ntohl(udp_l4spkt->sender_ts),ntohl(udp_l4spkt->echoed_ts));
 
-                    l4s_pacer.DataReceivedSequence(ecn_tp(reportstruct->tos & 0x03), \
-                                                   ntohl(udp_l4spkt->sender_seqno));
-                    ReportPacket(myReport, reportstruct);
-                    // Send l4s ack
-                    //
-                    time_tp timestamp;
-                    time_tp echoed_timestamp;
-                    ecn_tp ip_ecn;
-                    l4s_pacer.GetTimeInfo(timestamp, echoed_timestamp,ip_ecn);
-                    struct udp_l4s_ack udp_l4s_pkt_ack;
-                    udp_l4s_pkt_ack.rx_ts = htonl((int32_t) timestamp);
-                    udp_l4s_pkt_ack.echoed_ts = htonl((int32_t) echoed_timestamp);
-                    count_tp pkts_rx;
-                    count_tp pkts_ce;
-                    count_tp pkts_lost;
-                    bool l4s_err;
-                    l4s_pacer.GetACKInfo(pkts_rx, pkts_ce, pkts_lost, l4s_err);
-                    udp_l4s_pkt_ack.rx_cnt = htonl(pkts_rx);
-                    udp_l4s_pkt_ack.CE_cnt = htonl(pkts_ce);
-                    udp_l4s_pkt_ack.lost_cnt = htonl(pkts_lost);
-                    udp_l4s_pkt_ack.flags = (l4s_err ? htons(L4S_ECN_ERR) : 0);
-                    udp_l4s_pkt_ack.l4sreserved = 0;
-                    struct msghdr msg;
-                    struct iovec iov[1];
-                    unsigned char cmsg[CMSG_SPACE(sizeof(int))];
-                    struct cmsghdr *cmsgptr = NULL;
+                        l4s_pacer.DataReceivedSequence(ecn_tp(reportstruct->tos & 0x03), \
+                                                       ntohl(udp_l4spkt->sender_seqno));
+                        ReportPacket(myReport, reportstruct);
+                        // Send l4s ack
+                        //
+                        time_tp timestamp;
+                        time_tp echoed_timestamp;
+                        ecn_tp ip_ecn;
+                        l4s_pacer.GetTimeInfo(timestamp, echoed_timestamp,ip_ecn);
+                        struct udp_l4s_ack udp_l4s_pkt_ack;
+                        udp_l4s_pkt_ack.rx_ts = htonl((int32_t) timestamp);
+                        udp_l4s_pkt_ack.echoed_ts = htonl((int32_t) echoed_timestamp);
+                        count_tp pkts_rx;
+                        count_tp pkts_ce;
+                        count_tp pkts_lost;
+                        bool l4s_err;
+                        l4s_pacer.GetACKInfo(pkts_rx, pkts_ce, pkts_lost, l4s_err);
+                        udp_l4s_pkt_ack.rx_cnt = htonl(pkts_rx);
+                        udp_l4s_pkt_ack.CE_cnt = htonl(pkts_ce);
+                        udp_l4s_pkt_ack.lost_cnt = htonl(pkts_lost);
+                        udp_l4s_pkt_ack.flags = (l4s_err ? htons(L4S_ECN_ERR) : 0);
+                        udp_l4s_pkt_ack.l4sreserved = 0;
+                        struct msghdr msg;
+                        struct iovec iov[1];
+                        unsigned char cmsg[CMSG_SPACE(sizeof(int))];
+                        struct cmsghdr *cmsgptr = NULL;
 
-                    memset(&iov, 0, sizeof(iov));
-                    memset(&cmsg, 0, sizeof(cmsg));
-                    memset(&msg, 0, sizeof (struct msghdr));
+                        memset(&iov, 0, sizeof(iov));
+                        memset(&cmsg, 0, sizeof(cmsg));
+                        memset(&msg, 0, sizeof (struct msghdr));
 
-                    iov[0].iov_base = reinterpret_cast<char *> (&(udp_l4s_pkt_ack));
-                    iov[0].iov_len = sizeof(struct udp_l4s_ack);
-                    msg.msg_iov = iov;
-                    msg.msg_iovlen = 1;
-                    msg.msg_control = cmsg;
-                    msg.msg_controllen = sizeof(cmsg);
-                    cmsgptr = CMSG_FIRSTHDR(&msg);
-                    cmsgptr->cmsg_level = IPPROTO_IP;
-                    cmsgptr->cmsg_type  = IP_TOS;
-                    cmsgptr->cmsg_len  = CMSG_LEN(sizeof(u_char));
-                    u_char tos = (mSettings->mTOS | ip_ecn);
-                    memcpy(CMSG_DATA(cmsgptr), (u_char*)&tos, sizeof(u_char));
-                    msg.msg_controllen = CMSG_SPACE(sizeof(u_char));
-                    int ackLen = sendmsg(mySocket, &msg, 0);
-                    if (ackLen <= 0) {
-                        if (ackLen == 0) {
-                            WARN_errno(1, "write l4s ack timeout");
-                            reportstruct->err_readwrite = WriteTimeo;
-                        } else if (FATALUDPWRITERR(errno)) {
-                            WARN_errno(1, "write l4s ack fatal");
+                        iov[0].iov_base = reinterpret_cast<char *> (&(udp_l4s_pkt_ack));
+                        iov[0].iov_len = sizeof(struct udp_l4s_ack);
+                        msg.msg_iov = iov;
+                        msg.msg_iovlen = 1;
+                        msg.msg_control = cmsg;
+                        msg.msg_controllen = sizeof(cmsg);
+                        cmsgptr = CMSG_FIRSTHDR(&msg);
+                        cmsgptr->cmsg_level = IPPROTO_IP;
+                        cmsgptr->cmsg_type  = IP_TOS;
+                        cmsgptr->cmsg_len  = CMSG_LEN(sizeof(u_char));
+                        u_char tos = ((mSettings->mTOS & 0xfc) | ip_ecn);
+                        memcpy(CMSG_DATA(cmsgptr), (u_char*)&tos, sizeof(u_char));
+                        msg.msg_controllen = CMSG_SPACE(sizeof(u_char));
+                        int ackLen = sendmsg(mySocket, &msg, 0);
+                        if (ackLen <= 0) {
+                            if (ackLen == 0) {
+                                WARN_errno(1, "write l4s ack timeout");
+                                reportstruct->err_readwrite = WriteTimeo;
+                            } else if (FATALUDPWRITERR(errno)) {
+                                WARN_errno(1, "write l4s ack fatal");
+                            }
                         }
                     }
                 } else {
@@ -1244,7 +1246,7 @@ void Server::RunUDPL4S () {
             cmsgptr->cmsg_level = IPPROTO_IP;
             cmsgptr->cmsg_type  = IP_TOS;
             cmsgptr->cmsg_len  = CMSG_LEN(sizeof(u_char));
-            u_char tos = (mSettings->mTOS | ecn_l4s_id);
+            u_char tos = ((mSettings->mTOS & 0xfc) | ecn_l4s_id);
             memcpy(CMSG_DATA(cmsgptr), (u_char*)&tos, sizeof(u_char));
             msg.msg_controllen = CMSG_SPACE(sizeof(u_char));
             int ackLen = sendmsg(mySocket, &msg, 0);

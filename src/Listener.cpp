@@ -999,7 +999,6 @@ bool Listener::apply_client_settings_udp (thread_Settings *server) {
                 if (upperflags & HEADER_UDPL4S) {
                     setUDPL4S(server);
                     SetSocketOptionsIPRCVTos(server);
-                    server->mTOS = 0;
                 }
             }
             if (upperflags & HEADER_EPOCH_START) {

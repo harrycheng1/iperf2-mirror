@@ -131,9 +131,13 @@ extern "C" {
 #define HDRXACKMAX 2500000 // default 2.5 seconds, units microseconds
 #define HDRXACKMIN   10000 // default 10 ms, units microsecond
 
-// L4S Flags
+// L4S ACK Flags
 #define L4S_ECN_ERR 0x0001
 #define L4S_PKT_FIN 0x0002
+
+enum L4SDataType {
+  L4SPKTDATA = 0x1,
+};
 
 /*
  * Structures used for test messages which
@@ -484,17 +488,23 @@ struct isoch_payload {
  *                +--------+--------+--------+--------+
  *            10  |         mAmount (v1)              |
  *                +--------+--------+--------+--------+
- *            11  |   up flags      |   low flags     |
+ *            11  |               type                |
  *                +--------+--------+--------+--------+
- *            12  |        iperf version major        |
+ *            12  |              length               |
  *                +--------+--------+--------+--------+
- *            13  |        iperf version minor        |
+ *            13  |   up flags      |   low flags     |
  *                +--------+--------+--------+--------+
- *            14  |          sender timestamp (A)     |
+ *            14  |        iperf version major        |
  *                +--------+--------+--------+--------+
- *            15  |          echoed timestamp (B)     |
+ *            15  |        iperf version minor        |
  *                +--------+--------+--------+--------+
- *            16  |          sender seqno (A)         |
+ *            16  |  l4s_data_type  |       tos       |
+ *                +--------+--------+--------+--------+
+ *            17  |          sender timestamp (A)     |
+ *                +--------+--------+--------+--------+
+ *            18  |          echoed timestamp (B)     |
+ *                +--------+--------+--------+--------+
+ *            19  |          sender seqno (A)         |
  *                +--------+--------+--------+--------+
  */
 struct client_udp_l4s_fwd {
@@ -505,6 +515,8 @@ struct client_udp_l4s_fwd {
     int16_t lowerflags;
     uint32_t version_u;
     uint32_t version_l;
+    uint16_t l4s_data_type;
+    uint16_t tos;
     uint32_t sender_ts;
     uint32_t echoed_ts;
     uint32_t sender_seqno;

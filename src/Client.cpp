@@ -115,6 +115,9 @@ Client::Client (thread_Settings *inSettings) {
             unsetFileInput(mSettings);
         }
     }
+    if (isUDPL4S(mSettings)) {
+        mSettings->mTOS = (mSettings->mTOS & 0xFC);
+    }
     peerclose = false;
     mysock_init_done = false;
     isburst = (isIsochronous(mSettings) || isPeriodicBurst(mSettings) || (isTripTime(mSettings) && !isUDP(mSettings)));
@@ -1756,6 +1759,7 @@ void Client::RunUDPL4S () {
 	    time_tp sender_ts;
 	    time_tp echoed_ts;
             l4s_pacer.GetTimeInfo(sender_ts, echoed_ts, new_ecn);
+	    mBuf_UDP->l4s_data_type = L4SPKTDATA;
 	    mBuf_UDP->sender_ts = htonl(sender_ts);
 	    mBuf_UDP->echoed_ts = htonl(echoed_ts);
 	    mBuf_UDP->sender_seqno = htonl(seqnr);
@@ -1794,7 +1798,7 @@ void Client::RunUDPL4S () {
 	    cmsgptr->cmsg_level = IPPROTO_IP;
 	    cmsgptr->cmsg_type  = IP_TOS;
 	    cmsgptr->cmsg_len  = CMSG_LEN(sizeof(u_char));
-	    u_char tos = (mSettings->mTOS | new_ecn);
+	    u_char tos = ((mSettings->mTOS & 0xFC) | new_ecn);
 	    memcpy(CMSG_DATA(cmsgptr), (u_char*)&tos, sizeof(u_char));
 	    msg.msg_controllen = CMSG_SPACE(sizeof(u_char));
 	    int currLen = sendmsg(mySocket, &msg, 0);
@@ -2228,10 +2232,37 @@ int Client::SendFirstPayload () {
                 tmphdr->seqno_ts.tv_sec  = htonl(reportstruct->packetTime.tv_sec);
                 tmphdr->seqno_ts.tv_usec = htonl(reportstruct->packetTime.tv_usec);
                 udp_payload_minimum = pktlen;
-#if HAVE_DECL_MSG_DONTWAIT
-		pktlen = send(mySocket, mSettings->mBuf, (pktlen > mSettings->mBufLen) ? pktlen : mSettings->mBufLen, MSG_DONTWAIT);
+
+                struct msghdr msg;
+                struct iovec iov[1];
+                unsigned char cmsg[CMSG_SPACE(sizeof(int))];
+                struct cmsghdr *cmsgptr = NULL;
+
+                memset(&iov, 0, sizeof(iov));
+                memset(&cmsg, 0, sizeof(cmsg));
+                memset(&msg, 0, sizeof (struct msghdr));
+
+                iov[0].iov_base = mSettings->mBuf;
+                iov[0].iov_len = (pktlen > mSettings->mBufLen) ? pktlen : mSettings->mBufLen;
+                msg.msg_iov = iov;
+                msg.msg_iovlen = 1;
+                msg.msg_control = cmsg;
+                msg.msg_controllen = sizeof(cmsg);
+                cmsgptr = CMSG_FIRSTHDR(&msg);
+                cmsgptr->cmsg_level = IPPROTO_IP;
+                cmsgptr->cmsg_type  = IP_TOS;
+                cmsgptr->cmsg_len  = CMSG_LEN(sizeof(u_char));
+#if HAVE_UDP_L4S
+                u_char tos = isUDPL4S(mSettings) ? ((mSettings->mTOS & 0xFC) | ecn_l4s_id) : (mSettings->mTOS);
 #else
-		pktlen = send(mySocket, mSettings->mBuf, (pktlen > mSettings->mBufLen) ? pktlen : mSettings->mBufLen, 0);
+                u_char tos = (mSettings->mTOS);
+#endif
+                memcpy(CMSG_DATA(cmsgptr), (u_char*)&tos, sizeof(u_char));
+                msg.msg_controllen = CMSG_SPACE(sizeof(u_char));
+#if HAVE_DECL_MSG_DONTWAIT
+		pktlen = sendmsg(mySocket, &msg, MSG_DONTWAIT);
+#else
+		pktlen = sendmsg(mySocket, &msg, 0);
 #endif
 		apply_first_udppkt_delay = true;
             } else {
