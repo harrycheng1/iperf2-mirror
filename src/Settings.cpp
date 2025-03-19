@@ -2829,6 +2829,9 @@ int Settings_GenerateClientHdr (struct thread_Settings *client, void *testhdr, s
 	    len += sizeof(struct UDP_datagram);
 	    flags |= ((len << 1) & HEADER_KEYLEN_MASK) | HEADER_LEN_BIT;
 	}
+	if (isBuflenSet(client) && isReverse(client)) {
+	    flags |= HEADER_VERSION1;
+	}
 	hdr->base.flags = htonl(flags);
 #ifdef HAVE_THREAD_DEBUG
 	thread_debug("UDPflags = %X", ntohl(hdr->base.flags));
