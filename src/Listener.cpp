@@ -964,6 +964,10 @@ bool Listener::apply_client_settings_udp (thread_Settings *server) {
     } else if ((flags & HEADER_VERSION1) || (flags & HEADER_VERSION2) || (flags & HEADER_EXTEND)) {
         if (flags & HEADER_VERSION1) {
             uint32_t tidthreads = ntohl(hdr->base.numThreads);
+	    int buflen_peer_req = ntohl(hdr->base.mBufLen);
+	    if (buflen_peer_req > server->mBufLen)  {
+		Settings_Grow_mBuf(server, buflen_peer_req);
+	    }
             if (tidthreads & HEADER_HASTRANSFERID) {
                 tidthreads &= (~HEADER_HASTRANSFERID & HEADER_TRANSFERIDMASK);
                 server->mPeerTransferID = tidthreads >> HEADER_TRANSFERIDSHIFT;
