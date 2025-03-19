@@ -2232,7 +2232,7 @@ int Client::SendFirstPayload () {
                 tmphdr->seqno_ts.tv_sec  = htonl(reportstruct->packetTime.tv_sec);
                 tmphdr->seqno_ts.tv_usec = htonl(reportstruct->packetTime.tv_usec);
                 udp_payload_minimum = pktlen;
-
+#if HAVE_DECL_CMSG_FIRSTHDR
                 struct msghdr msg;
                 struct iovec iov[1];
                 unsigned char cmsg[CMSG_SPACE(sizeof(int))];
@@ -2263,6 +2263,13 @@ int Client::SendFirstPayload () {
 		pktlen = sendmsg(mySocket, &msg, MSG_DONTWAIT);
 #else
 		pktlen = sendmsg(mySocket, &msg, 0);
+#endif
+#else  // have cmsg
+#if HAVE_DECL_MSG_DONTWAIT
+		pktlen = send(mySocket, mSettings->mBuf, (pktlen > mSettings->mBufLen) ? pktlen : mSettings->mBufLen, MSG_DONTWAIT);
+#else
+		pktlen = send(mySocket, mSettings->mBuf, (pktlen > mSettings->mBufLen) ? pktlen : mSettings->mBufLen, 0);
+#endif // no cmsg
 #endif
 		apply_first_udppkt_delay = true;
             } else {
