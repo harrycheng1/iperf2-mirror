@@ -9815,7 +9815,7 @@ printf "%s\n" "$ac_cv_have_decl_MSG_DONTWAIT" >&6; }
 printf %s "checking for CMSG_LEN... " >&6; }
        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have_decl_CMSG_LEN" >&5
 printf "%s\n" "$ac_cv_have_decl_CMSG_LEN" >&6; }
-       if test "$ac_cv_have_decl_CMSG_LEN" = yes; then
+       if test "$ac_cv_have_decl_CMSG_LEN" = yes  && test "$ac_prog_cxx_stdcxx" = "cxx11" ; then
           ac_cv_have_udp_l4s=yes
 
 printf "%s\n" "#define HAVE_UDP_L4S 1" >>confdefs.h

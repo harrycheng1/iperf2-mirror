@@ -350,7 +350,7 @@ if test x"$enable_udp_l4s" = "xyes"; then
     if test "$ac_cv_have_decl_MSG_DONTWAIT" = yes; then
        AC_MSG_CHECKING(for CMSG_LEN)
        AC_MSG_RESULT($ac_cv_have_decl_CMSG_LEN)
-       if test "$ac_cv_have_decl_CMSG_LEN" = yes; then
+       if test "$ac_cv_have_decl_CMSG_LEN" = yes  && test "$ac_prog_cxx_stdcxx" = "cxx11" ; then
           ac_cv_have_udp_l4s=yes
 	  AC_DEFINE([HAVE_UDP_L4S], 1, [Define to enable udp l4s support])
 
