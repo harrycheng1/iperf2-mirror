@@ -719,7 +719,7 @@ void Settings_Initialize(struct thread_Settings* main);
 void Settings_Copy(struct thread_Settings* from, struct thread_Settings** into, int copyall);
 
 // grow mBuf
-void Settings_Grow_mBuf(struct thread_Settings *mSettings, int newsize);
+void Settings_Resize_mBuf(struct thread_Settings *mSettings, int newsize);
 
 // free associated memory
 void Settings_Destroy(struct thread_Settings *mSettings);

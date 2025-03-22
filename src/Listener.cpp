@@ -966,7 +966,7 @@ bool Listener::apply_client_settings_udp (thread_Settings *server) {
             uint32_t tidthreads = ntohl(hdr->base.numThreads);
 	    int buflen_peer_req = ntohl(hdr->base.mBufLen);
 	    if (buflen_peer_req > server->mBufLen)  {
-		Settings_Grow_mBuf(server, buflen_peer_req);
+		Settings_Resize_mBuf(server, buflen_peer_req);
 	    }
             if (tidthreads & HEADER_HASTRANSFERID) {
                 tidthreads &= (~HEADER_HASTRANSFERID & HEADER_TRANSFERIDMASK);
@@ -1096,7 +1096,7 @@ bool Listener::apply_client_settings_tcp (thread_Settings *server) {
                     goto DONE;
                 } else {
                     int read_offset = readptr - server->mBuf;
-                    Settings_Grow_mBuf(server, server->mBounceBackBytes);
+                    Settings_Resize_mBuf(server, server->mBounceBackBytes);
                     readptr = server->mBuf + read_offset;
                     bbhdr = reinterpret_cast<struct bounceback_hdr *>(server->mBuf);
                 }
@@ -1128,7 +1128,7 @@ bool Listener::apply_client_settings_tcp (thread_Settings *server) {
                     goto DONE;
                 } else {
                     int read_offset = readptr - server->mBuf;
-                    Settings_Grow_mBuf(server, server->mBounceBackReplyBytes);
+                    Settings_Resize_mBuf(server, server->mBounceBackReplyBytes);
                     readptr = server->mBuf + read_offset;
                     bbhdr = reinterpret_cast<struct bounceback_hdr *>(server->mBuf);
                 }

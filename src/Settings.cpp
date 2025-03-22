@@ -500,13 +500,17 @@ void Settings_Copy (struct thread_Settings *from, struct thread_Settings **into,
     unsetReport((*into));
 }
 
-void Settings_Grow_mBuf (struct thread_Settings *mSettings, int newsize) {
-    char *tmp = new char[newsize];
-    pattern(tmp, newsize);
-    memcpy(tmp, mSettings->mBuf, mSettings->mBufLen);
-    DELETE_ARRAY(mSettings->mBuf);
-    mSettings->mBuf = tmp;
-    mSettings->mBufLen = newsize;
+void Settings_Resize_mBuf (struct thread_Settings *mSettings, int newsize) {
+    if (newsize > 0) {
+	if (newsize > mSettings->mBufLen) {
+	    char *tmp = new char[newsize];
+	    pattern(tmp, newsize);
+	    memcpy(tmp, mSettings->mBuf, mSettings->mBufLen);
+	    DELETE_ARRAY(mSettings->mBuf);
+	    mSettings->mBuf = tmp;
+	}
+	mSettings->mBufLen = newsize;
+    }
 }
 
 /* -------------------------------------------------------------------
