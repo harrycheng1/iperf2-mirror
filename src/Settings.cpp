@@ -797,6 +797,9 @@ void Settings_Interpret (char option, const char *optarg, struct thread_Settings
 
     case 'w': // TCP window size (socket buffer size)
 	mExtSettings->mTCPWin = byte_atoi(optarg);
+	if (mExtSettings->mTCPWin < 2048) {
+	    fprintf(stderr, warn_window_small, mExtSettings->mTCPWin);
+	}
 	break;
 
     case 'x': // Limit Reports
@@ -1688,10 +1691,6 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 		}
 	    }
 //	    printf("**** fps = %f %f %f\n", mExtSettings->mFPS, static_cast<double> (mExtSettings->mAppRate), static_cast<double> (mExtSettings->mBurstSize));
-	} else {
-	    if (mExtSettings->mTCPWin < 2048) {
-		fprintf(stderr, warn_window_small, mExtSettings->mTCPWin);
-	    }
 	}
     }
     if (isHideIPs(mExtSettings)) {
