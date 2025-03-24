@@ -933,124 +933,129 @@ inline bool Listener::test_permit_key(uint32_t flags, thread_Settings *server, i
 bool Listener::apply_client_settings_udp (thread_Settings *server) {
     struct client_udp_testhdr *hdr = reinterpret_cast<struct client_udp_testhdr *>(server->mBuf + server->l4payloadoffset);
     uint32_t flags = ntohl(hdr->base.flags);
-    uint16_t upperflags = 0;
-#if HAVE_THREAD_DEBUG
-    thread_debug("UDP test flags = %X", flags);
+#ifdef HAVE_DEBUG_TESTFLAGS
+    printf("Server test flags = %X(%x)\n", flags, hdr->base.flags);
 #endif
-    if (flags & HEADER32_SMALL_TRIPTIMES) {
+    if (flags & (HEADER_VERSION1 | HEADER_EXTEND | HEADER32_SMALL_TRIPTIMES)) {
+	uint16_t upperflags = 0;
 #if HAVE_THREAD_DEBUG
-        thread_debug("UDP small header");
+	thread_debug("UDP test flags = %X", flags);
 #endif
-        struct client_udpsmall_testhdr *smallhdr = reinterpret_cast<struct client_udpsmall_testhdr *>(server->mBuf + server->l4payloadoffset);
-        server->sent_time.tv_sec = ntohl(hdr->seqno_ts.tv_sec);
-        server->sent_time.tv_usec = ntohl(hdr->seqno_ts.tv_usec);
-        server->txstart_epoch.tv_sec = ntohl(smallhdr->start_tv_sec);
-        server->txstart_epoch.tv_usec = ntohl(smallhdr->start_tv_usec);
-        uint32_t seqno = ntohl(hdr->seqno_ts.id);
-        if (server->txstart_epoch.tv_sec > 0) {
-            setTxStartTime(server);
-        }
-        if (seqno != 1) {
-            fprintf(stderr, "WARN: first received packet (id=%d) was not first sent packet, report start time will be off\n", seqno);
-        }
-        Timestamp now;
-        if (!isTxStartTime(server) && ((abs(now.getSecs() - server->sent_time.tv_sec)) > (MAXDIFFTIMESTAMPSECS + 1))) {
-            fprintf(stdout,"WARN: ignore --trip-times because client didn't provide valid start timestamp within %d seconds of now\n", MAXDIFFTIMESTAMPSECS);
-            unsetTripTime(server);
-        } else {
-            setTripTime(server);
-        }
-        setEnhanced(server);
-    } else if ((flags & HEADER_VERSION1) || (flags & HEADER_VERSION2) || (flags & HEADER_EXTEND)) {
-        if (flags & HEADER_VERSION1) {
-            uint32_t tidthreads = ntohl(hdr->base.numThreads);
-	    int buflen_peer_req = ntohl(hdr->base.mBufLen);
-	    if (buflen_peer_req != server->mBufLen)  {
-		if (!isBuflenSet(server)) {
-		    Settings_Resize_mBuf(server, buflen_peer_req);
-		} else if (buflen_peer_req > server->mBufLen) {
-		    fprintf(stdout,"ERROR: Client write len of %d to big for server read len of %d\n", buflen_peer_req, server->mBufLen);
-		    return false;
+	if (flags & HEADER32_SMALL_TRIPTIMES) {
+#if HAVE_THREAD_DEBUG
+	    thread_debug("UDP small header");
+#endif
+	    struct client_udpsmall_testhdr *smallhdr = reinterpret_cast<struct client_udpsmall_testhdr *>(server->mBuf + server->l4payloadoffset);
+	    server->sent_time.tv_sec = ntohl(hdr->seqno_ts.tv_sec);
+	    server->sent_time.tv_usec = ntohl(hdr->seqno_ts.tv_usec);
+	    server->txstart_epoch.tv_sec = ntohl(smallhdr->start_tv_sec);
+	    server->txstart_epoch.tv_usec = ntohl(smallhdr->start_tv_usec);
+	    uint32_t seqno = ntohl(hdr->seqno_ts.id);
+	    if (server->txstart_epoch.tv_sec > 0) {
+		setTxStartTime(server);
+	    }
+	    if (seqno != 1) {
+		fprintf(stderr, "WARN: first received packet (id=%d) was not first sent packet, report start time will be off\n", seqno);
+	    }
+	    Timestamp now;
+	    if (!isTxStartTime(server) && ((abs(now.getSecs() - server->sent_time.tv_sec)) > (MAXDIFFTIMESTAMPSECS + 1))) {
+		fprintf(stdout,"WARN: ignore --trip-times because client didn't provide valid start timestamp within %d seconds of now\n", MAXDIFFTIMESTAMPSECS);
+		unsetTripTime(server);
+	    } else {
+		setTripTime(server);
+	    }
+	    setEnhanced(server);
+	} else if ((flags & HEADER_VERSION1) || (flags & HEADER_VERSION2) || (flags & HEADER_EXTEND)) {
+	    if (flags & HEADER_VERSION1) {
+		uint32_t tidthreads = ntohl(hdr->base.numThreads);
+		int buflen_peer_req = ntohl(hdr->base.mBufLen);
+		if (buflen_peer_req != server->mBufLen)  {
+		    if (!isBuflenSet(server)) {
+			Settings_Resize_mBuf(server, buflen_peer_req);
+		    } else if (buflen_peer_req > server->mBufLen) {
+			fprintf(stdout,"ERROR: Client write len of %d to big for server read len of %d\n", buflen_peer_req, server->mBufLen);
+			return false;
+		    }
+		}
+		if (tidthreads & HEADER_HASTRANSFERID) {
+		    tidthreads &= (~HEADER_HASTRANSFERID & HEADER_TRANSFERIDMASK);
+		    server->mPeerTransferID = tidthreads >> HEADER_TRANSFERIDSHIFT;
+		    setSyncTransferID(server);
+		} else if (!(flags & HEADER_VERSION2)) {
+		    if (flags & RUN_NOW)
+			server->mMode = kTest_DualTest;
+		    else
+			server->mMode = kTest_TradeOff;
 		}
 	    }
-            if (tidthreads & HEADER_HASTRANSFERID) {
-                tidthreads &= (~HEADER_HASTRANSFERID & HEADER_TRANSFERIDMASK);
-                server->mPeerTransferID = tidthreads >> HEADER_TRANSFERIDSHIFT;
-                setSyncTransferID(server);
-            } else if (!(flags & HEADER_VERSION2)) {
-                if (flags & RUN_NOW)
-                    server->mMode = kTest_DualTest;
-                else
-                    server->mMode = kTest_TradeOff;
-            }
-        }
-        if (flags & HEADER_EXTEND) {
-            upperflags = htons(hdr->extend.upperflags);
-            server->mTOS = ntohs(hdr->extend.tos);
-            server->peer_version_u = ntohl(hdr->extend.version_u);
-            server->peer_version_l = ntohl(hdr->extend.version_l);
-            if (flags & HEADER_UDPTESTS) {
-                // Handle stateless flags
-                if (upperflags & HEADER_ISOCH) {
-                    setIsochronous(server);
-                }
-                if (upperflags & HEADER_L2ETHPIPV6) {
-                    setIPV6(server);
-                } else {
-                    unsetIPV6(server);
-                }
-                if (upperflags & HEADER_L2LENCHECK) {
-                    setL2LengthCheck(server);
-                }
-                if (upperflags & HEADER_NOUDPFIN) {
-                    setNoUDPfin(server);
-                }
-                if (upperflags & HEADER_UDPL4S) {
-                    setUDPL4S(server);
-                    SetSocketOptionsIPRCVTos(server);
-                }
-            }
-            if (upperflags & HEADER_EPOCH_START) {
-                server->txstart_epoch.tv_sec = ntohl(hdr->start_fq.start_tv_sec);
-                server->txstart_epoch.tv_usec = ntohl(hdr->start_fq.start_tv_usec);
-                Timestamp now;
-                if ((abs(now.getSecs() - server->txstart_epoch.tv_sec)) > (MAXDIFFTXSTART + 1)) {
-                    fprintf(stdout,"WARN: ignore --txstart-time because client didn't provide valid start timestamp within %d seconds of now\n", MAXDIFFTXSTART);
-                    unsetTxStartTime(server);
-                } else {
-                    setTxStartTime(server);
-                }
-            }
-            if (upperflags & HEADER_TRIPTIME) {
-                server->sent_time.tv_sec = ntohl(hdr->start_fq.start_tv_sec);
-                server->sent_time.tv_usec = ntohl(hdr->start_fq.start_tv_usec);
-                Timestamp now;
-                if (!isTxStartTime(server) && ((abs(now.getSecs() - server->sent_time.tv_sec)) > (MAXDIFFTIMESTAMPSECS + 1))) {
-                    fprintf(stdout,"WARN: ignore --trip-times because client didn't provide valid start timestamp within %d seconds of now\n", MAXDIFFTIMESTAMPSECS);
-                    unsetTripTime(server);
-                } else {
-                    setTripTime(server);
-                    setEnhanced(server);
-                }
-            }
-        }
-        if (flags & HEADER_VERSION2) {
-            upperflags = htons(hdr->extend.upperflags);
-            if (upperflags & HEADER_FULLDUPLEX) {
-                setFullDuplex(server);
-                setServerReverse(server);
-            }
-            if (upperflags & HEADER_REVERSE)  {
-                server->mThreadMode=kMode_Client;
-                setServerReverse(server);
-                if (server->mSumReport != NULL) {
-                    server->mSumReport->info.common->ThreadMode=kMode_Client;
-                    setServerReverse(server->mSumReport->info.common);
-                }
-                setNoUDPfin(server);
-                unsetReport(server);
-            }
-        }
+	    if (flags & HEADER_EXTEND) {
+		upperflags = htons(hdr->extend.upperflags);
+		server->mTOS = ntohs(hdr->extend.tos);
+		server->peer_version_u = ntohl(hdr->extend.version_u);
+		server->peer_version_l = ntohl(hdr->extend.version_l);
+		if (flags & HEADER_UDPTESTS) {
+		    // Handle stateless flags
+		    if (upperflags & HEADER_ISOCH) {
+			setIsochronous(server);
+		    }
+		    if (upperflags & HEADER_L2ETHPIPV6) {
+			setIPV6(server);
+		    } else {
+			unsetIPV6(server);
+		    }
+		    if (upperflags & HEADER_L2LENCHECK) {
+			setL2LengthCheck(server);
+		    }
+		    if (upperflags & HEADER_NOUDPFIN) {
+			setNoUDPfin(server);
+		    }
+		    if (upperflags & HEADER_UDPL4S) {
+			setUDPL4S(server);
+			SetSocketOptionsIPRCVTos(server);
+		    }
+		}
+		if (upperflags & HEADER_EPOCH_START) {
+		    server->txstart_epoch.tv_sec = ntohl(hdr->start_fq.start_tv_sec);
+		    server->txstart_epoch.tv_usec = ntohl(hdr->start_fq.start_tv_usec);
+		    Timestamp now;
+		    if ((abs(now.getSecs() - server->txstart_epoch.tv_sec)) > (MAXDIFFTXSTART + 1)) {
+			fprintf(stdout,"WARN: ignore --txstart-time because client didn't provide valid start timestamp within %d seconds of now\n", MAXDIFFTXSTART);
+			unsetTxStartTime(server);
+		    } else {
+			setTxStartTime(server);
+		    }
+		}
+		if (upperflags & HEADER_TRIPTIME) {
+		    server->sent_time.tv_sec = ntohl(hdr->start_fq.start_tv_sec);
+		    server->sent_time.tv_usec = ntohl(hdr->start_fq.start_tv_usec);
+		    Timestamp now;
+		    if (!isTxStartTime(server) && ((abs(now.getSecs() - server->sent_time.tv_sec)) > (MAXDIFFTIMESTAMPSECS + 1))) {
+			fprintf(stdout,"WARN: ignore --trip-times because client didn't provide valid start timestamp within %d seconds of now\n", MAXDIFFTIMESTAMPSECS);
+			unsetTripTime(server);
+		    } else {
+			setTripTime(server);
+			setEnhanced(server);
+		    }
+		}
+	    }
+	    if (flags & HEADER_VERSION2) {
+		upperflags = htons(hdr->extend.upperflags);
+		if (upperflags & HEADER_FULLDUPLEX) {
+		    setFullDuplex(server);
+		    setServerReverse(server);
+		}
+		if (upperflags & HEADER_REVERSE)  {
+		    server->mThreadMode=kMode_Client;
+		    setServerReverse(server);
+		    if (server->mSumReport != NULL) {
+			server->mSumReport->info.common->ThreadMode=kMode_Client;
+			setServerReverse(server->mSumReport->info.common);
+		    }
+		    setNoUDPfin(server);
+		    unsetReport(server);
+		}
+	    }
+	}
     }
     return true;
 }
