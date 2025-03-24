@@ -2651,7 +2651,7 @@ void Settings_GenerateClientSettings (struct thread_Settings *server, struct thr
     }
 }
 
-int Settings_GenerateClientHdrV1 (struct thread_Settings *client, struct client_hdr_v1 *hdr) {
+int Settings_GenerateClientHdrV1 (struct thread_Settings *client, struct client_hdr_v1 *hdr, uint32_t *flags) {
     if (isBuflenSet(client)) {
 	hdr->mBufLen = htonl(client->mBufLen);
     } else {
@@ -2677,6 +2677,11 @@ int Settings_GenerateClientHdrV1 (struct thread_Settings *client, struct client_
     } else {
 	hdr->mAmount = htonl((long)client->mAmount);
 	hdr->mAmount &= htonl(0x7FFFFFFF);
+    }
+    if (!isCompat(client) && (client->mMode != kTest_Normal)) {
+	*flags |= HEADER_VERSION1;
+	if (client->mMode == kTest_DualTest)
+	    *flags |= RUN_NOW;
     }
     return (sizeof(struct client_hdr_v1));
 }
@@ -2757,13 +2762,7 @@ int Settings_GenerateClientHdr (struct thread_Settings *client, void *testhdr, s
 	    hdr->extend.uRate = 0x0;
 	}
 	len += sizeof(struct client_hdrext);
-	len += Settings_GenerateClientHdrV1(client, &hdr->base);
-	if (!isCompat(client) && (client->mMode != kTest_Normal)) {
-	    flags |= HEADER_VERSION1;
-	    if (client->mMode == kTest_DualTest)
-		flags |= RUN_NOW;
-	    hdr->base.flags = htonl(flags);
-	}
+	len += Settings_GenerateClientHdrV1(client, &hdr->base, &flags);
 	/*
 	 * set the default offset where underlying "inline" subsystems can write into the udp payload
 	 */
@@ -2862,12 +2861,7 @@ int Settings_GenerateClientHdr (struct thread_Settings *client, void *testhdr, s
 #endif
 	    }
 	    len += sizeof(struct client_hdrext);
-	    len += Settings_GenerateClientHdrV1(client, &hdr->base);
-	    if ((!isCompat(client) && (client->mMode != kTest_Normal)) || isSyncTransferID(client)) {
-		flags |= HEADER_VERSION1;
-		if (client->mMode == kTest_DualTest)
-		    flags |= RUN_NOW;
-	    }
+	    len += Settings_GenerateClientHdrV1(client, &hdr->base, &flags);
 	    if (isPeerVerDetect(client)) {
 		flags |= (HEADER_V2PEERDETECT | HEADER_VERSION2);
 	    }

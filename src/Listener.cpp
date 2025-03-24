@@ -965,8 +965,13 @@ bool Listener::apply_client_settings_udp (thread_Settings *server) {
         if (flags & HEADER_VERSION1) {
             uint32_t tidthreads = ntohl(hdr->base.numThreads);
 	    int buflen_peer_req = ntohl(hdr->base.mBufLen);
-	    if (buflen_peer_req > server->mBufLen)  {
-		Settings_Resize_mBuf(server, buflen_peer_req);
+	    if (buflen_peer_req != server->mBufLen)  {
+		if (!isBuflenSet(server)) {
+		    Settings_Resize_mBuf(server, buflen_peer_req);
+		} else if (buflen_peer_req > server->mBufLen) {
+		    fprintf(stdout,"ERROR: Client write len of %d to big for server read len of %d\n", buflen_peer_req, server->mBufLen);
+		    return false;
+		}
 	    }
             if (tidthreads & HEADER_HASTRANSFERID) {
                 tidthreads &= (~HEADER_HASTRANSFERID & HEADER_TRANSFERIDMASK);
