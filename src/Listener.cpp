@@ -936,7 +936,7 @@ bool Listener::apply_client_settings_udp (thread_Settings *server) {
 #ifdef HAVE_DEBUG_TESTFLAGS
     printf("Server test flags = %X(%x)\n", flags, hdr->base.flags);
 #endif
-    if (flags & (HEADER_VERSION1 | HEADER_EXTEND | HEADER32_SMALL_TRIPTIMES)) {
+    if (flags != 0x36373839) {  // 36373839 is the background pattern
 	uint16_t upperflags = 0;
 #if HAVE_THREAD_DEBUG
 	thread_debug("UDP test flags = %X", flags);
