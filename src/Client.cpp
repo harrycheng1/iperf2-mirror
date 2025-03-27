@@ -228,6 +228,27 @@ bool Client::my_connect (bool close_on_fail) {
                      SockAddr_get_sizeof_sockaddr(&mSettings->peer));
         mSettings->tcpinitstats.connecttime = 0.0; // UDP doesn't have a 3WHS
         WARN_errno((rc == SOCKET_ERROR), "udp connect");
+	// Reverse UDP tests reverse tests need to do test exchange
+	if (isReverse(mSettings) && isUDP(mSettings)) {
+	    reportstruct->packetLen = 0;
+	    fd_set set;
+	    struct timeval timeout;
+	    int resend_udp = 100;
+	    do  {
+		FD_ZERO(&set);
+		FD_SET(mySocket, &set);
+		timeout.tv_sec = 0;
+		timeout.tv_usec = rand() % 10000; // randomize IPG a bit
+		reportstruct->packetLen = SendFirstPayload();
+		if (select(mySocket + 1, &set, NULL, NULL, &timeout) == 0) {
+		    reportstruct->packetLen = SendFirstPayload();
+		    // printf("**** resend sock=%d count=%d\n", mySocket, resend_udp);
+		} else {
+		    break;
+		}
+	    } while (--resend_udp > 0);
+	}
+
         if (rc != SOCKET_ERROR)
             connected = true;
     }
@@ -350,28 +371,8 @@ int Client::StartSynch () {
     // check for an epoch based start time
     reportstruct->packetLen = 0;
     if (!isServerReverse(mSettings) && !isCompat(mSettings)) {
-        if (!isBounceBack(mSettings)) {
+        if (!isBounceBack(mSettings) && !(isReverse(mSettings) && isUDP(mSettings))) {
             reportstruct->packetLen = SendFirstPayload();
-            // Reverse UDP tests need to retry "first sends" a few times
-            // before going to server or read mode
-            if (isReverse(mSettings) && isUDP(mSettings)) {
-                reportstruct->packetLen = 0;
-                fd_set set;
-                struct timeval timeout;
-                int resend_udp = 100;
-                while (--resend_udp > 0) {
-                    FD_ZERO(&set);
-                    FD_SET(mySocket, &set);
-                    timeout.tv_sec = 0;
-                    timeout.tv_usec = rand() % 20000; // randomize IPG a bit
-                    if (select(mySocket + 1, &set, NULL, NULL, &timeout) == 0) {
-                        reportstruct->packetLen = SendFirstPayload();
-                        // printf("**** resend sock=%d count=%d\n", mySocket, resend_udp);
-                    } else {
-                        break;
-                    }
-                }
-            }
         }
         if (isTxStartTime(mSettings) && !delay_test_exchange) {
             clock_usleep_abstime(&mSettings->txstart_epoch);
