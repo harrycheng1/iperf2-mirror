@@ -1071,13 +1071,15 @@ void udp_output_read_triptime (struct TransferInfo *stats) {
 void udp_output_read_enhanced (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_bw_jitter_loss_enhanced);
     _print_stats_common(stats);
+    PKTLOSS_PERCENT_PRECISION(pktloss_percent, precision, stats->cntError, stats->cntDatagrams);
     if (!stats->cntIPG) {
 	printf(report_bw_jitter_loss_suppress_enhanced_format, stats->common->transferIDStr,
 	       stats->ts.iStart, stats->ts.iEnd,
 	       outbuffer, outbufferext,
 	       0.0, stats->cntError,
 	       stats->cntDatagrams,
-	       (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+	       precision,
+	       pktloss_percent,
 	       0.0, // pps
 	       stats->sock_callstats.read.cntRead,
 	       stats->sock_callstats.read.cntReadTimeo,
@@ -1091,7 +1093,8 @@ void udp_output_read_enhanced (struct TransferInfo *stats) {
 		   outbuffer, outbufferext,
 		   (stats->final) ? ((stats->inline_jitter.total.sum / (double) stats->inline_jitter.total.cnt) * 1e3) : (stats->jitter * 1e3),
 		   stats->cntError, stats->cntDatagrams,
-		   (stats->cntDatagrams ? ((100.0 * stats->cntError) / stats->cntDatagrams) : 0),
+		   precision,
+		   pktloss_percent,
 		   (stats->IPGsum ? (stats->cntIPG / (stats->IPGsum + stats->IPGsumcarry)) : 0), // pps
 		   stats->sock_callstats.read.cntRead,
 		   stats->sock_callstats.read.cntReadTimeo,

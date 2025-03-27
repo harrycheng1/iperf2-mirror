@@ -1111,6 +1111,7 @@ inline void reporter_handle_packet_server_udp (struct ReporterData *data, struct
 	stats->total.SrcPortMismatch.current++;
     } else if (!packet->emptyreport && (packet->packetID > 0)) {
 	bool ooo_packet = false;
+
 	// packet loss occured if the datagram numbers aren't sequential
 	if (packet->packetID != stats->PacketID + 1) {
 	    if (packet->packetID < stats->PacketID + 1) {
