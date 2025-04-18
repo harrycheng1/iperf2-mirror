@@ -701,6 +701,8 @@ DISCOVER_DEFAULTLEN_FALSE
 DISCOVER_DEFAULTLEN_TRUE
 FASTSAMPLING_FALSE
 FASTSAMPLING_TRUE
+ENABLE_INTERLEAVED_ASM_FALSE
+ENABLE_INTERLEAVED_ASM_TRUE
 MAINT
 MAINTAINER_MODE_FALSE
 MAINTAINER_MODE_TRUE
@@ -779,6 +781,7 @@ ac_user_opts='
 enable_option_checking
 enable_silent_rules
 enable_maintainer_mode
+enable_interleaved_asm
 enable_ipv6
 enable_multicast
 enable_tcpstats
@@ -1447,6 +1450,8 @@ Optional Features:
   --enable-maintainer-mode
                           enable make rules and dependencies not useful (and
                           sometimes confusing) to the casual installer
+  --enable-interleaved-asm
+                          Enable interleaved assembly output
   --disable-ipv6          disable ipv6 support (default is autodetect)
   --disable-multicast     disable multicast support (default is autodetect)
   --disable-tcpstats      disable tcpstats support (default is autodetect)
@@ -3854,6 +3859,24 @@ fi
 # from autoconf, because that's instructions for what
 # to do *after* running autoupdate.
 
+
+
+# Check whether --enable-interleaved-asm was given.
+if test ${enable_interleaved_asm+y}
+then :
+  enableval=$enable_interleaved_asm;
+else case e in #(
+  e) enable_interleaved_asm=no ;;
+esac
+fi
+
+ if test "x$enable_interleaved_asm" = "xyes"; then
+  ENABLE_INTERLEAVED_ASM_TRUE=
+  ENABLE_INTERLEAVED_ASM_FALSE='#'
+else
+  ENABLE_INTERLEAVED_ASM_TRUE='#'
+  ENABLE_INTERLEAVED_ASM_FALSE=
+fi
 
 
 # Check whether --enable-ipv6 was given.
@@ -10136,6 +10159,10 @@ fi
 
 if test -z "${MAINTAINER_MODE_TRUE}" && test -z "${MAINTAINER_MODE_FALSE}"; then
   as_fn_error $? "conditional \"MAINTAINER_MODE\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${ENABLE_INTERLEAVED_ASM_TRUE}" && test -z "${ENABLE_INTERLEAVED_ASM_FALSE}"; then
+  as_fn_error $? "conditional \"ENABLE_INTERLEAVED_ASM\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${FASTSAMPLING_TRUE}" && test -z "${FASTSAMPLING_FALSE}"; then

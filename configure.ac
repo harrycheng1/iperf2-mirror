@@ -15,6 +15,11 @@ AM_MAINTAINER_MODE([disable])
 m4_include([m4/dast.m4])
 m4_include([m4/ax_pthread.m4])
 
+AC_ARG_ENABLE([interleaved-asm],
+  [AS_HELP_STRING([--enable-interleaved-asm], [Enable interleaved assembly output])],
+  [], [enable_interleaved_asm=no])
+AM_CONDITIONAL([ENABLE_INTERLEAVED_ASM], [test "x$enable_interleaved_asm" = "xyes"])
+
 AC_ARG_ENABLE(ipv6, AS_HELP_STRING([--disable-ipv6],[disable ipv6 support (default is autodetect)]),
 	ac_cv_have_ipv6=$enable_ipv6)
 
