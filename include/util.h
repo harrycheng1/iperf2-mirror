@@ -61,7 +61,7 @@
 extern "C" {
 #endif
 
-extern int sInterupted;
+extern volatile int sInterupted;
 
 #define WARNBUFSIZE 256
 

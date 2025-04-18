@@ -89,7 +89,7 @@ static void Sig_Interupt(int inSigno);
  * ------------------------------------------------------------------- */
 extern "C" {
     // Global flag to signal a user interrupt
-    int sInterupted = 0;
+    volatile int sInterupted = 0;
     // Global ID that we increment to be used
     // as identifier for SUM reports
     int groupID = 0;
