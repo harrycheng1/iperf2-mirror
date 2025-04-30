@@ -179,7 +179,6 @@ Client specific:\n\
       --txdelay-time       time in seconds to hold back after connect and before first write\n\
       --txstart-time       unix epoch time to schedule first write and start traffic\n\
       --udp-l4s            run a UDP L4S flow\n\
-      --udp-l4s-video      run a UDP L4S video flow\n\
   -B, --bind [<ip> | <ip:port>] bind ip (and optional port) from which to source traffic\n\
   -F, --fileinput <name>   input the data to be transmitted from a file\n\
   -H, --ssm-host <ip>      set the SSM source, use with -B for (S,G) \n\
@@ -229,15 +228,20 @@ Report bugs to <iperf-users@lists.sourceforge.net>\n";
     #define IPERF_THREADS "single threaded"
 #endif
 
+#if HAVE_UDP_L4S
+const char version[] =
+"iperf version " IPERF_VERSION " (" IPERF_VERSION_DATE ") " IPERF_THREADS " (UDP l4s support)\n";
+const char branch_version[] =
+"iperf (branch " IPERF_BRANCH ") (" IPERF_VERSION_DATE ") " IPERF_THREADS " (UDP l4s support)\n";
+#else
 const char version[] =
 "iperf version " IPERF_VERSION " (" IPERF_VERSION_DATE ") " IPERF_THREADS "\n";
 const char branch_version[] =
 "iperf (branch " IPERF_BRANCH ") (" IPERF_VERSION_DATE ") " IPERF_THREADS "\n";
-
+#endif
 /* -------------------------------------------------------------------
  * settings
  * ------------------------------------------------------------------- */
-
 const char separator_line[] =
 "------------------------------------------------------------\n";
 
