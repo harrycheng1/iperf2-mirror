@@ -112,6 +112,10 @@ struct ReportStruct {
 #if defined(HAVE_DECL_SO_MAX_PACING_RATE)
     intmax_t FQPacingRate;
 #endif
+#if HAVE_UDP_L4S
+    int32_t ce_count;
+    int32_t ce_rxcount;
+#endif
 };
 
 struct PacketRing {

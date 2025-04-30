@@ -160,6 +160,9 @@ public:
         stats = *this;  // makes a copy of the internal state and parameters
     }
 
+    int32_t Get_CECountServer();
+    int32_t Get_CECount();
+
     const PragueState* GetStatePtr() // For logging purposes
     {
         return this;  // gives a const pointer for reading the live state

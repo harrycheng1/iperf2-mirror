@@ -538,3 +538,11 @@ void PragueCC::GetACKInfo(       // when the receiving-app needs to send a packe
     packets_lost = m_r_packets_lost;
     error_L4S = m_r_error_L4S;
 }
+
+int32_t PragueCC::Get_CECountServer() {
+    return m_r_packets_CE;
+}
+
+int32_t PragueCC::Get_CECount() {
+    return m_packets_CE;
+}
