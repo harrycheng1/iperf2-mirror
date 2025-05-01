@@ -540,9 +540,11 @@ void PragueCC::GetACKInfo(       // when the receiving-app needs to send a packe
 }
 
 int32_t PragueCC::Get_CECountServer() {
-    return m_r_packets_CE;
+    int32_t cnt = m_r_packets_CE - m_r_packets_CE_prev;
+    return (cnt < 0 ? 1 : cnt);
 }
 
 int32_t PragueCC::Get_CECount() {
-    return m_packets_CE;
+    int32_t cnt = m_packets_CE - m_packets_CE_prev;
+    return (cnt < 0 ? 1 : cnt);
 }

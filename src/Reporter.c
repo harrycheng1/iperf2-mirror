@@ -1152,6 +1152,7 @@ inline void reporter_handle_packet_server_udp (struct ReporterData *data, struct
 	    reporter_handle_packet_oneway_transit(stats, packet);
 	}
 	stats->total.Bytes.current += packet->packetLen;
+	stats->total.CE.current += packet->ce_rxcount;
 	reporter_compute_packet_pps(stats, packet);
 
 	if (packet->transit_ready) {
@@ -1390,6 +1391,7 @@ void reporter_transfer_protocol_server_udp (struct ReporterData *data, bool fina
 	stats->cntError = 0;
     stats->cntDatagrams = stats->PacketID - stats->total.Datagrams.prev;
     stats->cntIPG = stats->total.IPG.current - stats->total.IPG.prev;
+    stats->cntCE = stats->total.CE.current - stats->total.CE.prev;
     stats->sock_callstats.read.cntRead = stats->sock_callstats.read.ReadCnt.current - stats->sock_callstats.read.ReadCnt.prev;
     stats->sock_callstats.read.cntReadTimeo = stats->sock_callstats.read.ReadTimeoCnt.current - stats->sock_callstats.read.ReadTimeoCnt.prev;
     stats->sock_callstats.read.cntReadErrLen = stats->sock_callstats.read.ReadErrLenCnt.current - stats->sock_callstats.read.ReadErrLenCnt.prev;

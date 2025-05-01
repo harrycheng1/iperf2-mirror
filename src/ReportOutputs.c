@@ -1120,6 +1120,7 @@ void udp_output_read_enhanced (struct TransferInfo *stats) {
 		   stats->cntError, stats->cntDatagrams,
 		   precision,
 		   pktloss_percent,
+		   stats->cntCE,
 		   (meantransit * 1e3),
 		   ((stats->final ? stats->transit.total.min : stats->transit.current.min) * 1e3),
 		   ((stats->final ? stats->transit.total.max : stats->transit.current.max) * 1e3),
@@ -1128,7 +1129,8 @@ void udp_output_read_enhanced (struct TransferInfo *stats) {
 		   stats->sock_callstats.read.cntRead,
 		   stats->sock_callstats.read.cntReadTimeo,
 		   stats->sock_callstats.read.cntReadErrLen,
-		   netpower_buf, (stats->common->Omit ? report_omitted : ""));
+		   netpower_buf,
+		   (stats->common->Omit ? report_omitted : ""));
 	}
     }
     if (stats->latency_histogram) {

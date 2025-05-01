@@ -297,6 +297,7 @@ struct ShiftCounters {
     struct ShiftIntCounter Datagrams;
     struct ShiftIntCounter IPG;
     struct ShiftIntCounter SrcPortMismatch;
+    struct ShiftIntCounter CE;
 };
 
 struct IsochStats {
@@ -374,6 +375,9 @@ struct TransferInfo {
     intmax_t cntDatagrams;
     intmax_t cntIPG;
     intmax_t PacketID;
+#if HAVE_UDP_L4S
+    intmax_t cntCE;
+#endif
     double jitter;
     double IPGsum;
     double IPGsumcarry;

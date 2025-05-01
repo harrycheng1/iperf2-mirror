@@ -1167,7 +1167,6 @@ void Server::RunUDPL4S () {
                         l4s_pacer.DataReceivedSequence(ecn_tp(reportstruct->tos & 0x03), \
                                                        ntohl(udp_l4spkt->sender_seqno));
 			reportstruct->ce_rxcount = l4s_pacer.Get_CECountServer();
-			printf("CE count %d\n", reportstruct->ce_rxcount);
 
                         ReportPacket(myReport, reportstruct);
                         // Send l4s ack

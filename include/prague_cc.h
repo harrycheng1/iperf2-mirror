@@ -44,12 +44,14 @@ struct PragueState {
     time_tp   m_r_prev_ts;            // used to see if an ack isn't older than the previous ack
     count_tp  m_r_packets_received;   // as a receiver, keep counters to echo back
     count_tp  m_r_packets_CE;
+    count_tp  m_r_packets_CE_prev;
     count_tp  m_r_packets_lost;
     bool      m_r_error_L4S;          // as a receiver, check L4S-ECN validity to echo back an error
 // sender-end variables
     time_tp   m_cc_ts;
     count_tp  m_packets_received;     // latest known receiver end counters
     count_tp  m_packets_CE;
+    count_tp  m_packets_CE_prev;
     count_tp  m_packets_lost;
     count_tp  m_packets_sent;
     bool      m_error_L4S;            // latest known receiver-end error state

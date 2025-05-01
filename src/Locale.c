@@ -622,10 +622,10 @@ const char report_bw_jitter_loss_enhanced_header[] =
 #else
 const char report_bw_jitter_loss_enhanced_header[] =
 "[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth        Jitter   Lost/Total \
- Latency avg/min/max/stdev PPS N/A(Read/Timeo/Trunc) NetPwr\n";
+ CE Latency avg/min/max/stdev PPS N/A(Read/Timeo/Trunc) NetPwr\n";
 #endif
 const char report_bw_jitter_loss_enhanced_format[] =
-"%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %6.3f ms %" PRIdMAX "/%" PRIdMAX " (%.*f%%) %.3f/%.3f/%.3f/%.3f ms %.0f pps %" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX " %s%s\n";
+"%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %6.3f ms %" PRIdMAX "/%" PRIdMAX " (%.*f%%) %" PRIdMAX " %.3f/%.3f/%.3f/%.3f ms %.0f pps %" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX " %s%s\n";
 
 const char report_bw_jitter_loss_enhanced_triptime_header[] =
 "[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth        Jitter   Lost/Total \
