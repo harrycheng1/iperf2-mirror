@@ -1391,7 +1391,7 @@ void reporter_transfer_protocol_server_udp (struct ReporterData *data, bool fina
     if (stats->cntError < 0)
 	stats->cntError = 0;
     stats->cntDatagrams = stats->PacketID - stats->total.Datagrams.prev;
-    stats->cntIPG = stats->total.IPG.current - stats->total.IPG.prev;
+    stats->cntIPG = (final ? stats->total.IPG.current : (stats->total.IPG.current - stats->total.IPG.prev));
     stats->cntCE = stats->total.CE.current - stats->total.CE.prev;
     stats->sock_callstats.read.cntRead = stats->sock_callstats.read.ReadCnt.current - stats->sock_callstats.read.ReadCnt.prev;
     stats->sock_callstats.read.cntReadTimeo = stats->sock_callstats.read.ReadTimeoCnt.current - stats->sock_callstats.read.ReadTimeoCnt.prev;
