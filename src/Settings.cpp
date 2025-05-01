@@ -1641,10 +1641,14 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
     // Handle default read/write sizes based on v4, v6, UDP or TCP
     if (!isBuflenSet(mExtSettings)) {
 	if (isUDP(mExtSettings)) {
-	    if (isIPV6(mExtSettings) && mExtSettings->mThreadMode == kMode_Client) {
-		mExtSettings->mBufLen = kDefault_UDPBufLenV6;
+	    if (mExtSettings->mThreadMode == kMode_Client) {
+		if (isIPV6(mExtSettings)) {
+		    mExtSettings->mBufLen = kDefault_UDPTxBufLenV6;
+		} else {
+		    mExtSettings->mBufLen = kDefault_UDPTxBufLen;
+		}
 	    } else {
-		mExtSettings->mBufLen = kDefault_UDPBufLen;
+		mExtSettings->mBufLen = kDefault_UDPRxBufLen;
 	    }
 	} else {
 	    if (isBounceBack(mExtSettings))
@@ -2440,7 +2444,7 @@ void Settings_GenerateListenerSettings (struct thread_Settings *client, struct t
         }
 	if (client->mBufLen <= 0) {
 	    if (isUDP((*listener))) {
-		(*listener)->mBufLen = kDefault_UDPBufLen;
+		(*listener)->mBufLen = kDefault_UDPRxBufLen;
 	    } else {
 		(*listener)->mBufLen = kDefault_TCPBufLen;
 	    }
