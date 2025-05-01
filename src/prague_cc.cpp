@@ -136,12 +136,14 @@ PragueCC::PragueCC(
     m_r_prev_ts = 0;      // used to see if an ack isn't older than the previous ack
     m_r_packets_received = 0; // as a receiver, keep counters to echo back
     m_r_packets_CE = 0;
+    m_r_packets_CE_prev = 0;
     m_r_packets_lost = 0;
     m_r_error_L4S = false; // as a receiver, check L4S-ECN validity to echo back an error
 // sender end variables
     m_cc_ts = ts_now;   // time of last cc update
     m_packets_received = 0; // latest known receiver end counters
     m_packets_CE = 0;
+    m_packets_CE_prev = 0;
     m_packets_lost = 0;
     m_packets_sent = 0;
     m_error_L4S = false; // latest known receiver end error state
