@@ -103,9 +103,10 @@ typedef bool _Bool;
 
 
 // v4: 1470 bytes UDP payload will fill one and only one ethernet datagram (IPv4 overhead is 20 bytes)
-#define  kDefault_UDPBufLen 1470
+#define  kDefault_UDPTxBufLen 1470
 // v6: 1450 bytes UDP payload will fill one and only one ethernet datagram (IPv6 overhead is 40 bytes)
-#define  kDefault_UDPBufLenV6 1450
+#define  kDefault_UDPTxBufLenV6 1450
+#define  kDefault_UDPRxBufLen 128 * 1024 // 128 Kbytes, ok for UDP reads (actual size is set by the sender and part of the read)
 #define  IPV4HDRLEN 20
 #define  IPV6HDRLEN 40
 #define  UDPHDRLEN  8
