@@ -1350,6 +1350,7 @@ static inline void reporter_reset_transfer_stats_server_tcp (struct TransferInfo
 
 static inline void reporter_reset_transfer_stats_server_udp (struct TransferInfo *stats) {
     // Reset the enhanced stats for the next report interval
+    stats->total.CE.prev = stats->total.CE.current;
     stats->total.Bytes.prev = stats->total.Bytes.current;
     stats->total.Datagrams.prev = stats->PacketID;
     stats->total.OutofOrder.prev = stats->total.OutofOrder.current;
