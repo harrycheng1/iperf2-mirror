@@ -618,7 +618,7 @@ const char report_bw_jitter_loss_pps_format[] =
 #if HAVE_DECL_MSG_TRUNC
 const char report_bw_jitter_loss_enhanced_header[] =
 "[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth        Jitter   Lost/Total \
- Latency avg/min/max/stdev PPS Read/Timeo/NA NetPwr\n";
+ CE Latency avg/min/max/stdev PPS Read/Timeo/NA NetPwr\n";
 #else
 const char report_bw_jitter_loss_enhanced_header[] =
 "[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth        Jitter   Lost/Total \
