@@ -1222,7 +1222,7 @@ void udp_output_write (struct TransferInfo *stats) {
 void udp_output_write_enhanced (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_bw_pps_enhanced);
     _print_stats_common(stats);
-    double ce_perc = stats->cntIPG ? (double) stats->cntCE/ (double) stats->cntIPG : 0.0;
+    double ce_perc = stats->cntIPG ? (100.0 * (double) stats->cntCE/ (double) stats->cntIPG) : 0.0;
     printf(report_bw_pps_enhanced_format, stats->common->transferIDStr,
 	   stats->ts.iStart, stats->ts.iEnd,
 	   outbuffer, outbufferext,
