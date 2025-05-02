@@ -577,10 +577,10 @@ const char report_client_bb_bw_triptime_format[] =
 "%s" IPERFTimeFrmt " sec  OWD (ms) Cnt=%" PRIdMAX " TX=%.3f/%.3f/%.3f/%.3f RX=%.3f/%.3f/%.3f/%.3f Asymmetry=%.3f/%.3f/%.3f/%.3f%s\n";
 
 const char report_bw_pps_enhanced_header[] =
-"[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth   Write/Err/Timeo  PPS  CE=cnt(%) duration avg/min/max ms\n";
+"[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth   Write/Err/Timeo  PPS  CE=cnt(%) duration avg/min/max ms act-cnt\n";
 
 const char report_bw_pps_enhanced_format[] =
-"%s" IPERFTimeFrmt " sec  %ss  %ss/sec   %" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX "%8.0f pps %" PRIdMAX "(%.1f%%) %.3f/%.3f/%.3f%s\n";
+"%s" IPERFTimeFrmt " sec  %ss  %ss/sec   %" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX "%8.0f pps %" PRIdMAX "(%.1f%%) %.3f/%.3f/%.3f %" PRIdMAX "%s\n";
 
 const char report_sumcnt_bw_pps_enhanced_header[] =
 "[SUM-cnt] Interval" IPERFTimeSpace "Transfer     Bandwidth      Write/Err  PPS\n";
