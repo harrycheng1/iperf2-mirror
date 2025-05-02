@@ -1021,7 +1021,7 @@ void reporter_handle_packet_client (struct ReporterData *data, struct ReportStru
 	    }
 	} else if (stats->ce_state == ON) {
 	    stats->ce_state = OFF;
-	    reporter_update_mmm(&stats->CE_Duration.current, TimeDifference(packet->packetTime, stats->startTimeCE));
+	    reporter_update_mmm(&stats->CE_Duration.current, (1000 * TimeDifference(packet->packetTime, stats->startTimeCE)));
 	}
 	reporter_compute_packet_pps(stats, packet);
     }
