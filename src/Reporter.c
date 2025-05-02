@@ -1022,6 +1022,7 @@ void reporter_handle_packet_client (struct ReporterData *data, struct ReportStru
 	} else if (stats->ce_state == ON) {
 	    stats->ce_state = OFF;
 	    reporter_update_mmm(&stats->CE_Duration.current, (1000 * TimeDifference(packet->packetTime, stats->startTimeCE)));
+	    reporter_update_mmm(&stats->CE_Duration.total, (1000 * TimeDifference(packet->packetTime, stats->startTimeCE)));
 	}
 	reporter_compute_packet_pps(stats, packet);
     }
@@ -1343,6 +1344,7 @@ static inline void reporter_reset_transfer_stats_client_udp (struct TransferInfo
     stats->isochstats.framecnt.prev = stats->isochstats.framecnt.current;
     stats->isochstats.framelostcnt.prev = stats->isochstats.framelostcnt.current;
     stats->isochstats.slipcnt.prev = stats->isochstats.slipcnt.current;
+    reporter_reset_mmm(&stats->CE_Duration.current);
     if (stats->cntDatagrams)
 	stats->IPGsum = 0;
 }
