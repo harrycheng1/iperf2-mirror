@@ -1826,6 +1826,7 @@ void Client::RunUDPL4S () {
 		// report packets
 		reportstruct->packetLen = static_cast<unsigned long>(currLen);
 		reportstruct->prevPacketTime = myReport->info.ts.prevpacketTime;
+		reportstruct->ce_count = l4s_pacer.Get_CECount();
 		myReportPacket();
 		if (!reportstruct->emptyreport) {
 		    reportstruct->packetID++;

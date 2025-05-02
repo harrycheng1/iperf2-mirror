@@ -1013,6 +1013,7 @@ void reporter_handle_packet_client (struct ReporterData *data, struct ReportStru
 
     if (isUDP(stats->common)) {
 	stats->PacketID = packet->packetID;
+	stats->total.CE.current += packet->ce_count;
 	reporter_compute_packet_pps(stats, packet);
     }
 }
@@ -1326,6 +1327,7 @@ static inline void reporter_reset_transfer_stats_client_udp (struct TransferInfo
     stats->total.Datagrams.prev = stats->total.Datagrams.current;
     stats->total.Bytes.prev = stats->total.Bytes.current;
     stats->total.IPG.prev = stats->total.IPG.current;
+    stats->total.CE.prev = stats->total.CE.current;
     stats->sock_callstats.write.WriteCnt = 0;
     stats->sock_callstats.write.WriteErr = 0;
     stats->sock_callstats.write.WriteTimeo = 0;
@@ -1616,6 +1618,7 @@ void reporter_transfer_protocol_client_udp (struct ReporterData *data, bool fina
     stats->cntBytes = stats->total.Bytes.current - stats->total.Bytes.prev;
     stats->cntDatagrams = stats->total.Datagrams.current - stats->total.Datagrams.prev;
     stats->cntIPG = stats->total.IPG.current - stats->total.IPG.prev;
+    stats->cntCE = stats->total.CE.current - stats->total.CE.prev;
     if (isIsochronous(stats->common)) {
 	stats->isochstats.cntFrames = stats->isochstats.framecnt.current - stats->isochstats.framecnt.prev;
 	stats->isochstats.cntFramesMissed = stats->isochstats.framelostcnt.current - stats->isochstats.framelostcnt.prev;
@@ -1663,6 +1666,7 @@ void reporter_transfer_protocol_client_udp (struct ReporterData *data, bool fina
 	stats->sock_callstats.write.WriteTimeo = stats->sock_callstats.write.totWriteTimeo;
 	stats->cntIPG = stats->total.IPG.current;
 	stats->cntDatagrams = stats->PacketID;
+	stats->cntCE = stats->total.CE.current;
 	stats->IPGsum = TimeDifference(stats->ts.packetTime, stats->ts.startTime);
 	if (isIsochronous(stats->common)) {
 	    stats->isochstats.cntFrames = stats->isochstats.framecnt.current;

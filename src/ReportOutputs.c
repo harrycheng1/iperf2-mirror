@@ -1225,6 +1225,7 @@ void udp_output_write_enhanced (struct TransferInfo *stats) {
     printf(report_bw_pps_enhanced_format, stats->common->transferIDStr,
 	   stats->ts.iStart, stats->ts.iEnd,
 	   outbuffer, outbufferext,
+	   stats->total.CE.current,
 	   stats->sock_callstats.write.WriteCnt,
 	   stats->sock_callstats.write.WriteErr,
 	   stats->sock_callstats.write.WriteTimeo,
