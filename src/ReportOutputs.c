@@ -1222,14 +1222,17 @@ void udp_output_write (struct TransferInfo *stats) {
 void udp_output_write_enhanced (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_bw_pps_enhanced);
     _print_stats_common(stats);
+    double ce_perc = stats->cntIPG ? (double) stats->cntCE/ (double) stats->cntIPG : 0.0;
     printf(report_bw_pps_enhanced_format, stats->common->transferIDStr,
 	   stats->ts.iStart, stats->ts.iEnd,
 	   outbuffer, outbufferext,
-	   stats->cntCE,
 	   stats->sock_callstats.write.WriteCnt,
 	   stats->sock_callstats.write.WriteErr,
 	   stats->sock_callstats.write.WriteTimeo,
-	   (stats->cntIPG ? (stats->cntIPG / (stats->IPGsum + stats->IPGsumcarry)) : 0.0), (stats->common->Omit ? report_omitted : ""));
+	   (stats->cntIPG ? (stats->cntIPG / (stats->IPGsum + stats->IPGsumcarry)) : 0.0),
+	   stats->cntCE,
+	   ce_perc,
+	   (stats->common->Omit ? report_omitted : ""));
     cond_flush(stats);
 }
 void udp_output_write_enhanced_isoch (struct TransferInfo *stats) {

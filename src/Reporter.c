@@ -1013,7 +1013,16 @@ void reporter_handle_packet_client (struct ReporterData *data, struct ReportStru
 
     if (isUDP(stats->common)) {
 	stats->PacketID = packet->packetID;
-	stats->total.CE.current += packet->ce_count;
+	if (packet->ce_count > 1) {
+	    stats->total.CE.current += packet->ce_count;
+	    if (stats->ce_state == OFF) {
+		stats->ce_state = ON;
+		stats->startTimeCE = packet->packetTime;
+	    }
+	} else if (stats->ce_state == ON) {
+	    stats->ce_state = OFF;
+	    reporter_update_mmm(&stats->CE_Duration.current, TimeDifference(packet->packetTime, stats->startTimeCE));
+	}
 	reporter_compute_packet_pps(stats, packet);
     }
 }

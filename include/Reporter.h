@@ -190,6 +190,11 @@ enum TansferIDType {
     NORMAL
 };
 
+enum CE_STATE {
+    OFF = 0,
+    ON
+};
+
 union SendReadStats {
     struct ReadStats read;
     struct WriteStats write;
@@ -377,6 +382,9 @@ struct TransferInfo {
     intmax_t PacketID;
 #if HAVE_UDP_L4S
     intmax_t cntCE;
+    enum CE_STATE ce_state;
+    struct timeval startTimeCE;
+    struct RunningMMMStats CE_Duration;
 #endif
     double jitter;
     double IPGsum;
