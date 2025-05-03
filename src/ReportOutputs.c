@@ -1238,7 +1238,7 @@ void udp_output_write_enhanced (struct TransferInfo *stats) {
 	                   ((stats->CE_Duration.current.cnt > 0) ? stats->CE_Duration.current.min : 0)),
 	   (stats->final ? ((stats->CE_Duration.total.cnt > 0) ? stats->CE_Duration.total.max : 0) : \
 	                   ((stats->CE_Duration.current.cnt > 0) ? stats->CE_Duration.current.max : 0)),
-	   (stats->final ? stats->CE_Duration.total.cnt, stats->CE_Duration.current.cnt),
+	   (stats->final ? stats->CE_Duration.total.cnt : stats->CE_Duration.current.cnt),
 	   (stats->common->Omit ? report_omitted : ""));
     cond_flush(stats);
 }
