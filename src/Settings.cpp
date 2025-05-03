@@ -599,7 +599,7 @@ void Settings_Interpret (char option, const char *optarg, struct thread_Settings
 	setIPV6(mExtSettings);
 	break;
 
-    case 'b': // UDP bandwidth
+    case 'b': // offered load
     {
 	char *tmp= new char [strlen(optarg) + 1];
 	strcpy(tmp, optarg);
@@ -1700,6 +1700,8 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 		}
 	    }
 //	    printf("**** fps = %f %f %f\n", mExtSettings->mFPS, static_cast<double> (mExtSettings->mAppRate), static_cast<double> (mExtSettings->mBurstSize));
+	} else if (isBWSet(mExtSettings) && (mExtSettings->mAppRate <= 0)) {
+	    unsetBWSet(mExtSettings);
 	}
     }
     if (isHideIPs(mExtSettings)) {
