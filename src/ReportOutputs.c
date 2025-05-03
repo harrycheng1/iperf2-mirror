@@ -1232,10 +1232,12 @@ void udp_output_write_enhanced (struct TransferInfo *stats) {
 	   (stats->cntIPG ? (stats->cntIPG / (stats->IPGsum + stats->IPGsumcarry)) : 0.0),
 	   stats->cntCE,
 	   ce_perc,
-	   (stats->final ? stats->CE_Duration.total.mean : stats->CE_Duration.current.mean),
-	   (stats->final ? stats->CE_Duration.total.min : stats->CE_Duration.current.min),
-	   (stats->final ? stats->CE_Duration.total.max : stats->CE_Duration.current.max),
-	   (stats->final ? stats->CE_Duration.total.cnt : stats->CE_Duration.current.cnt),
+	   (stats->final ? ((stats->CE_Duration.total.cnt > 0) ? stats->CE_Duration.total.mean : 0) : \
+	                   ((stats->CE_Duration.current.cnt > 0) ? stats->CE_Duration.current.mean : 0)),
+	   (stats->final ? ((stats->CE_Duration.total.cnt > 0) ? stats->CE_Duration.total.min : 0) : \
+	                   ((stats->CE_Duration.current.cnt > 0) ? stats->CE_Duration.current.min : 0)),
+	   (stats->final ? ((stats->CE_Duration.total.cnt > 0) ? stats->CE_Duration.total.max : 0) : \
+	                   ((stats->CE_Duration.current.cnt > 0) ? stats->CE_Duration.current.max : 0)),
 	   (stats->common->Omit ? report_omitted : ""));
     cond_flush(stats);
 }
