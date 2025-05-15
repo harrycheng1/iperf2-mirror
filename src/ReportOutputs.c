@@ -1113,6 +1113,7 @@ void udp_output_read_enhanced (struct TransferInfo *stats) {
 	    }
 	    set_netpowerbuf(meantransit, stats);
 	    PKTLOSS_PERCENT_PRECISION(pktloss_percent, precision, stats->cntError, stats->cntDatagrams);
+	    double ce_perc = stats->cntIPG ? (100.0 * (double) stats->cntCE/ (double) stats->cntIPG) : 0.0;
 	    printf(report_bw_jitter_loss_enhanced_format, stats->common->transferIDStr,
 		   stats->ts.iStart, stats->ts.iEnd,
 		   outbuffer, outbufferext,
@@ -1120,7 +1121,6 @@ void udp_output_read_enhanced (struct TransferInfo *stats) {
 		   stats->cntError, stats->cntDatagrams,
 		   precision,
 		   pktloss_percent,
-		   stats->cntCE,
 		   (meantransit * 1e3),
 		   ((stats->final ? stats->transit.total.min : stats->transit.current.min) * 1e3),
 		   ((stats->final ? stats->transit.total.max : stats->transit.current.max) * 1e3),
@@ -1129,6 +1129,8 @@ void udp_output_read_enhanced (struct TransferInfo *stats) {
 		   stats->sock_callstats.read.cntRead,
 		   stats->sock_callstats.read.cntReadTimeo,
 		   stats->sock_callstats.read.cntReadErrLen,
+		   stats->cntCE,
+		   ce_perc,
 		   netpower_buf,
 		   (stats->common->Omit ? report_omitted : ""));
 	}
@@ -1232,13 +1234,13 @@ void udp_output_write_enhanced (struct TransferInfo *stats) {
 	   (stats->cntIPG ? (stats->cntIPG / (stats->IPGsum + stats->IPGsumcarry)) : 0.0),
 	   stats->cntCE,
 	   ce_perc,
+	   (stats->final ? stats->CE_Duration.total.cnt : stats->CE_Duration.current.cnt),
 	   (stats->final ? ((stats->CE_Duration.total.cnt > 0) ? stats->CE_Duration.total.mean : 0) : \
 	                   ((stats->CE_Duration.current.cnt > 0) ? stats->CE_Duration.current.mean : 0)),
 	   (stats->final ? ((stats->CE_Duration.total.cnt > 0) ? stats->CE_Duration.total.min : 0) : \
 	                   ((stats->CE_Duration.current.cnt > 0) ? stats->CE_Duration.current.min : 0)),
 	   (stats->final ? ((stats->CE_Duration.total.cnt > 0) ? stats->CE_Duration.total.max : 0) : \
 	                   ((stats->CE_Duration.current.cnt > 0) ? stats->CE_Duration.current.max : 0)),
-	   (stats->final ? stats->CE_Duration.total.cnt : stats->CE_Duration.current.cnt),
 	   (stats->common->Omit ? report_omitted : ""));
     cond_flush(stats);
 }
