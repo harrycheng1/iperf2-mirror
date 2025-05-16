@@ -1827,12 +1827,12 @@ void Client::RunUDPL4S () {
 		reportstruct->packetLen = static_cast<unsigned long>(currLen);
 		reportstruct->prevPacketTime = myReport->info.ts.prevpacketTime;
 		reportstruct->ce_count = l4s_pacer.Get_CECount();
-		myReportPacket();
 		if (!reportstruct->emptyreport) {
 		    reportstruct->packetID++;
 		    myReport->info.ts.prevpacketTime = reportstruct->packetTime;
 		}
 	    }
+	    myReportPacket();
 	}
 	if (startSend != 0) {
             if (compRecv + packet_size * inburst * 1000000 / pacing_rate <= 0)
