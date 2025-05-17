@@ -83,6 +83,7 @@
 #include "payloads.h"
 #include "delay.h"
 #include "bpfs.h"
+#include "prague_cc.h"
 
 /* -------------------------------------------------------------------
 
@@ -1054,8 +1055,7 @@ bool Listener::apply_client_settings_udp (thread_Settings *server) {
 		    setNoUDPfin(server);
 		    unsetReport(server);
 		    if (upperflags & HEADER_UDPL4S) {
-			setBWSet(server);
-			server->mAppRate = 0;
+			mSettings->mAppRate = PRAGUE_MAXRATE * 8; // kBytes_to_Bits
 		    }
 		}
 	    }
