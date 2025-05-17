@@ -647,7 +647,7 @@ const char report_bw_jitter_loss_enhanced_triptime_l4s_header[] =
  Latency avg/min/max/stdev PPS  Rx/inP  Read/Timeo/Trunc CE=cnt(%) NetPwr\n";
 
 const char report_bw_jitter_loss_enhanced_triptime_l4s_format[] =
-"%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %6.3f ms %" PRIdMAX "/%" PRIdMAX " (%.*f%%)  %.3f/%.3f/%.3f/%.3f ms %.0f pps %" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX " %" PRIdMAX "(%.1f%%) %s%s\n";
+"%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %6.3f ms %" PRIdMAX "/%" PRIdMAX " (%.*f%%) %.3f/%.3f/%.3f/%.3f ms %.0f pps %" PRIdMAX "/%s %" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX "% " PRIdMAX "(%.1f%%) %s%s\n";
 
 const char report_bw_jitter_loss_enhanced_isoch_header[] =
 "[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth        Jitter   Lost/Total \
