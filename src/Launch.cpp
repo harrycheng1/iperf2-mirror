@@ -231,6 +231,9 @@ static void clientside_client_fullduplex (struct thread_Settings *thread, \
         thread->mFullDuplexReport = InitSumReport(thread, -1, true);
     }
     Settings_Copy(thread, &reverse_client, SHALLOW_COPY);
+    if (isUDP(reverse_client)) {
+	Settings_Resize_mBuf(reverse_client, kDefault_UDPRxBufLen);
+    }
     Iperf_push_host(thread);
     Iperf_push_host(reverse_client);
     assert(reverse_client != NULL);
@@ -335,11 +338,17 @@ void client_spawn (struct thread_Settings *thread) {
             struct thread_Settings *reverse_thread = NULL;
             Settings_Copy(thread, &reverse_thread, DEEP_COPY);
             FAIL((reverse_thread == NULL), "Reverse thread alloc failed",  thread);
+	    if (isUDP(reverse_thread)) {
+		Settings_Resize_mBuf(reverse_thread, kDefault_UDPRxBufLen);
+	    }
             clientside_client_reverse(thread, reverse_thread, theClient);
         } else if (isFullDuplex(thread)) {
             struct thread_Settings *reverse_thread = NULL;
             Settings_Copy(thread, &reverse_thread, DEEP_COPY);
             FAIL((reverse_thread == NULL), "Reverse in full-duplex thread alloc failed",  thread);
+	    if (isUDP(reverse_thread)) {
+		Settings_Resize_mBuf(reverse_thread, kDefault_UDPRxBufLen);
+	    }
             clientside_client_fullduplex(thread, reverse_thread, theClient);
         } else {
             fprintf(stdout, "Program error in client side client_spawn");
