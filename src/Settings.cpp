@@ -1678,15 +1678,13 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 	if (isUDP(mExtSettings)) {
 	    if (!isBWSet(mExtSettings)) {
 		if ((static_cast<int> (mExtSettings->mBurstSize) == 0) && !isPeriodicBurst(mExtSettings)) {
-		    mExtSettings->mAppRate = kDefault_UDPRate;
+		    mExtSettings->mAppRate = (isUDPL4S(mExtSettings) ? 0 : kDefault_UDPRate);
 		} else if ((static_cast<int> (mExtSettings->mBurstSize) == 0) && isPeriodicBurst(mExtSettings)) {
 		    mExtSettings->mBurstSize = byte_atoi("1M"); //default to 1 Mbyte
 		    setBurstSize(mExtSettings);
 		} else if ((static_cast<int> (mExtSettings->mBurstSize) != 0) && !isPeriodicBurst(mExtSettings)) {
 		    mExtSettings->mFPS = 1.0;
 		    setPeriodicBurst(mExtSettings);
-		} else if (isUDPL4S(mExtSettings)) {  //default UDP l4s to capacity seeking behavior
-		    mExtSettings->mAppRate = 0;
 		}
 	    } else {
 		if ((mExtSettings->mAppRateUnits == kRate_PPS) && \
