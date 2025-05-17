@@ -617,9 +617,9 @@ void Settings_Interpret (char option, const char *optarg, struct thread_Settings
 	    }
 	}
 	delete [] tmp;
+	setBWSet(mExtSettings);
+	break;
     }
-    setBWSet(mExtSettings);
-    break;
     case 'c': // client mode w/ server host to connect to
 	mExtSettings->mHost = new char[strlen(optarg) + 1 ];
 	strcpy(mExtSettings->mHost, optarg);
@@ -1685,6 +1685,8 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 		} else if ((static_cast<int> (mExtSettings->mBurstSize) != 0) && !isPeriodicBurst(mExtSettings)) {
 		    mExtSettings->mFPS = 1.0;
 		    setPeriodicBurst(mExtSettings);
+		} else if (isUDPL4S(mExtSettings)) {  //default UDP l4s to capacity seeking behavior
+		    mExtSettings->mAppRate = 0;
 		}
 	    } else {
 		if ((mExtSettings->mAppRateUnits == kRate_PPS) && \
