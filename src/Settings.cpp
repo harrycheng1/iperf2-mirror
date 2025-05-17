@@ -2546,7 +2546,7 @@ void Settings_GenerateClientSettings (struct thread_Settings *server, struct thr
 	if (isIPV6(reversed_thread) && (kDefault_UDPTxBufLenV6 < reversed_thread->mBufLen)) {
 	    new_size = kDefault_UDPTxBufLenV6;
 	} else if (!isIPV6(reversed_thread) && (kDefault_UDPTxBufLen < reversed_thread->mBufLen)) {
-	    new_size = kDefault_UDPTxBufLenV6;
+	    new_size = kDefault_UDPTxBufLen;
 	}
 	if (new_size) {
 	    Settings_Resize_mBuf(reversed_thread,new_size);
