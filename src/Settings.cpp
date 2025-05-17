@@ -2542,7 +2542,17 @@ void Settings_GenerateClientSettings (struct thread_Settings *server, struct thr
 	return;
     }
     reversed_thread->mThreadMode = kMode_Client;
-
+    if (isUDP(reversed_thread)) {
+	int new_size = 0; // test for a reverse tx that needs a smaller mBufLen
+	if (isIPV6(reversed_thread) && (kDefault_UDPTxBufLenV6 < reversed_thread->mBufLen)) {
+	    new_size = kDefault_UDPTxBufLenV6;
+	} else if (!isIPV6(reversed_thread) && (kDefault_UDPTxBufLen < reversed_thread->mBufLen)) {
+	    new_size = kDefault_UDPTxBufLenV6;
+	}
+	if (new_size) {
+	    Settings_Resize_mBuf(reversed_thread,new_size);
+	}
+    }
     if (isUDP(server)) { // UDP test information passed in every packet per being stateless
 	struct client_udp_testhdr *hdr = static_cast<struct client_udp_testhdr *>(mBuf);
 	Settings_ReadClientSettingsV1(&reversed_thread, &hdr->base);
@@ -2551,15 +2561,6 @@ void Settings_GenerateClientSettings (struct thread_Settings *server, struct thr
 	}
 	if (v1test) {
 	    setServerReverse(reversed_thread);
-	    if (isIPV6(server)) {
-		if (reversed_thread->mBufLen > kDefault_UDPTxBufLenV6) {
-		    reversed_thread->mBufLen = kDefault_UDPTxBufLenV6;
-		}
-	    } else {
-		if (reversed_thread->mBufLen > kDefault_UDPTxBufLen) {
-		    reversed_thread->mBufLen = kDefault_UDPTxBufLen;
-		}
-	    }
 	    if (flags & RUN_NOW) {
 		reversed_thread->mMode = kTest_DualTest;
 	    } else {
