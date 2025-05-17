@@ -75,6 +75,7 @@
 #include "dscp.h"
 #include "iperf_formattime.h"
 #include <math.h>
+#include "prague_cc.h"
 
 static int reversetest = 0;
 static int fullduplextest = 0;
@@ -1678,7 +1679,7 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 	if (isUDP(mExtSettings)) {
 	    if (!isBWSet(mExtSettings)) {
 		if ((static_cast<int> (mExtSettings->mBurstSize) == 0) && !isPeriodicBurst(mExtSettings)) {
-		    mExtSettings->mAppRate = (isUDPL4S(mExtSettings) ? 0 : kDefault_UDPRate);
+		    mExtSettings->mAppRate = (isUDPL4S(mExtSettings) ? (PRAGUE_MAXRATE * 8) : kDefault_UDPRate);
 		} else if ((static_cast<int> (mExtSettings->mBurstSize) == 0) && isPeriodicBurst(mExtSettings)) {
 		    mExtSettings->mBurstSize = byte_atoi("1M"); //default to 1 Mbyte
 		    setBurstSize(mExtSettings);
@@ -2585,6 +2586,9 @@ void Settings_GenerateClientSettings (struct thread_Settings *server, struct thr
 	    lowerflags = ntohs(hdr->extend.lowerflags);
 	    if ((lowerflags & HEADER_UDPL4S) == HEADER_UDPL4S) {
 		setUDPL4S(reversed_thread);
+		if (reversed_thread->mAppRate == 0) {
+		    reversed_thread->mAppRate = PRAGUE_MAXRATE * 8;
+		}
 	    }
 	}
     } else { //tcp first payload
