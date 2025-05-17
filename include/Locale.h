@@ -270,6 +270,10 @@ extern const char report_bw_pps_enhanced_isoch_header[];
 
 extern const char report_bw_pps_enhanced_isoch_format[];
 
+extern const char report_bw_pps_enhanced_l4s_header[];
+
+extern const char report_bw_pps_enhanced_l4s_format[];
+
 extern const char report_sum_bw_pps_enhanced_format[];
 
 extern const char report_bw_jitter_loss_pps_header[];
@@ -287,6 +291,14 @@ extern const char report_bw_jitter_loss_enhanced_isoch_format[];
 extern const char report_bw_jitter_loss_enhanced_triptime_header[];
 
 extern const char report_bw_jitter_loss_enhanced_triptime_format[];
+
+extern const char report_bw_jitter_loss_enhanced_triptime_l4s_header[];
+
+extern const char report_bw_jitter_loss_enhanced_triptime_l4s_format[];
+
+extern const char report_bw_jitter_loss_enhanced_l4s_header[];
+
+extern const char report_bw_jitter_loss_enhanced_l4s_format[];
 
 extern const char report_bw_jitter_loss_enhanced_isoch_triptime_header[];
 

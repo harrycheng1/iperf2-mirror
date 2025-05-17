@@ -577,9 +577,15 @@ const char report_client_bb_bw_triptime_format[] =
 "%s" IPERFTimeFrmt " sec  OWD (ms) Cnt=%" PRIdMAX " TX=%.3f/%.3f/%.3f/%.3f RX=%.3f/%.3f/%.3f/%.3f Asymmetry=%.3f/%.3f/%.3f/%.3f%s\n";
 
 const char report_bw_pps_enhanced_header[] =
-"[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth   Write/Err/Timeo  PPS  CE=cnt(%) Duration=avg/min/max ms (cnt)\n";
+"[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth   Write/Err/Timeo  PPS\n";
 
 const char report_bw_pps_enhanced_format[] =
+"%s" IPERFTimeFrmt " sec  %ss  %ss/sec   %" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX "%8.0f pps %s\n";
+
+const char report_bw_pps_enhanced_l4s_header[] =
+"[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth   Write/Err/Timeo  PPS  CE=cnt(%) Duration=avg/min/max ms (cnt)\n";
+
+const char report_bw_pps_enhanced_l4s_format[] =
 "%s" IPERFTimeFrmt " sec  %ss  %ss/sec   %" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX "%8.0f pps %" PRIdMAX "(%.1f%%)  %.3f/%.3f/%.3f %" PRIdMAX "%s\n";
 
 const char report_sumcnt_bw_pps_enhanced_header[] =
@@ -615,23 +621,34 @@ const char report_bw_jitter_loss_pps_header[] =
 const char report_bw_jitter_loss_pps_format[] =
 "%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %6.3f ms %" PRIdMAX "/%" PRIdMAX " (%.*f%%) %8.0f pps%s\n";
 
-#if HAVE_DECL_MSG_TRUNC
 const char report_bw_jitter_loss_enhanced_header[] =
 "[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth        Jitter   Lost/Total  \
-Latency avg/min/max/stdev PPS Read/Timeo/NA CE=cnt(%) NetPwr\n";
-#else
-const char report_bw_jitter_loss_enhanced_header[] =
-"[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth        Jitter   Lost/Total  \
-Latency avg/min/max/stdev PPS Read/Timeo/NA CE=cnt(%) NetPwr\n";
-#endif
+Latency avg/min/max/stdev PPS Read/Timeo/NA NetPwr\n";
+
 const char report_bw_jitter_loss_enhanced_format[] =
+"%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %6.3f ms %" PRIdMAX "/%" PRIdMAX " (%.*f%%)  %.3f/%.3f/%.3f/%.3f ms %.0f pps %" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX " %s%s\n";
+
+const char report_bw_jitter_loss_enhanced_l4s_header[] =
+"[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth        Jitter   Lost/Total  \
+Latency avg/min/max/stdev PPS Read/Timeo/Trunc CE=cnt(%) NetPwr\n";
+
+const char report_bw_jitter_loss_enhanced_l4s_format[] =
 "%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %6.3f ms %" PRIdMAX "/%" PRIdMAX " (%.*f%%)  %.3f/%.3f/%.3f/%.3f ms %.0f pps %" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX " %" PRIdMAX "(%.1f%%) %s%s\n";
+
 const char report_bw_jitter_loss_enhanced_triptime_header[] =
 "[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth        Jitter   Lost/Total \
  Latency avg/min/max/stdev PPS  Rx/inP  Read/Timeo/Trunc  NetPwr\n";
 
 const char report_bw_jitter_loss_enhanced_triptime_format[] =
 "%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %6.3f ms %" PRIdMAX "/%" PRIdMAX " (%.*f%%) %.3f/%.3f/%.3f/%.3f ms %.0f pps %" PRIdMAX "/%s %" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX " %s%s\n";
+
+const char report_bw_jitter_loss_enhanced_triptime_l4s_header[] =
+"[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth        Jitter   Lost/Total \
+ Latency avg/min/max/stdev PPS  Rx/inP  Read/Timeo/Trunc CE=cnt(%) NetPwr\n";
+
+const char report_bw_jitter_loss_enhanced_triptime_l4s_format[] =
+"%s" IPERFTimeFrmt " sec  %ss  %ss/sec  %6.3f ms %" PRIdMAX "/%" PRIdMAX " (%.*f%%)  %.3f/%.3f/%.3f/%.3f ms %.0f pps %" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX " %" PRIdMAX "(%.1f%%) %s%s\n";
+
 const char report_bw_jitter_loss_enhanced_isoch_header[] =
 "[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth        Jitter   Lost/Total \
  Latency avg/min/max/stdev PPS  NetPwr  Isoch:rx/lost\n";

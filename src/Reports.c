@@ -726,12 +726,12 @@ struct ReportHeader* InitIndividualReport (struct thread_Settings *inSettings) {
 			if (inSettings->mReportMode == kReport_CSV)
 			    ireport->info.output_handler = udp_output_read_triptime_csv;
 			else
-			    ireport->info.output_handler = udp_output_read_triptime;
+			    ireport->info.output_handler = (isUDPL4S(inSettings) ? udp_output_read_triptime_l4s : udp_output_read_triptime);
 		} else if (isEnhanced(inSettings)) {
 		    if (inSettings->mReportMode == kReport_CSV)
 			ireport->info.output_handler = udp_output_read_enhanced_csv;
 		    else
-			ireport->info.output_handler = udp_output_read_enhanced;
+			ireport->info.output_handler = (isUDPL4S(inSettings) ? udp_output_read_enhanced_l4s : udp_output_read_enhanced);
 		} else if (isFullDuplex(inSettings)) {
 		    if (inSettings->mReportMode == kReport_CSV)
 			ireport->info.output_handler = udp_output_basic_csv;

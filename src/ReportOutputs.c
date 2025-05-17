@@ -69,14 +69,17 @@ static int HEADING_FLAG(report_bw_jitter_loss) = 0;
 static int HEADING_FLAG(report_bw_read_enhanced) = 0;
 static int HEADING_FLAG(report_bw_read_enhanced_netpwr) = 0;
 static int HEADING_FLAG(report_bw_write_enhanced) = 0;
+static int HEADING_FLAG(report_bw_write_enhanced_l4s) = 0;
 static int HEADING_FLAG(report_bw_write_enhanced_fq) = 0;
 static int HEADING_FLAG(report_bw_write_fq) = 0;
 static int HEADING_FLAG(report_write_enhanced_write) = 0;
 static int HEADING_FLAG(report_bw_write_enhanced_netpwr) = 0;
 static int HEADING_FLAG(report_bw_pps_enhanced) = 0;
+static int HEADING_FLAG(report_bw_pps_enhanced_l4s) = 0;
 static int HEADING_FLAG(report_bw_pps_enhanced_isoch) = 0;
 static int HEADING_FLAG(report_bw_jitter_loss_pps) = 0;
 static int HEADING_FLAG(report_bw_jitter_loss_enhanced) = 0;
+static int HEADING_FLAG(report_bw_jitter_loss_enhanced_l4s) = 0;
 static int HEADING_FLAG(report_bw_jitter_loss_enhanced_isoch) = 0;
 static int HEADING_FLAG(report_write_enhanced_isoch) = 0;
 static int HEADING_FLAG(report_frame_jitter_loss_enhanced) = 0;
@@ -90,6 +93,7 @@ static int HEADING_FLAG(report_sumcnt_bw_read_triptime) = 0;
 static int HEADING_FLAG(report_sumcnt_bw_write_enhanced) = 0;
 static int HEADING_FLAG(report_sumcnt_bw_pps_enhanced) = 0;
 static int HEADING_FLAG(report_bw_jitter_loss_enhanced_triptime) = 0;
+static int HEADING_FLAG(report_bw_jitter_loss_enhanced_triptime_l4s) = 0;
 static int HEADING_FLAG(report_bw_jitter_loss_enhanced_isoch_triptime) = 0;
 static int HEADING_FLAG(report_sumcnt_bw_jitter_loss) = 0;
 static int HEADING_FLAG(report_burst_read_tcp) = 0;
@@ -115,15 +119,18 @@ void reporter_default_heading_flags (int flag) {
     HEADING_FLAG(report_bw_read_enhanced) = flag;
     HEADING_FLAG(report_bw_read_enhanced_netpwr) = flag;
     HEADING_FLAG(report_bw_write_enhanced) = flag;
+    HEADING_FLAG(report_bw_write_enhanced_l4s) = flag;
     HEADING_FLAG(report_bw_write_enhanced_fq) = flag;
     HEADING_FLAG(report_bw_write_fq) = flag;
     HEADING_FLAG(report_write_enhanced_write) = flag;
     HEADING_FLAG(report_write_enhanced_isoch) = flag;
     HEADING_FLAG(report_bw_write_enhanced_netpwr) = flag;
     HEADING_FLAG(report_bw_pps_enhanced) = flag;
+    HEADING_FLAG(report_bw_pps_enhanced_l4s) = flag;
     HEADING_FLAG(report_bw_pps_enhanced_isoch) = flag;
     HEADING_FLAG(report_bw_jitter_loss_pps) = flag;
     HEADING_FLAG(report_bw_jitter_loss_enhanced) = flag;
+    HEADING_FLAG(report_bw_jitter_loss_enhanced_l4s) = flag;
     HEADING_FLAG(report_bw_jitter_loss_enhanced_isoch) = flag;
     HEADING_FLAG(report_frame_jitter_loss_enhanced) = flag;
     HEADING_FLAG(report_frame_tcp_enhanced) = flag;
@@ -1068,6 +1075,7 @@ void udp_output_read_triptime (struct TransferInfo *stats) {
     _output_outoforder(stats);
     cond_flush(stats);
 }
+
 void udp_output_read_enhanced (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_bw_jitter_loss_enhanced);
     _print_stats_common(stats);
@@ -1113,8 +1121,82 @@ void udp_output_read_enhanced (struct TransferInfo *stats) {
 	    }
 	    set_netpowerbuf(meantransit, stats);
 	    PKTLOSS_PERCENT_PRECISION(pktloss_percent, precision, stats->cntError, stats->cntDatagrams);
-	    double ce_perc = stats->cntIPG ? (100.0 * (double) stats->cntCE/ (double) stats->cntIPG) : 0.0;
 	    printf(report_bw_jitter_loss_enhanced_format, stats->common->transferIDStr,
+		   stats->ts.iStart, stats->ts.iEnd,
+		   outbuffer, outbufferext,
+		   (stats->final) ? ((stats->inline_jitter.total.sum / (double) stats->inline_jitter.total.cnt) * 1e3) : (stats->jitter * 1e3),  \
+		   stats->cntError, stats->cntDatagrams,
+		   precision,
+		   pktloss_percent,
+		   (meantransit * 1e3),
+		   ((stats->final ? stats->transit.total.min : stats->transit.current.min) * 1e3),
+		   ((stats->final ? stats->transit.total.max : stats->transit.current.max) * 1e3),
+		   (stats->final ? (stats->transit.total.cnt < 2) : (stats->transit.current.cnt < 2)) ? 0 : (1e3 * variance), // convert from sec to ms
+		   (stats->IPGsum ? (stats->cntIPG / (stats->IPGsum + stats->IPGsumcarry)) : 0), // pps
+		   stats->sock_callstats.read.cntRead,
+		   stats->sock_callstats.read.cntReadTimeo,
+		   stats->sock_callstats.read.cntReadErrLen,
+		   netpower_buf,
+		   (stats->common->Omit ? report_omitted : ""));
+	}
+    }
+    if (stats->latency_histogram) {
+	histogram_print(stats->latency_histogram, stats->ts.iStart, stats->ts.iEnd);
+    }
+    if (stats->jitter_histogram) {
+	histogram_print(stats->jitter_histogram, stats->ts.iStart, stats->ts.iEnd);
+    }
+    _output_outoforder(stats);
+    cond_flush(stats);
+}
+
+void udp_output_read_enhanced_l4s (struct TransferInfo *stats) {
+    HEADING_PRINT_COND(report_bw_jitter_loss_enhanced_l4s);
+    _print_stats_common(stats);
+    PKTLOSS_PERCENT_PRECISION(pktloss_percent, precision, stats->cntError, stats->cntDatagrams);
+    if (!stats->cntIPG) {
+	printf(report_bw_jitter_loss_suppress_enhanced_format, stats->common->transferIDStr,
+	       stats->ts.iStart, stats->ts.iEnd,
+	       outbuffer, outbufferext,
+	       0.0, stats->cntError,
+	       stats->cntDatagrams,
+	       precision,
+	       pktloss_percent,
+	       0.0, // pps
+	       stats->sock_callstats.read.cntRead,
+	       stats->sock_callstats.read.cntReadTimeo,
+	       stats->sock_callstats.read.cntReadErrLen,
+	       (stats->common->Omit ? report_omitted : ""));
+    } else {
+	if ((stats->transit.current.min > UNREALISTIC_LATENCYMINMAX) ||
+	    (stats->transit.current.min < UNREALISTIC_LATENCYMINMIN)) {
+	    printf(report_bw_jitter_loss_suppress_enhanced_format, stats->common->transferIDStr,
+		   stats->ts.iStart, stats->ts.iEnd,
+		   outbuffer, outbufferext,
+		   (stats->final) ? ((stats->inline_jitter.total.sum / (double) stats->inline_jitter.total.cnt) * 1e3) : (stats->jitter * 1e3),
+		   stats->cntError, stats->cntDatagrams,
+		   precision,
+		   pktloss_percent,
+		   (stats->IPGsum ? (stats->cntIPG / (stats->IPGsum + stats->IPGsumcarry)) : 0), // pps
+		   stats->sock_callstats.read.cntRead,
+		   stats->sock_callstats.read.cntReadTimeo,
+		   stats->sock_callstats.read.cntReadErrLen, (stats->common->Omit ? report_omitted : ""));
+	} else {
+	    double meantransit;
+	    double variance;
+	    if (!stats->final) {
+		meantransit = (stats->transit.current.cnt > 0) ? (stats->transit.current.sum / stats->transit.current.cnt) : 0;
+		variance = (stats->transit.current.cnt < 2) ? 0 : \
+		    (sqrt(stats->transit.current.m2 / (stats->transit.current.cnt - 1)));
+	    } else {
+		meantransit = (stats->transit.total.cnt > 0) ? (stats->transit.total.sum / stats->transit.total.cnt) : 0;
+		variance = (stats->transit.total.cnt < 2) ? 0 :	\
+		    (sqrt(stats->transit.total.m2 / (stats->transit.total.cnt - 1)));
+	    }
+	    set_netpowerbuf(meantransit, stats);
+	    PKTLOSS_PERCENT_PRECISION(pktloss_percent, precision, stats->cntError, stats->cntDatagrams);
+	    double ce_perc = stats->cntIPG ? (100.0 * (double) stats->cntCE/ (double) stats->cntIPG) : 0.0;
+	    printf(report_bw_jitter_loss_enhanced_l4s_format, stats->common->transferIDStr,
 		   stats->ts.iStart, stats->ts.iEnd,
 		   outbuffer, outbufferext,
 		   (stats->final) ? ((stats->inline_jitter.total.sum / (double) stats->inline_jitter.total.cnt) * 1e3) : (stats->jitter * 1e3),  \
@@ -1144,6 +1226,90 @@ void udp_output_read_enhanced (struct TransferInfo *stats) {
     _output_outoforder(stats);
     cond_flush(stats);
 }
+
+void udp_output_read_triptime_l4s (struct TransferInfo *stats) {
+    HEADING_PRINT_COND(report_bw_jitter_loss_enhanced_triptime_l4s);
+    _print_stats_common(stats);
+    PKTLOSS_PERCENT_PRECISION(pktloss_percent, precision, stats->cntError, stats->cntDatagrams);
+    if (!stats->cntIPG) {
+	printf(report_bw_jitter_loss_suppress_enhanced_format, stats->common->transferIDStr,
+	       stats->ts.iStart, stats->ts.iEnd,
+	       outbuffer, outbufferext,
+	       0.0, stats->cntError,
+	       stats->cntDatagrams,
+	       precision,
+	       pktloss_percent,
+	       0.0, // pps
+	       stats->sock_callstats.read.cntRead,
+	       stats->sock_callstats.read.cntReadTimeo,
+	       stats->sock_callstats.read.cntReadErrLen,
+	       (stats->common->Omit ? report_omitted : ""));
+    } else {
+	if ((stats->transit.current.min > UNREALISTIC_LATENCYMINMAX) ||
+	    (stats->transit.current.min < UNREALISTIC_LATENCYMINMIN)) {
+	    printf(report_bw_jitter_loss_suppress_enhanced_format, stats->common->transferIDStr,
+		   stats->ts.iStart, stats->ts.iEnd,
+		   outbuffer, outbufferext,
+		   (stats->final) ? ((stats->inline_jitter.total.sum / (double) stats->inline_jitter.total.cnt) * 1e3) : (stats->jitter * 1e3),
+		   stats->cntError, stats->cntDatagrams,
+		   precision,
+		   pktloss_percent,
+		   (stats->IPGsum ? (stats->cntIPG / (stats->IPGsum + stats->IPGsumcarry)) : 0), // pps
+		   stats->sock_callstats.read.cntRead,
+		   stats->sock_callstats.read.cntReadTimeo,
+		   stats->sock_callstats.read.cntReadErrLen,(stats->common->Omit ? report_omitted : ""));
+	} else {
+	    double meantransit;
+	    double variance;
+	    char llaw_bufstr[LLAWBUFSIZE];
+	    int lambda =  ((stats->IPGsum > 0.0) ? (round (stats->cntIPG / (stats->IPGsum + stats->IPGsumcarry))) : 0.0);
+	    if (!stats->final) {
+		meantransit = (stats->transit.current.cnt > 0) ? (stats->transit.current.sum / stats->transit.current.cnt) : 0;
+		variance = (stats->transit.current.cnt < 2) ? 0 : \
+		    (sqrt(stats->transit.current.m2 / (stats->transit.current.cnt - 1)));
+		snprintf(llaw_bufstr, sizeof(llaw_bufstr), "%.0f(%.0f) pkts", stats->iInP, ((double) lambda * variance));
+	    } else {
+		meantransit = (stats->transit.total.cnt > 0) ? (stats->transit.total.sum / stats->transit.total.cnt) : 0;
+		variance = (stats->transit.total.cnt < 2) ? 0 :	\
+		    (sqrt(stats->transit.total.m2 / (stats->transit.total.cnt - 1)));
+		snprintf(llaw_bufstr, sizeof(llaw_bufstr), "%.0f(%.0f) pkts", stats->fInP, ((double) lambda * variance));
+	    }
+	    llaw_bufstr[sizeof(llaw_bufstr)-1] = '\0';
+	    set_netpowerbuf(meantransit, stats);
+	    PKTLOSS_PERCENT_PRECISION(pktloss_percent, precision, stats->cntError, stats->cntDatagrams);
+	    double ce_perc = stats->cntIPG ? (100.0 * (double) stats->cntCE/ (double) stats->cntIPG) : 0.0;
+	    printf(report_bw_jitter_loss_enhanced_triptime_l4s_format, stats->common->transferIDStr,
+		   stats->ts.iStart, stats->ts.iEnd,
+		   outbuffer, outbufferext,
+		   (stats->final) ? ((stats->inline_jitter.total.sum / (double) stats->inline_jitter.total.cnt) * 1e3) : (stats->jitter * 1e3),  \
+		   stats->cntError, stats->cntDatagrams,
+		   precision,
+		   pktloss_percent,
+		   (meantransit * 1e3),
+		   ((stats->final ? stats->transit.total.min : stats->transit.current.min) * 1e3),
+		   ((stats->final ? stats->transit.total.max : stats->transit.current.max) * 1e3),
+		   (stats->final ? (stats->transit.total.cnt < 2) : (stats->transit.current.cnt < 2)) ? 0 : (1e3 * variance), // convert from sec to ms
+		   (stats->IPGsum ? (stats->cntIPG / (stats->IPGsum + stats->IPGsumcarry)) : 0), // pps
+		   stats->cntIPG,
+		   llaw_bufstr,
+		   stats->sock_callstats.read.cntRead,
+		   stats->sock_callstats.read.cntReadTimeo,
+		   stats->sock_callstats.read.cntReadErrLen,
+		   stats->cntCE,
+		   ce_perc,
+		   netpower_buf, (stats->common->Omit ? report_omitted : ""));
+	}
+    }
+    if (stats->latency_histogram) {
+	histogram_print(stats->latency_histogram, stats->ts.iStart, stats->ts.iEnd);
+    }
+    if (stats->jitter_histogram) {
+	histogram_print(stats->jitter_histogram, stats->ts.iStart, stats->ts.iEnd);
+    }
+    _output_outoforder(stats);
+    cond_flush(stats);
+}
+
 void udp_output_read_triptime_isoch (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_bw_jitter_loss_enhanced_isoch_triptime);
     _print_stats_common(stats);
@@ -1224,8 +1390,21 @@ void udp_output_write (struct TransferInfo *stats) {
 void udp_output_write_enhanced (struct TransferInfo *stats) {
     HEADING_PRINT_COND(report_bw_pps_enhanced);
     _print_stats_common(stats);
-    double ce_perc = stats->cntIPG ? (100.0 * (double) stats->cntCE/ (double) stats->cntIPG) : 0.0;
     printf(report_bw_pps_enhanced_format, stats->common->transferIDStr,
+	   stats->ts.iStart, stats->ts.iEnd,
+	   outbuffer, outbufferext,
+	   stats->sock_callstats.write.WriteCnt,
+	   stats->sock_callstats.write.WriteErr,
+	   stats->sock_callstats.write.WriteTimeo,
+	   (stats->cntIPG ? (stats->cntIPG / (stats->IPGsum + stats->IPGsumcarry)) : 0.0),
+	   (stats->common->Omit ? report_omitted : ""));
+    cond_flush(stats);
+}
+void udp_output_write_enhanced_l4s (struct TransferInfo *stats) {
+    HEADING_PRINT_COND(report_bw_pps_enhanced_l4s);
+    _print_stats_common(stats);
+    double ce_perc = stats->cntIPG ? (100.0 * (double) stats->cntCE/ (double) stats->cntIPG) : 0.0;
+    printf(report_bw_pps_enhanced_l4s_format, stats->common->transferIDStr,
 	   stats->ts.iStart, stats->ts.iEnd,
 	   outbuffer, outbufferext,
 	   stats->sock_callstats.write.WriteCnt,
