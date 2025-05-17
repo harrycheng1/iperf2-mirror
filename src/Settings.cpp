@@ -1679,7 +1679,7 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 	if (isUDP(mExtSettings)) {
 	    if (!isBWSet(mExtSettings)) {
 		if ((static_cast<int> (mExtSettings->mBurstSize) == 0) && !isPeriodicBurst(mExtSettings)) {
-		    mExtSettings->mAppRate = (isUDPL4S(mExtSettings) ? (PRAGUE_MAXRATE * 8) : kDefault_UDPRate);
+		    mExtSettings->mAppRate = (isUDPL4S(mExtSettings) ? PRAGUE_MAXRATE : kDefault_UDPRate);
 		} else if ((static_cast<int> (mExtSettings->mBurstSize) == 0) && isPeriodicBurst(mExtSettings)) {
 		    mExtSettings->mBurstSize = byte_atoi("1M"); //default to 1 Mbyte
 		    setBurstSize(mExtSettings);
@@ -2518,7 +2518,6 @@ void Settings_GenerateClientSettings (struct thread_Settings *server, struct thr
     assert(mBuf != NULL);
     uint32_t flags = isUDP(server) ? ntohl(*(uint32_t *)((char *)mBuf + sizeof(struct UDP_datagram))) : ntohl(*(uint32_t *)mBuf);
     uint16_t upperflags = 0;
-    uint16_t lowerflags = 0;
     thread_Settings *reversed_thread = NULL;
     *client = NULL;
     bool v1test = (flags & HEADER_VERSION1) && !(flags & HEADER_VERSION2);
@@ -2583,11 +2582,11 @@ void Settings_GenerateClientSettings (struct thread_Settings *server, struct thr
 		reversed_thread->mFQPacingRate |= (static_cast<uint64_t>(ntohl(hdr->start_fq.fqrateu)) << 32);
 #endif
 	    }
-	    lowerflags = ntohs(hdr->extend.lowerflags);
-	    if ((lowerflags & HEADER_UDPL4S) == HEADER_UDPL4S) {
+	    upperflags = ntohs(hdr->extend.upperflags);
+	    if ((upperflags & HEADER_UDPL4S) == HEADER_UDPL4S) {
 		setUDPL4S(reversed_thread);
 		if (reversed_thread->mAppRate == 0) {
-		    reversed_thread->mAppRate = PRAGUE_MAXRATE * 8;
+		    reversed_thread->mAppRate = PRAGUE_MAXRATE;
 		}
 	    }
 	}
@@ -2770,7 +2769,7 @@ int Settings_GenerateClientHdr (struct thread_Settings *client, void *testhdr, s
 	    hdr->extend.uRate = htonl(((uint32_t)(bw >> 32)) << 8);
 #endif
 	} else {
-	    hdr->extend.lRate = htonl(kDefault_UDPRate);
+	    hdr->extend.lRate = (isUDPL4S(client) ? 0 : htonl(kDefault_UDPRate));
 	    hdr->extend.uRate = 0x0;
 	}
 	len += sizeof(struct client_hdrext);

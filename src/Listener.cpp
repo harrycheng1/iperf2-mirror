@@ -1055,7 +1055,7 @@ bool Listener::apply_client_settings_udp (thread_Settings *server) {
 		    setNoUDPfin(server);
 		    unsetReport(server);
 		    if (upperflags & HEADER_UDPL4S) {
-			server->mAppRate = PRAGUE_MAXRATE * 8; // kBytes_to_Bits
+			server->mAppRate = PRAGUE_MAXRATE; // kBytes_to_Bits
 		    }
 		}
 	    }
