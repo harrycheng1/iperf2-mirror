@@ -1802,6 +1802,7 @@ void Client::RunUDPL4S () {
 	    u_char tos = ((mSettings->mTOS & 0xFC) | new_ecn);
 	    memcpy(CMSG_DATA(cmsgptr), (u_char*)&tos, sizeof(u_char));
 	    msg.msg_controllen = CMSG_SPACE(sizeof(u_char));
+	    reportstruct->ce_count = l4s_pacer.Get_CECount();
 	    int currLen = sendmsg(mySocket, &msg, 0);
 	    if (currLen <= 0) {
 		reportstruct->emptyreport = true;
@@ -1826,7 +1827,6 @@ void Client::RunUDPL4S () {
 		// report packets
 		reportstruct->packetLen = static_cast<unsigned long>(currLen);
 		reportstruct->prevPacketTime = myReport->info.ts.prevpacketTime;
-		reportstruct->ce_count = l4s_pacer.Get_CECount();
 		if (!reportstruct->emptyreport) {
 		    reportstruct->packetID++;
 		    myReport->info.ts.prevpacketTime = reportstruct->packetTime;

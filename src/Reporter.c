@@ -1013,7 +1013,7 @@ void reporter_handle_packet_client (struct ReporterData *data, struct ReportStru
 
     if (isUDP(stats->common)) {
 	stats->PacketID = packet->packetID;
-	if (packet->ce_count > 1) {
+	if (packet->ce_count > 0) {
 	    stats->total.CE.current += packet->ce_count;
 	    if (stats->ce_state == OFF) {
 		stats->ce_state = ON;
