@@ -1262,17 +1262,16 @@ void udp_output_read_triptime_l4s (struct TransferInfo *stats) {
 	    double meantransit;
 	    double variance;
 	    char llaw_bufstr[LLAWBUFSIZE];
-	    int lambda =  ((stats->IPGsum > 0.0) ? (round (stats->cntIPG / (stats->IPGsum + stats->IPGsumcarry))) : 0.0);
 	    if (!stats->final) {
 		meantransit = (stats->transit.current.cnt > 0) ? (stats->transit.current.sum / stats->transit.current.cnt) : 0;
 		variance = (stats->transit.current.cnt < 2) ? 0 : \
 		    (sqrt(stats->transit.current.m2 / (stats->transit.current.cnt - 1)));
-		snprintf(llaw_bufstr, sizeof(llaw_bufstr), "%.0f(%.0f) pkts", stats->iInP, ((double) lambda * variance));
+		snprintf(llaw_bufstr, sizeof(llaw_bufstr), "%.0f pkts", stats->iInP);
 	    } else {
 		meantransit = (stats->transit.total.cnt > 0) ? (stats->transit.total.sum / stats->transit.total.cnt) : 0;
 		variance = (stats->transit.total.cnt < 2) ? 0 :	\
 		    (sqrt(stats->transit.total.m2 / (stats->transit.total.cnt - 1)));
-		snprintf(llaw_bufstr, sizeof(llaw_bufstr), "%.0f(%.0f) pkts", stats->fInP, ((double) lambda * variance));
+		snprintf(llaw_bufstr, sizeof(llaw_bufstr), "%.0f pkts", stats->fInP);
 	    }
 	    llaw_bufstr[sizeof(llaw_bufstr)-1] = '\0';
 	    set_netpowerbuf(meantransit, stats);
