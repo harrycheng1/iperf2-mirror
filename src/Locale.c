@@ -586,7 +586,7 @@ const char report_bw_pps_enhanced_l4s_header[] =
 "[ ID] Interval" IPERFTimeSpace "Transfer     Bandwidth   Write/Err/Timeo  PPS  CE=cnt(%) Duration=avg/min/max ms (cnt)\n";
 
 const char report_bw_pps_enhanced_l4s_format[] =
-"%s" IPERFTimeFrmt " sec  %ss  %ss/sec   %" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX "%8.0f pps %" PRIdMAX "(%.1f%%)  %.3f/%.3f/%.3f %" PRIdMAX "%s\n";
+"%s" IPERFTimeFrmt " sec  %ss  %ss/sec   %" PRIdMAX "/%" PRIdMAX "/%" PRIdMAX "%8.0f pps %" PRIdMAX "(%.1f%%) %.3f/%.3f/%.3f %" PRIdMAX "%s\n";
 
 const char report_sumcnt_bw_pps_enhanced_header[] =
 "[SUM-cnt] Interval" IPERFTimeSpace "Transfer     Bandwidth      Write/Err  PPS\n";
