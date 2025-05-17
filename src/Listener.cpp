@@ -1053,6 +1053,10 @@ bool Listener::apply_client_settings_udp (thread_Settings *server) {
 		    }
 		    setNoUDPfin(server);
 		    unsetReport(server);
+		    if (upperflags & HEADER_UDPL4S) {
+			setBWSet(server);
+			server->mAppRate = 0;
+		    }
 		}
 	    }
 	}
