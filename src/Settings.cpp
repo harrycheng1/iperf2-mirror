@@ -2551,6 +2551,15 @@ void Settings_GenerateClientSettings (struct thread_Settings *server, struct thr
 	}
 	if (v1test) {
 	    setServerReverse(reversed_thread);
+	    if (isIPV6(server)) {
+		if (reversed_thread->mBufLen > kDefault_UDPTxBufLenV6) {
+		    reversed_thread->mBufLen = kDefault_UDPTxBufLenV6;
+		}
+	    } else {
+		if (reversed_thread->mBufLen > kDefault_UDPTxBufLen) {
+		    reversed_thread->mBufLen = kDefault_UDPTxBufLen;
+		}
+	    }
 	    if (flags & RUN_NOW) {
 		reversed_thread->mMode = kTest_DualTest;
 	    } else {
