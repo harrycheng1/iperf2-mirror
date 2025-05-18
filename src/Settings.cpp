@@ -1555,7 +1555,6 @@ void Settings_Interpret (char option, const char *optarg, struct thread_Settings
 	    setUDP(mExtSettings);
 	    setUDPL4S(mExtSettings);
 	    setEnhanced(mExtSettings);
-	    setNoUDPfin(mExtSettings);
 #endif
 	}
 	if (udpl4svideo) {
