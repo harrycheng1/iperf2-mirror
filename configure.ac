@@ -158,7 +158,7 @@ AC_SEARCH_LIBS([socket], [socket], [],
 
 dnl Checks for header files.
 
-AC_CHECK_HEADERS([arpa/inet.h libintl.h net/ethernet.h net/if.h sys/ioctl.h sys/sockio.h linux/sockios.h linux/ip.h linux/udp.h linux/tcp.h linux/if_packet.h linux/filter.h linux/if_tun.h netdb.h netinet/in.h netinet/tcp.h netinet/ip.h netinet/udp.h stdlib.h string.h strings.h sys/socket.h sys/time.h syslog.h unistd.h signal.h])
+AC_CHECK_HEADERS([arpa/inet.h libintl.h net/ethernet.h net/if.h sys/ioctl.h sys/sockio.h linux/sockios.h linux/ip.h linux/udp.h linux/tcp.h linux/if_packet.h linux/filter.h linux/if_tun.h linux/net_tstamp.h linux/errqueue.h netdb.h netinet/in.h netinet/tcp.h netinet/ip.h netinet/udp.h stdlib.h string.h strings.h sys/socket.h sys/time.h syslog.h unistd.h signal.h])
 
 dnl ===================================================================
 dnl Checks for typedefs, structures
@@ -219,7 +219,7 @@ in_h='
 #endif
 '
 
-AC_CHECK_DECLS([AF_INET6, SO_TIMESTAMP, SO_SNDTIMEO, SO_REUSEADDR, SO_REUSEPORT, SO_BINDTODEVICE, MSG_DONTWAIT,
+AC_CHECK_DECLS([AF_INET6, SO_TIMESTAMP, SO_SNDTIMEO, SO_TXTIME, SO_REUSEADDR, SO_REUSEPORT, SO_BINDTODEVICE, MSG_DONTWAIT,
 			  MSG_CTRUNC, SO_MAX_PACING_RATE, SO_DONTROUTE, IPV6_TCLASS, IP_MULTICAST_ALL, IP_TOS,
 			  IP_DROP_MEMBERSHIP,IPV6_LEAVE_GROUP,MCAST_LEAVE_GROUP, MSG_TRUNC,
 			  IP_RECVTOS, CMSG_FIRSTHDR, CMSG_SPACE, CMSG_LEN,

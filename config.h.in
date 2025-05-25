@@ -225,6 +225,10 @@
    don't. */
 #undef HAVE_DECL_SO_TIMESTAMP
 
+/* Define to 1 if you have the declaration of 'SO_TXTIME', and to 0 if you
+   don't. */
+#undef HAVE_DECL_SO_TXTIME
+
 /* Define to 1 if you have the declaration of 'SO_ZEROCOPY', and to 0 if you
    don't. */
 #undef HAVE_DECL_SO_ZEROCOPY
@@ -317,6 +321,9 @@
 /* Define to 1 if you have the 'rt' library (-lrt). */
 #undef HAVE_LIBRT
 
+/* Define to 1 if you have the <linux/errqueue.h> header file. */
+#undef HAVE_LINUX_ERRQUEUE_H
+
 /* Define to 1 if you have the <linux/filter.h> header file. */
 #undef HAVE_LINUX_FILTER_H
 
@@ -328,6 +335,9 @@
 
 /* Define to 1 if you have the <linux/ip.h> header file. */
 #undef HAVE_LINUX_IP_H
+
+/* Define to 1 if you have the <linux/net_tstamp.h> header file. */
+#undef HAVE_LINUX_NET_TSTAMP_H
 
 /* Define to 1 if you have the <linux/sockios.h> header file. */
 #undef HAVE_LINUX_SOCKIOS_H

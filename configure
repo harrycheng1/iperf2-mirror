@@ -7598,6 +7598,18 @@ then :
   printf "%s\n" "#define HAVE_LINUX_IF_TUN_H 1" >>confdefs.h
 
 fi
+ac_fn_c_check_header_compile "$LINENO" "linux/net_tstamp.h" "ac_cv_header_linux_net_tstamp_h" "$ac_includes_default"
+if test "x$ac_cv_header_linux_net_tstamp_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_LINUX_NET_TSTAMP_H 1" >>confdefs.h
+
+fi
+ac_fn_c_check_header_compile "$LINENO" "linux/errqueue.h" "ac_cv_header_linux_errqueue_h" "$ac_includes_default"
+if test "x$ac_cv_header_linux_errqueue_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_LINUX_ERRQUEUE_H 1" >>confdefs.h
+
+fi
 ac_fn_c_check_header_compile "$LINENO" "netdb.h" "ac_cv_header_netdb_h" "$ac_includes_default"
 if test "x$ac_cv_header_netdb_h" = xyes
 then :
@@ -8651,6 +8663,16 @@ else case e in #(
 esac
 fi
 printf "%s\n" "#define HAVE_DECL_SO_SNDTIMEO $ac_have_decl" >>confdefs.h
+ac_fn_check_decl "$LINENO" "SO_TXTIME" "ac_cv_have_decl_SO_TXTIME" "$in_h
+" "$ac_c_undeclared_builtin_options" "CFLAGS"
+if test "x$ac_cv_have_decl_SO_TXTIME" = xyes
+then :
+  ac_have_decl=1
+else case e in #(
+  e) ac_have_decl=0 ;;
+esac
+fi
+printf "%s\n" "#define HAVE_DECL_SO_TXTIME $ac_have_decl" >>confdefs.h
 ac_fn_check_decl "$LINENO" "SO_REUSEADDR" "ac_cv_have_decl_SO_REUSEADDR" "$in_h
 " "$ac_c_undeclared_builtin_options" "CFLAGS"
 if test "x$ac_cv_have_decl_SO_REUSEADDR" = xyes
