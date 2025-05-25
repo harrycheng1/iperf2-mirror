@@ -83,7 +83,7 @@ sum traffic threads based upon the destination IP address (default is source ip 
 set the output to sum reports only. Useful for -P at large values
 .TP
 .BR "    --send-delay " \fIn\fR
-Add send delay (via TCP_TX_DELAY or SO_TXTIME) on the socket writes. Delay units are milliseconds. Value takes float. See Notes for qdisc requirements.
+Simulate network delay (via TCP_TX_DELAY or SO_TXTIME) on a socket. Delay units are milliseconds. Value takes float. See Notes for qdisc requirements.
 .TP
 .BR -t ", " --time " \fIn\fR"
 time in seconds to listen for new traffic connections, receive traffic or send traffic

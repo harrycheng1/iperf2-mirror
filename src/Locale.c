@@ -98,7 +98,7 @@ Client/Server:\n\
   -o, --output    <filename> output the report or error message to this specified file\n\
   -p, --port      #        client/server port to listen/send on and to connect\n\
       --permit-key         permit key to be used to verify client and server (TCP only)\n\
-      --send-delay         set socket option to add delay on sends (units is milliseconds)\n\
+      --send-delay         simulate network delay on a sending socket (units is milliseconds)\n\
       --sum-only           output sum only reports\n\
   -u, --udp                use UDP rather than TCP\n\
       --utc                use coordinated universal time (UTC) with time output\n\
