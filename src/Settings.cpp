@@ -130,7 +130,7 @@ static int bouncebackdelaystart = 0;
 static int tcpwritetimes = 0;
 static int primarycca = 0;
 static int loadcca = 0;
-static int tcptxdelay = 0;
+static int senddelay = 0;
 static int testxchangetimeout = 0;
 static int synctransferid = 0;
 static int ignoreshutdown = 0;
@@ -253,7 +253,7 @@ const struct option long_options[] =
 {"tos-override", required_argument, &overridetos, 1},
 {"tcp-rx-window-clamp", required_argument, &rxwinclamp, 1},
 {"tcp-quickack", no_argument, &tcpquickack, 1},
-{"tcp-tx-delay", required_argument, &tcptxdelay, 1},
+{"send-delay", required_argument, &senddelay, 1},
 {"tcp-write-prefetch", required_argument, &txnotsentlowwater, 1}, // see doc/DESIGN_NOTES
 {"tcp-write-times", no_argument, &tcpwritetimes, 1},
 {"test-exchange-timeout", required_argument, &testxchangetimeout, 1},
@@ -1329,23 +1329,25 @@ void Settings_Interpret (char option, const char *optarg, struct thread_Settings
 	    setTcpQuickAck(mExtSettings);
 #endif
 	}
-	if (tcptxdelay) {
-	    tcptxdelay = 0;
-#if HAVE_DECL_TCP_TX_DELAY
+	if (senddelay) {
+	    senddelay = 0;
+#if HAVE_DECL_TCP_TX_DELAY || HAVE_DECL_SO_TXTIME
 	    char *end;
-	    mExtSettings->mTcpTxDelayMean = strtof(optarg,&end);
+	    mExtSettings->mSendDelay = strtof(optarg,&end);
 	    if (*end != '\0') {
-		fprintf (stderr, "ERROR: Invalid value of '%s' for --tcp-tx-delay\n", optarg);
+		fprintf (stderr, "ERROR: Invalid value of '%s' for --send-delay\n", optarg);
 		exit(1);
 	    }
-	    if (mExtSettings->mTcpTxDelayMean >= 0.001) { // smallest value is one us, units are ms
+	    if (mExtSettings->mSendDelay >= 0.001) { // smallest value is one us, units are ms
 #ifdef TCP_TX_DELAY
-		setTcpTxDelay(mExtSettings);
+		setSendDelay(mExtSettings);
 		setEnhanced(mExtSettings);
 #endif
+	    } else {
+		fprintf(stderr, "The --send-delay smallest unti is one microsecond \n");
 	    }
 #else
-	    fprintf(stderr, "The --tcp-tx-delay option is not available on this operating system\n");
+	    fprintf(stderr, "The --send-delay option is not available on this operating system\n");
 #endif
 	}
 	if (utctimes) {
@@ -1954,10 +1956,6 @@ void Settings_ModalOptions (struct thread_Settings *mExtSettings) {
 	    if (isTcpQuickAck(mExtSettings)) {
 		fprintf(stderr, "WARN: setting of option --tcp-quickack is not supported with -u UDP\n");
 		unsetWritePrefetch(mExtSettings);
-	    }
-	    if (isTcpTxDelay(mExtSettings)) {
-		fprintf(stderr, "WARN: setting of option --tcp-tx-delay is not supported with -u UDP\n");
-		unsetTcpTxDelay(mExtSettings);
 	    }
 	    {
 		double delay_target;

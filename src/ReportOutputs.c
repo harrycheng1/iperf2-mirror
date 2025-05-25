@@ -2395,8 +2395,8 @@ static void reporter_output_listener_settings (struct ReportSettings *report) {
     }
 #endif
 #if HAVE_DECL_TCP_TX_DELAY
-    if (!isUDP(report->common) && isTcpTxDelay(report->common)) {
-	fprintf(stdout, "Socket option of TCP_TX_DELAY set to %2.3f milliseconds\n", report->common->TcpTxDelay);
+    if (!isUDP(report->common) && isSendDelay(report->common)) {
+	fprintf(stdout, "Socket option of TCP_TX_DELAY set to %2.3f milliseconds\n", report->common->SendDelay);
     }
 #endif
     if (isOverrideTOS(report->common)) {
@@ -2571,9 +2571,13 @@ static void reporter_output_client_settings (struct ReportSettings *report) {
 	fprintf(stdout,"TCP working load congestion control set to %s\n", report->common->LoadCCA);
     }
 #endif
-#if HAVE_DECL_TCP_TX_DELAY
-    if (!isUDP(report->common) && isTcpTxDelay(report->common)) {
-	fprintf(stdout, "Socket option of TCP_TX_DELAY set to %2.3f milliseconds\n", report->common->TcpTxDelay);
+#if HAVE_DECL_TCP_TX_DELAY || HAVE_DECL_SO_TXTIME
+    if (isSendDelay(report->common)) {
+	if (isUDP(report->common) && isUDPL4S(report->common)) {
+	    fprintf(stdout, "Socket send delay set to %2.3f milliseconds\n", report->common->SendDelay);
+	} else {
+	    fprintf(stdout, "Socket option of TCP_TX_DELAY set to %2.3f milliseconds\n", report->common->SendDelay);
+	}
     }
 #endif
     if (isEnhanced(report->common)) {

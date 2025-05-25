@@ -277,9 +277,9 @@ void SetSocketOptions (struct thread_Settings *inSettings) {
         }
 #endif
 #if HAVE_DECL_TCP_TX_DELAY
-        if (isTcpTxDelay(inSettings)) {
+        if (!isUDP(inSettings) && isSendDelay(inSettings)) {
             // convert to usecs
-            SetSocketTcpTxDelay(inSettings, static_cast<int>(round(inSettings->mTcpTxDelayMean * 1000)));
+            SetSocketTcpTxDelay(inSettings, static_cast<int>(round(inSettings->mSendDelay * 1000)));
         }
 #endif
     }

@@ -324,8 +324,8 @@ struct thread_Settings {
     int mWritePrefetch;
 #endif
     int jitter_binwidth;
-#if HAVE_DECL_TCP_TX_DELAY
-    double mTcpTxDelayMean;
+#if HAVE_DECL_TCP_TX_DELAY || HAVE_DECL_SO_TXTIME
+    double mSendDelay;
 #endif
     int sendfirst_pacing;
     double connecttime;
@@ -434,7 +434,7 @@ struct thread_Settings {
 #define FLAG_UTC            0x00020000
 #define FLAG_LOAD_CCA       0x00040000
 #define FLAG_BURSTSIZE      0x00080000
-#define FLAG_TCPTXDELAY     0x00100000
+#define FLAG_SENDDELAY     0x00100000
 #define FLAG_FQPACINGSTEP   0x00200000
 #define FLAG_FQPACINGSTEPINTERVAL 0x00400000
 #define FLAG_SYNCTRANSFERID 0x00800000
@@ -525,7 +525,7 @@ struct thread_Settings {
 #define isUTC(settings)            ((settings->flags_extend2 & FLAG_UTC) != 0)
 #define isLoadCCA(settings) ((settings->flags_extend2 & FLAG_LOAD_CCA) != 0)
 #define isBurstSize(settings)      ((settings->flags_extend2 & FLAG_BURSTSIZE) != 0)
-#define isTcpTxDelay(settings)     ((settings->flags_extend2 & FLAG_TCPTXDELAY) != 0)
+#define isSendDelay(settings)     ((settings->flags_extend2 & FLAG_SENDDELAY) != 0)
 #define isFQPacingStep(settings)   ((settings->flags_extend2 & FLAG_FQPACINGSTEP) != 0)
 #define isFQPacingStepInterval(settings) ((settings->flags_extend2 & FLAG_FQPACINGSTEPINTERVAL) != 0)
 #define isOmit(settings)           ((settings->flags_extend2 & FLAG_OMIT) != 0)
@@ -613,7 +613,7 @@ struct thread_Settings {
 #define setUTC(settings)           settings->flags_extend2 |= FLAG_UTC
 #define setLoadCCA(settings)       settings->flags_extend2 |= FLAG_LOAD_CCA
 #define setBurstSize(settings)     settings->flags_extend2 |= FLAG_BURSTSIZE
-#define setTcpTxDelay(settings)    settings->flags_extend2 |= FLAG_TCPTXDELAY
+#define setSendDelay(settings)    settings->flags_extend2 |= FLAG_SENDDELAY
 #define setFQPacingStep(settings)  settings->flags_extend2 |= FLAG_FQPACINGSTEP
 #define setFQPacingStepInterval(settings) settings->flags_extend2 |= FLAG_FQPACINGSTEPINTERVAL
 #define setOmit(settings)          settings->flags_extend2 |= FLAG_OMIT
@@ -700,7 +700,7 @@ struct thread_Settings {
 #define unsetUTC(settings)           settings->flags_extend2 &= ~FLAG_UTC
 #define unsetLoadCCA(settings)       settings->flags_extend2 &= ~FLAG_LOAD_CCA
 #define unsetBurstSize(settings)     settings->flags_extend2 &= ~FLAG_BURSTSIZE
-#define unsetTcpTxDelay(settings)    settings->flags_extend2 &= ~FLAG_TCPTXDELAY
+#define unsetSendDelay(settings)    settings->flags_extend2 &= ~FLAG_SENDDELAY
 #define unsetFQPacingStep(settings)  settings->flags_extend2 &= ~FLAG_FQPACINGSTEP
 #define unsetFQPacingStepInterval(settings) settings->flags_extend2 &= ~FLAG_FQPACINGSTEPINTERVAL
 #define unsetOmit(settings)          settings->flags_extend2 &= ~FLAG_OMIT
