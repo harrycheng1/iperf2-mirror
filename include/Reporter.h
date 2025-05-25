@@ -262,8 +262,8 @@ struct ReportCommon {
     double rtt_weight;
     double ListenerTimeout;
     double FPS;
-#if HAVE_DECL_TCP_TX_DELAY
-    double TcpTxDelay;
+#if HAVE_DECL_TCP_TX_DELAY || HAVE_DECL_SO_TXTIME
+    double SendDelay;
 #endif
     int bbsize;
     int bbreplysize;

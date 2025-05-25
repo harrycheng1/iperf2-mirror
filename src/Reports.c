@@ -144,8 +144,8 @@ static void common_copy (struct ReportCommon **common, struct thread_Settings *i
     (*common)->rtt_weight = inSettings->rtt_nearcongest_weight_factor;
     (*common)->ListenerTimeout = inSettings->mListenerTimeout;
     (*common)->FPS = (inSettings->mFPS > 0) ? inSettings->mFPS : 0;
-#if HAVE_DECL_TCP_TX_DELAY
-    (*common)->TcpTxDelay = inSettings->mTcpTxDelayMean;
+#if HAVE_DECL_TCP_TX_DELAY || HAVE_DECL_SO_TXTIME
+    (*common)->SendDelay = inSettings->mSendDelay;
 #endif
     (*common)->TOS = inSettings->mTOS;
     (*common)->RTOS = inSettings->mRTOS;
