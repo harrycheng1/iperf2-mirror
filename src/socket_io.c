@@ -128,10 +128,28 @@ int recvn (int inSock, char *outBuf, int inLen, int flags) {
 #endif
 		break;
 	    case 0:
+		WARN(1, "recvn peek checking connection status");
+
+#ifdef MSG_DONTWAIT
+		    // Distinguish between no data available vs connection closed
+		    {
+			char test_byte;
+			int test_recv = recv(inSock, &test_byte, 1, MSG_DONTWAIT);
+			if (test_recv == 0) {
+			    // Definitely closed - peer performed orderly shutdown
 #ifdef HAVE_THREAD_DEBUG
-		WARN(1, "recvn peek peer close");
+			    WARN(1, "recvn peek peer close confirmed");
 #endif
+			    goto DONE;
+			} else if (test_recv < 0 && (errno == EWOULDBLOCK || errno == EAGAIN)) {
+			    // Just no data available, connection still open, continue waiting for data
+			    break;
+			}
+			// For other errors, fall through to peer close
+		    }
+#else
 		goto DONE;
+#endif
 		break;
 	    default :
 		break;
@@ -139,44 +157,44 @@ int recvn (int inSock, char *outBuf, int inLen, int flags) {
 	}
     } else
 #endif
-    {
-	while ((nleft > 0) && !sInterupted) {
+	{
+	    while ((nleft > 0) && !sInterupted) {
 #if (HAVE_DECL_MSG_WAITALL)
-	    nread = recv(inSock, ptr, nleft, MSG_WAITALL);
+		nread = recv(inSock, ptr, nleft, MSG_WAITALL);
 #else
-	    nread = recv(inSock, ptr, nleft, 0);
+		nread = recv(inSock, ptr, nleft, 0);
 #endif
-	    switch (nread) {
-	    case SOCKET_ERROR :
-		// Note: use TCP fatal error codes even for UDP
-		if (FATALTCPREADERR(errno)) {
-		    WARN_errno(1, "recvn");
-		    nread = SOCKET_ERROR;
-		    sInterupted = 1;
+		switch (nread) {
+		case SOCKET_ERROR :
+		    // Note: use TCP fatal error codes even for UDP
+		    if (FATALTCPREADERR(errno)) {
+			WARN_errno(1, "recvn");
+			nread = SOCKET_ERROR;
+			sInterupted = 1;
+			goto DONE;
+		    } else {
+			nread = IPERF_SOCKET_ERROR_NONFATAL;
+			goto DONE;
+		    }
+#ifdef HAVE_THREAD_DEBUG
+		    WARN_errno(1, "recvn non-fatal");
+#endif
+		    break;
+		case 0:
+#ifdef HAVE_THREAD_DEBUG
+		    WARN(1, "recvn peer close");
+#endif
+		    nread = inLen - nleft;
 		    goto DONE;
-		} else {
-		    nread = IPERF_SOCKET_ERROR_NONFATAL;
-		    goto DONE;
+		    break;
+		default :
+		    nleft -= nread;
+		    ptr   += nread;
+		    break;
 		}
-#ifdef HAVE_THREAD_DEBUG
-		WARN_errno(1, "recvn non-fatal");
-#endif
-		break;
-	    case 0:
-#ifdef HAVE_THREAD_DEBUG
-		WARN(1, "recvn peer close");
-#endif
 		nread = inLen - nleft;
-		goto DONE;
-		break;
-	    default :
-		nleft -= nread;
-		ptr   += nread;
-		break;
 	    }
-	    nread = inLen - nleft;
 	}
-    }
   DONE:
     return(nread);
 } /* end recvn */
