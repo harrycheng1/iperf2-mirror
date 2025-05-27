@@ -76,6 +76,9 @@
 #include "util.h"
 #include "iperf_multicast_api.h"
 #include <cmath>
+#if HAVE_DECL_SO_TXTIME
+#include <linux/net_tstamp.h>
+#endif
 
 /* -------------------------------------------------------------------
  * Set socket options before the listen() or connect() calls.
@@ -276,12 +279,18 @@ void SetSocketOptions (struct thread_Settings *inSettings) {
             WARN_errno(rc == SOCKET_ERROR, "setsockopt TCP_NOTSENT_LOWAT");
         }
 #endif
+        if (isSendDelay(inSettings)) {
+	    if (!isUDP(inSettings)) {
 #if HAVE_DECL_TCP_TX_DELAY
-        if (!isUDP(inSettings) && isSendDelay(inSettings)) {
-            // convert to usecs
-            SetSocketTcpTxDelay(inSettings, static_cast<int>(round(inSettings->mSendDelay * 1000)));
-        }
+		// convert to usecs
+		SetSocketTcpTxDelay(inSettings, static_cast<int>(round(inSettings->mSendDelay * 1000)));
 #endif
+	    } else {
+#if HAVE_DECL_TCP_TX_DELAY
+		SetSocketTxTime(inSettings);
+#endif
+	    }
+	}
     }
 
 #if HAVE_DECL_SO_MAX_PACING_RATE
@@ -429,6 +438,20 @@ void SetSocketTcpTxDelay(struct thread_Settings *mSettings, int delay) {
     }
 #endif
 #endif
+#endif
+}
+
+void SetSocketTxTime(struct thread_Settings *mSettings) {
+#if HAVE_DECL_SO_TXTIME
+    struct sock_txtime txtime_cfg;
+
+    /* Configure for CLOCK_MONOTONIC with error reporting */
+    txtime_cfg.clockid = CLOCK_MONOTONIC;
+    txtime_cfg.flags = 0;
+/*        txtime_cfg.flags = SOF_TIMESTAMPING_OPT_ID; */
+    if (setsockopt(mSettings->mSock, SOL_SOCKET, SO_TXTIME, &txtime_cfg, sizeof(txtime_cfg)) < 0) {
+	WARN_errno(1, "Failed to configure SO_TXTIME");
+    }
 #endif
 }
 
