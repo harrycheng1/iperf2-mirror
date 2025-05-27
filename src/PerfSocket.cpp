@@ -279,17 +279,18 @@ void SetSocketOptions (struct thread_Settings *inSettings) {
             WARN_errno(rc == SOCKET_ERROR, "setsockopt TCP_NOTSENT_LOWAT");
         }
 #endif
-        if (isSendDelay(inSettings)) {
-	    if (!isUDP(inSettings)) {
+    }
+
+    if (isSendDelay(inSettings)) {
+	if (!isUDP(inSettings)) {
 #if HAVE_DECL_TCP_TX_DELAY
-		// convert to usecs
-		SetSocketTcpTxDelay(inSettings, static_cast<int>(round(inSettings->mSendDelay * 1000)));
+	    // convert to usecs
+	    SetSocketTcpTxDelay(inSettings, static_cast<int>(round(inSettings->mSendDelay * 1000)));
 #endif
-	    } else {
+	} else {
 #if HAVE_DECL_TCP_TX_DELAY
-		SetSocketTxTime(inSettings);
+	    SetSocketTxTime(inSettings);
 #endif
-	    }
 	}
     }
 
