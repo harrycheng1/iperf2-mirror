@@ -259,7 +259,7 @@ int writen (int inSock, const void *inBuf, int inLen, int *count) {
  * tos_value: IP Type of Service value (0-255, or -1 to skip TOS setting)
  * ------------------------------------------------------------------- */
 #if HAVE_DECL_SO_TXTIME
-int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_ns, int tos_value) {
+int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_ns, u_char tos_value) {
     struct msghdr msg;
     struct iovec iov;
     char control[CMSG_SPACE(sizeof(uint64_t)) + CMSG_SPACE(sizeof(int))];
@@ -361,7 +361,7 @@ int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_
  * Returns number of bytes written, or -1 on error.
  * tos_value: IP Type of Service value (0-255)
  * ------------------------------------------------------------------- */
-int writemsg_tos(int inSock, const void *inBuf, int inLen, int tos_value) {
+int writemsg_tos(int inSock, const void *inBuf, int inLen, u_char tos_value) {
     return writemsg_delay_tos(inSock, inBuf, inLen, 0, tos_value);
 }
 int writemsg_delay(int inSock, const void *inBuf, int inLen, uint64_t delay_ns) {

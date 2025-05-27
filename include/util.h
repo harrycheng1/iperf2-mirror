@@ -83,8 +83,8 @@ int  setsock_tcp_notsent_low_watermark(int inSock, int clampsize);
 #endif
 int recvn(int inSock, char *outBuf, int inLen, int flags);
 int writen(int inSock, const void *inBuf, int inLen, int *count);
-int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_ns, int tos_value);
-int writemsg_tos(int inSock, const void *inBuf, int inLen, int tos_value);
+int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_ns, u_char tos_value);
+int writemsg_tos(int inSock, const void *inBuf, int inLen, u_char tos_value);
 int writemsg_delay(int inSock, const void *inBuf, int inLen, uint64_t delay_ns);
 
 void disarm_itimer(void);
