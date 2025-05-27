@@ -1779,6 +1779,7 @@ void Client::RunUDPL4S () {
 
 	    reportstruct->err_readwrite = WriteSuccess;
 	    reportstruct->emptyreport = false;
+	    reportstruct->ce_count = l4s_pacer.Get_CECount();
 
 	    u_char tos = ((mSettings->mTOS & 0xFC) | new_ecn);
 	    int currLen = (!isSendDelay(mSettings) ? \
