@@ -267,7 +267,6 @@ int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_
     struct timespec now;
     uint64_t txtime;
     int result;
-    size_t controllen = 0;
 
     assert(inSock >= 0);
     assert(inBuf != NULL);
@@ -283,7 +282,7 @@ int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_
     msg.msg_iov = &iov;
     msg.msg_iovlen = 1;
     msg.msg_control = control;
-    msg.msg_controllen = 0; /* Will be set based on what we add */
+    msg.msg_controllen = sizeof(control); /* Set to full buffer size for CMSG_NXTHDR */
 
     /* Initialize control buffer */
     memset(control, 0, sizeof(control));
@@ -309,8 +308,6 @@ int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_
         cmsg->cmsg_type = SCM_TXTIME;
         cmsg->cmsg_len = CMSG_LEN(sizeof(uint64_t));
         *((uint64_t*)CMSG_DATA(cmsg)) = txtime;
-
-        controllen += CMSG_SPACE(sizeof(uint64_t));
         cmsg = CMSG_NXTHDR(&msg, cmsg);
     }
     /* Add IP_TOS control message if TOS value specified */
@@ -324,12 +321,17 @@ int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_
 	cmsg->cmsg_type = IP_TOS;
 	cmsg->cmsg_len = CMSG_LEN(sizeof(int));
 	*((int*)CMSG_DATA(cmsg)) = tos_value;
-
-	controllen += CMSG_SPACE(sizeof(int));
 	cmsg = CMSG_NXTHDR(&msg, cmsg);
     }
-    /* Set final control length */
-    msg.msg_controllen = controllen;
+    /* Calculate actual control length used */
+    if (cmsg != NULL) {
+        msg.msg_controllen = (char*)cmsg - (char*)control;
+    } else {
+        /* Calculate based on what we added */
+        msg.msg_controllen = 0;
+        if (delay_ns > 0) msg.msg_controllen += CMSG_SPACE(sizeof(uint64_t));
+        if (tos_value >= 0) msg.msg_controllen += CMSG_SPACE(sizeof(int));
+    }
 
     /* Send the message */
     result = sendmsg(inSock, &msg, 0);
