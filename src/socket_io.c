@@ -52,6 +52,10 @@
 
 #include "headers.h"
 #include "util.h"
+#if HAVE_DECL_SO_TXTIME
+#include <linux/net_tstamp.h>
+#include <linux/errqueue.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -248,7 +252,121 @@ int writen (int inSock, const void *inBuf, int inLen, int *count) {
     return (nwritten);
 } /* end writen */
 
+/* -------------------------------------------------------------------
+ * Write data with scheduled transmit time and/or IP TOS using control msgs
+ * Returns number of bytes written, or -1 on error.
+ * delay_ns: nanoseconds from now when packet should be transmitted (0 = no delay)
+ * tos_value: IP Type of Service value (0-255, or -1 to skip TOS setting)
+ * ------------------------------------------------------------------- */
+#if HAVE_DECL_SO_TXTIME
+int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_ns, int tos_value) {
+    struct msghdr msg;
+    struct iovec iov;
+    char control[CMSG_SPACE(sizeof(uint64_t)) + CMSG_SPACE(sizeof(int))];
+    struct cmsghdr *cmsg;
+    struct timespec now;
+    uint64_t txtime;
+    int result;
+    size_t controllen = 0;
 
+    assert(inSock >= 0);
+    assert(inBuf != NULL);
+    assert(inLen > 0);
+    assert(tos_value >= -1 && tos_value <= 255);
+
+    /* Set up iovec */
+    iov.iov_base = (void*)inBuf;
+    iov.iov_len = inLen;
+
+    /* Set up message header */
+    memset(&msg, 0, sizeof(msg));
+    msg.msg_iov = &iov;
+    msg.msg_iovlen = 1;
+    msg.msg_control = control;
+    msg.msg_controllen = 0; /* Will be set based on what we add */
+
+    /* Initialize control buffer */
+    memset(control, 0, sizeof(control));
+    cmsg = CMSG_FIRSTHDR(&msg);
+
+    /* Add SO_TXTIME control message if delay requested */
+    if (delay_ns > 0) {
+        /* Get current time */
+	if (clock_gettime(CLOCK_MONOTONIC, &now) != 0) {
+	    WARN_errno(1, "writemsg_delay clock_gettime failed");
+	    return -1;
+	}
+
+        /* Calculate transmit time */
+        txtime = (uint64_t)now.tv_sec * 1000000000ULL + now.tv_nsec + delay_ns;
+
+        if (cmsg == NULL) {
+            WARN(1, "writemsg_delay CMSG_FIRSTHDR failed for TXTIME");
+            return -1;
+        }
+
+        cmsg->cmsg_level = SOL_SOCKET;
+        cmsg->cmsg_type = SCM_TXTIME;
+        cmsg->cmsg_len = CMSG_LEN(sizeof(uint64_t));
+        *((uint64_t*)CMSG_DATA(cmsg)) = txtime;
+
+        controllen += CMSG_SPACE(sizeof(uint64_t));
+        cmsg = CMSG_NXTHDR(&msg, cmsg);
+    }
+    /* Add IP_TOS control message if TOS value specified */
+    if (tos_value >= 0) {
+	if (cmsg == NULL) {
+	    WARN(1, "writemsg_delay insufficient control buffer space for TOS");
+	    return -1;
+	}
+
+	cmsg->cmsg_level = IPPROTO_IP;
+	cmsg->cmsg_type = IP_TOS;
+	cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+	*((int*)CMSG_DATA(cmsg)) = tos_value;
+
+	controllen += CMSG_SPACE(sizeof(int));
+	cmsg = CMSG_NXTHDR(&msg, cmsg);
+    }
+    /* Set final control length */
+    msg.msg_controllen = controllen;
+
+    /* Send the message */
+    result = sendmsg(inSock, &msg, 0);
+    if (result < 0) {
+	if (errno == EINVAL) {
+	    WARN(1, "writemsg_delay: control message not configured on socket");
+	} else if (errno == ENOTSUP) {
+	    WARN(1, "writemsg_delay: control message not supported by kernel/driver");
+	} else if (errno == EPERM) {
+	    WARN(1, "writemsg_delay: permission denied (may need CAP_NET_ADMIN for some options)");
+	} else {
+	    WARN_errno(1, "writemsg_delay sendmsg failed");
+	}
+	return -1;
+    }
+    return result;
+} /* end writemsg_delay */
+#else
+/* Stub implementation for non-Linux systems */
+int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_ns, int tos_value) {
+    WARN(1, "writemsg_delay: control messages not supported on this platform");
+    /* Fall back to regular write */
+    return write(inSock, inBuf, inLen);
+}
+#endif
+
+/* -------------------------------------------------------------------
+ * Convenience wrapper for writemsg_delay with only TOS (no delay)
+ * Returns number of bytes written, or -1 on error.
+ * tos_value: IP Type of Service value (0-255)
+ * ------------------------------------------------------------------- */
+int writemsg_tos(int inSock, const void *inBuf, int inLen, int tos_value) {
+    return writemsg_delay_tos(inSock, inBuf, inLen, 0, tos_value);
+}
+int writemsg_delay(int inSock, const void *inBuf, int inLen, uint64_t delay_ns) {
+    return writemsg_delay_tos(inSock, inBuf, inLen, delay_ns, -1);
+}
 
 #ifdef __cplusplus
 } /* end extern "C" */
