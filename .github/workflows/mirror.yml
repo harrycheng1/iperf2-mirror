@@ -1,0 +1,30 @@
+name: Mirror iperf2 (Orphan Branch Mode)
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mirror SourceForge to GitHub
+        run: |
+          # 1. 定義變數
+          SOURCE_URL="https://git.code.sf.net/p/iperf2/code"
+          TARGET_REPO="github.com/harrycheng1/iperf2-mirror.git"
+          
+          # 2. 下載 SourceForge 原始碼 (Bare 模式)
+          git clone --bare "$SOURCE_URL" source-repo
+          cd source-repo
+          
+          # 3. 推送邏輯 (關鍵！)
+          # 我們不能用 --mirror，因為那會刪除 GitHub 上的 sys-admin 分支
+          # 我們改用明確指定：將所有 heads (分支) 和 tags (標籤) 強制推過去
+          
+          # 語法解釋：
+          # +refs/heads/*:refs/heads/* -> 強制更新所有分支
+          # +refs/tags/*:refs/tags/* -> 強制更新所有標籤
+          
+          git push "https://harrycheng1:${{ secrets.GH_PAT }}@$TARGET_REPO" +refs/heads/*:refs/heads/* +refs/tags/*:refs/tags/*
