@@ -31,9 +31,9 @@
  */
 
 #ifndef _GETOPT_H
-    #define _GETOPT_H 1
+#define _GETOPT_H 1
 
-    #ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -101,36 +101,24 @@ struct option {
 
 /* Names for the values of the `has_arg' field of `struct option'.  */
 
-#define	no_argument		    0
-#define required_argument	1
-#define optional_argument	2
+#define no_argument 0
+#define required_argument 1
+#define optional_argument 2
 
-int gnu_getopt( int argc,
-                char *const *argv,
-                const char *optstring );
+int gnu_getopt(int argc, char *const *argv, const char *optstring);
 
-int gnu_getopt_long( int argc,
-                     char *const *argv,
-                     const char *options,
-                     const struct option *long_options,
-                     int *opt_index );
+int gnu_getopt_long(int argc, char *const *argv, const char *options,
+                    const struct option *long_options, int *opt_index);
 
-int gnu_getopt_long_only( int argc,
-                          char *const *argv,
-                          const char *options,
-                          const struct option *long_options,
-                          int *opt_index );
+int gnu_getopt_long_only(int argc, char *const *argv, const char *options,
+                         const struct option *long_options, int *opt_index);
 
 /* Internal only.  Users should not call this directly.  */
-int _gnu_getopt_internal( int argc,
-                          char *const *argv,
-                          const char *optstring,
-                          const struct option *longopts,
-                          int *longind,
-                          int long_only );
+int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring,
+                         const struct option *longopts, int *longind, int long_only);
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 } /* end extern "C" */
-    #endif
+#endif
 
 #endif /* _GETOPT_H */

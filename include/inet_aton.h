@@ -56,7 +56,6 @@
 #ifndef INET_ATON_H
 #define INET_ATON_H
 
-
 #include "headers.h"
 
 /*
@@ -67,31 +66,29 @@
  * while -1 (0xFFFFFFFF) is a valid IP address (255.255.255.255).
  */
 
-const char* inet_ntop_hide(int af, const void *src, char *dst, socklen_t size);
-const char* inet_ntop4_hide(const unsigned char *src, char *dst, socklen_t size);
+const char *inet_ntop_hide(int af, const void *src, char *dst, socklen_t size);
+const char *inet_ntop4_hide(const unsigned char *src, char *dst, socklen_t size);
 
 #ifndef HAVE_INET_NTOP
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-const char* inet_ntop(int af, const void *src, char *dst, socklen_t size);
-const char* inet_ntop4(const unsigned char *src, char *dst, socklen_t size);
+const char *inet_ntop(int af, const void *src, char *dst, socklen_t size);
+const char *inet_ntop4(const unsigned char *src, char *dst, socklen_t size);
 
 #if HAVE_IPV6
-const char* inet_ntop6(const unsigned char *src, char *dst,
-                      socklen_t size);
+const char *inet_ntop6(const unsigned char *src, char *dst, socklen_t size);
 #endif
-
 
 #ifdef __cplusplus
 } /* end extern "C" */
-    #endif
+#endif
 
 #endif /* HAVE_INET_NTOP */
 #ifndef HAVE_INET_PTON
 
-    #ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 int inet_pton(int af, const char *src, void *dst);
@@ -102,7 +99,7 @@ int inet_pton6(const char *src, unsigned char *dst);
 
 #ifdef __cplusplus
 } /* end extern "C" */
-    #endif
+#endif
 
 #endif /* HAVE_INET_PTON */
 #endif /* INET_ATON_H */

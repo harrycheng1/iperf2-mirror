@@ -63,7 +63,7 @@
 class Listener;
 
 class Listener {
-public:
+   public:
     // stores server port and TCP/UDP mode
     Listener(thread_Settings *inSettings);
     // destroy the server object
@@ -71,7 +71,7 @@ public:
     // accepts connections and starts Servers
     void Run(void);
 
-private:
+   private:
     int mClients;
     int mCount;
     struct ether_header *eth_hdr;
@@ -99,6 +99,6 @@ private:
 #else
     int ListenSocket;
 #endif
-}; // end class Listener
+};  // end class Listener
 
-#endif // LISTENER_H
+#endif  // LISTENER_H

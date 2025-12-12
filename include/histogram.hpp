@@ -41,17 +41,16 @@
  *
  * histogram.hpp
  * Suppport for isochonronous traffic testing
- * 
+ *
  * by Robert J. McMahon (rjmcmahon@rjmcmahon.com, bob.mcmahon@broadcom.com)
- * ------------------------------------------------------------------- 
+ * -------------------------------------------------------------------
  */
 #ifndef HISTOGRAM_H
 #define HISTOGRAM_H
 
-
 /* ------------------------------------------------------------------- */
 class Histogram {
-public :
+   public:
     Histogram(unsigned int, unsigned int, float, char *);
     ~Histogram();
     void insert(float value);
@@ -60,8 +59,8 @@ public :
     void print(void);
     int get(int);
     int confidence_interval(float);
-	
-private :
+
+   private:
     unsigned int *mybins;
     unsigned int bincount;
     unsigned int binwidth;
@@ -70,5 +69,5 @@ private :
     unsigned int cntloweroutofbounds;
     unsigned int cntupperoutofbounds;
     char *myname;
-}; // end class FrameCounter
-#endif // HISTOGRAM_H
+};  // end class FrameCounter
+#endif  // HISTOGRAM_H

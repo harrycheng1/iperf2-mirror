@@ -62,12 +62,12 @@ enum McastJoinResponse {
 
 #define IPERF_MULTICAST_JOIN_SUCCESS 1
 
-enum McastJoinResponse iperf_multicast_join (struct thread_Settings *inSettings);
-bool iperf_multicast_sendif_v4 (struct thread_Settings *inSettings);
-bool iperf_multicast_sendif_v6 (struct thread_Settings *inSettings);
+enum McastJoinResponse iperf_multicast_join(struct thread_Settings *inSettings);
+bool iperf_multicast_sendif_v4(struct thread_Settings *inSettings);
+bool iperf_multicast_sendif_v6(struct thread_Settings *inSettings);
 
 #ifdef __cplusplus
 } /* end extern "C" */
 #endif
 
-#endif // MULTICASTJOIN_H
+#endif  // MULTICASTJOIN_H

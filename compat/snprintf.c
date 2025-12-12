@@ -61,19 +61,19 @@
  * ________________________________________________________________ */
 
 #ifdef HAVE_CONFIG_H
-    #include "config.h"
+#include "config.h"
 #endif
 
 #ifndef HAVE_SNPRINTF
 
-    #include <stdlib.h>
-    #include <string.h>
-    #include <stdio.h>
-    #include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
 
-    #include "snprintf.h"
+#include "snprintf.h"
 
-    #ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -86,16 +86,16 @@ int snprintf(char *buf, size_t size, const char *fmt, ...) {
     n = strlen(buf);
     va_end(ap);
 
-    if ( n >= size ) {
-        fprintf( stderr, "snprintf: overflowed array\n" );
+    if (n >= size) {
+        fprintf(stderr, "snprintf: overflowed array\n");
         exit(1);
     }
 
-    return(n);
+    return (n);
 }
 
 #ifdef __cplusplus
 } /* end extern "C" */
-    #endif
+#endif
 
 #endif /* HAVE_SNPRINTF */

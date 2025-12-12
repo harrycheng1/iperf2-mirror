@@ -72,34 +72,32 @@ float box_muller(void) {
 	y1 = y2;
     } else
 #endif
-	{
-	int loopcontrol=100;
-	do {
-	    x1 = 2.0 * (float)rand()/(float)(RAND_MAX) - 1.0;
-	    x2 = 2.0 * (float)rand()/(float)(RAND_MAX) - 1.0;
-	    w = x1 * x1 + x2 * x2;
-	} while ( w >= 1.0 && --loopcontrol > 0);
-	if (w >= 1.0) {
-	    fprintf(stderr, "pdf box_muller() rand() error\n");
-	    return 0;
-	} else {
-	    w = sqrt( (-2.0 * logf( w ) ) / w );
-	    y1 = x1 * w;
+    {
+        int loopcontrol = 100;
+        do {
+            x1 = 2.0 * (float)rand() / (float)(RAND_MAX)-1.0;
+            x2 = 2.0 * (float)rand() / (float)(RAND_MAX)-1.0;
+            w = x1 * x1 + x2 * x2;
+        } while (w >= 1.0 && --loopcontrol > 0);
+        if (w >= 1.0) {
+            fprintf(stderr, "pdf box_muller() rand() error\n");
+            return 0;
+        } else {
+            w = sqrt((-2.0 * logf(w)) / w);
+            y1 = x1 * w;
 #if 0
 	    y2 = x2 * w;
 #endif
-	}
+        }
     }
-    return(y1);
+    return (y1);
 }
 
-float normal(float mean, float variance) {
-    return (box_muller() * variance + mean);
-}
+float normal(float mean, float variance) { return (box_muller() * variance + mean); }
 
 float lognormal(float mu, float sigma) {
     float phi = sqrtf((mu * mu) + (sigma * sigma));
-    float mu_prime = logf(((mu * mu)/phi));
-    float sigma_prime = sqrtf(logf((phi * phi)/(mu * mu)));
-    return (expf(normal(mu_prime,sigma_prime)));
+    float mu_prime = logf(((mu * mu) / phi));
+    float sigma_prime = sqrtf(logf((phi * phi) / (mu * mu)));
+    return (expf(normal(mu_prime, sigma_prime)));
 }

@@ -66,7 +66,7 @@ extern "C" {
 #define ECN_VALUE(value) (int)(value & ECN_BITMASK)
 
 int parse_ipqos(const char *cp);
-const char * iptos2str(int iptos);
+const char *iptos2str(int iptos);
 #ifdef __cplusplus
 } /* end extern "C" */
 #endif

@@ -58,7 +58,7 @@ extern "C" {
 #define ACKRING_DEFAULTSIZE 100
 
 enum ReadWriteExtReturnVals {
-    ReadSuccess  = 0,
+    ReadSuccess = 0,
     ReadTimeo,
     ReadTimeoFatal,
     ReadErrLen,
@@ -73,10 +73,7 @@ enum ReadWriteExtReturnVals {
     NullEvent
 };
 
-enum edgeLevel {
-    LOW = 0,
-    HIGH = 1
-};
+enum edgeLevel { LOW = 0, HIGH = 1 };
 
 struct ReportStruct {
     intmax_t packetID;
@@ -91,8 +88,8 @@ struct ReportStruct {
     int l2len;
     int expected_l2len;
     u_char tos;
-    // isochStartTime is overloaded: first write timestamp of the frame or burst w/trip-times or very first read w/o trip-times
-    // reporter calculation will compute latency accordingly
+    // isochStartTime is overloaded: first write timestamp of the frame or burst w/trip-times or
+    // very first read w/o trip-times reporter calculation will compute latency accordingly
     struct timeval isochStartTime;
     uint32_t prevframeID;
     uint32_t frameID;
@@ -138,11 +135,12 @@ struct PacketRing {
     struct ReportStruct *data;
 };
 
-extern struct PacketRing * packetring_init(int count, struct Condition *awake_consumer, struct Condition *awake_producer);
+extern struct PacketRing *packetring_init(int count, struct Condition *awake_consumer,
+                                          struct Condition *awake_producer);
 extern void packetring_enqueue(struct PacketRing *pr, struct ReportStruct *metapacket);
-extern struct ReportStruct *packetring_dequeue(struct PacketRing * pr);
+extern struct ReportStruct *packetring_dequeue(struct PacketRing *pr);
 extern void enqueue_ackring(struct PacketRing *pr, struct ReportStruct *metapacket);
-extern struct ReportStruct *dequeue_ackring(struct PacketRing * pr);
+extern struct ReportStruct *dequeue_ackring(struct PacketRing *pr);
 extern void packetring_free(struct PacketRing *pr);
 extern void free_ackring(struct PacketRing *pr);
 extern enum edgeLevel toggleLevel(enum edgeLevel level);
@@ -154,4 +152,4 @@ extern int packetring_getcount(struct PacketRing *pr);
 } /* end extern "C" */
 #endif
 
-#endif // PACKETRINGC_H
+#endif  // PACKETRINGC_H

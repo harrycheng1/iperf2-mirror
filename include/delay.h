@@ -55,7 +55,7 @@
 extern "C" {
 #endif
 #include <time.h>
-void delay_loop( unsigned long usecs );
+void delay_loop(unsigned long usecs);
 void delay_busyloop(unsigned long usecs);
 void delay_nanosleep(unsigned long usecs);
 int clock_usleep(struct timeval *request);
@@ -63,11 +63,11 @@ int clock_usleep_abstime(struct timeval *request);
 #ifdef HAVE_KALMAN
 // Kalman filter states
 struct kalman_state {
-    double q; //process noise covariance
-    double r; //measurement noise covariance
-    double x; //value
-    double p; //estimation error covariance
-    double k; //kalman gain
+    double q;  // process noise covariance
+    double r;  // measurement noise covariance
+    double x;  // value
+    double p;  // estimation error covariance
+    double k;  // kalman gain
 };
 void delay_kalman(unsigned long usecs);
 #endif

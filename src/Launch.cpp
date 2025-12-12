@@ -64,7 +64,7 @@
 #include "SocketAddr.h"
 #include "delay.h"
 
-static int fullduplex_startstop_barrier (struct BarrierMutex *barrier) {
+static int fullduplex_startstop_barrier(struct BarrierMutex *barrier) {
     int rc = 0;
     assert(barrier != NULL);
     Condition_Lock(barrier->await);
@@ -76,14 +76,16 @@ static int fullduplex_startstop_barrier (struct BarrierMutex *barrier) {
         rc = 1;
         // last one wake's up everyone else'
 #ifdef HAVE_THREAD_DEBUG
-        thread_debug("Fullduplex startstop broadcast on condition %p ", (void *)&barrier->await, rc);
+        thread_debug("Fullduplex startstop broadcast on condition %p ", (void *)&barrier->await,
+                     rc);
 #endif
         Condition_Broadcast(&barrier->await);
     } else {
         int timeout = barrier->timeout;
         while ((barrier->count != 2) && (timeout > 0)) {
 #ifdef HAVE_THREAD_DEBUG
-            thread_debug("Fullduplex startstop barrier wait  %p %d/2 (%d)", (void *)&barrier->await, barrier->count, timeout);
+            thread_debug("Fullduplex startstop barrier wait  %p %d/2 (%d)", (void *)&barrier->await,
+                         barrier->count, timeout);
 #endif
             Condition_TimedWait(&barrier->await, 1);
             timeout--;
@@ -93,19 +95,20 @@ static int fullduplex_startstop_barrier (struct BarrierMutex *barrier) {
                 return -1;
             }
         }
-        barrier->count=0;
+        barrier->count = 0;
     }
     Condition_Unlock(barrier->await);
     return rc;
 }
-int fullduplex_start_barrier (struct BarrierMutex *barrier) {
+int fullduplex_start_barrier(struct BarrierMutex *barrier) {
     int rc = fullduplex_startstop_barrier(barrier);
 #ifdef HAVE_THREAD_DEBUG
-    thread_debug("Fullduplex start barrier done on condition %p rc=%d", (void *)&barrier->await, rc);
+    thread_debug("Fullduplex start barrier done on condition %p rc=%d", (void *)&barrier->await,
+                 rc);
 #endif
     return rc;
 }
-int fullduplex_stop_barrier (struct BarrierMutex *barrier) {
+int fullduplex_stop_barrier(struct BarrierMutex *barrier) {
     int rc = fullduplex_startstop_barrier(barrier);
 #ifdef HAVE_THREAD_DEBUG
     thread_debug("Fullduplex stop barrier done on condition %p rc=%d", (void *)&barrier->await, rc);
@@ -140,8 +143,8 @@ void server_spawn(struct thread_Settings *thread) {
     if (isBounceBack(thread)) {
         thread_debug("spawn server bounce-back");
     } else {
-        thread_debug("spawn server settings=%p GroupSumReport=%p sock=%d", \
-                     (void *) thread, (void *)thread->mSumReport, thread->mSock);
+        thread_debug("spawn server settings=%p GroupSumReport=%p sock=%d", (void *)thread,
+                     (void *)thread->mSumReport, thread->mSock);
     }
 #endif
     // set traffic thread to realtime if needed
@@ -161,7 +164,7 @@ void server_spawn(struct thread_Settings *thread) {
             theServer->RunUDPL4S();
         } else
 #endif
-	{
+        {
             theServer->RunUDP();
         }
     } else {
@@ -174,7 +177,7 @@ void server_spawn(struct thread_Settings *thread) {
     DELETE_PTR(theServer);
 }
 
-static void clientside_client_basic (struct thread_Settings *thread, Client *theClient) {
+static void clientside_client_basic(struct thread_Settings *thread, Client *theClient) {
     setTransferID(thread, NORMAL);
 #ifdef HAVE_THREAD_DEBUG
     if (isBounceBack(thread)) {
@@ -195,8 +198,8 @@ static void clientside_client_basic (struct thread_Settings *thread, Client *the
     }
 }
 
-static void clientside_client_reverse (struct thread_Settings *thread,  \
-				       struct thread_Settings *reverse_client, Client *theClient) {
+static void clientside_client_reverse(struct thread_Settings *thread,
+                                      struct thread_Settings *reverse_client, Client *theClient) {
     setTransferID(thread, NORMAL);
     SockAddr_remoteAddr(thread);
     theClient->my_connect(false);
@@ -207,24 +210,26 @@ static void clientside_client_reverse (struct thread_Settings *thread,  \
         // When -P > 1 then all threads finish connect before starting traffic
         theClient->BarrierClient(thread->connects_done);
     if (theClient->isConnected()) {
-        FAIL((!reverse_client || !(thread->mSock > 0)), "Reverse test failed to start per thread settings or socket problem",  thread);
+        FAIL((!reverse_client || !(thread->mSock > 0)),
+             "Reverse test failed to start per thread settings or socket problem", thread);
         setTransferID(reverse_client, REVERSED);
         theClient->StartSynch();
-        reverse_client->mSock = thread->mSock; // use the same socket for both directions
+        reverse_client->mSock = thread->mSock;  // use the same socket for both directions
         reverse_client->mThreadMode = kMode_Server;
         setReverse(reverse_client);
-        setNoUDPfin(reverse_client); // disable the fin report - no need
+        setNoUDPfin(reverse_client);  // disable the fin report - no need
         reverse_client->size_local = sizeof(iperf_sockaddr);
-        getsockname(reverse_client->mSock, reinterpret_cast<sockaddr*>(&reverse_client->local), &reverse_client->size_local);
+        getsockname(reverse_client->mSock, reinterpret_cast<sockaddr *>(&reverse_client->local),
+                    &reverse_client->size_local);
         Iperf_push_host(reverse_client);
         thread_start(reverse_client);
-        if (theClient->myJob)
-            FreeReport(theClient->myJob);
+        if (theClient->myJob) FreeReport(theClient->myJob);
     }
 }
 
-static void clientside_client_fullduplex (struct thread_Settings *thread, \
-					  struct thread_Settings *reverse_client, Client *theClient) {
+static void clientside_client_fullduplex(struct thread_Settings *thread,
+                                         struct thread_Settings *reverse_client,
+                                         Client *theClient) {
     setTransferID(thread, NORMAL);
     SockAddr_remoteAddr(thread);
     if (!isBounceBack(thread)) {
@@ -232,7 +237,7 @@ static void clientside_client_fullduplex (struct thread_Settings *thread, \
     }
     Settings_Copy(thread, &reverse_client, SHALLOW_COPY);
     if (isUDP(reverse_client)) {
-	Settings_Resize_mBuf(reverse_client, kDefault_UDPRxBufLen);
+        Settings_Resize_mBuf(reverse_client, kDefault_UDPRxBufLen);
     }
     Iperf_push_host(thread);
     Iperf_push_host(reverse_client);
@@ -247,12 +252,14 @@ static void clientside_client_fullduplex (struct thread_Settings *thread, \
         theClient->BarrierClient(thread->connects_done);
     if (theClient->isConnected()) {
         thread->mFullDuplexReport->info.common->socket = thread->mSock;
-        FAIL((!reverse_client || !(thread->mSock > 0)), "Reverse test failed to start per thread settings or socket problem",  thread);
-        reverse_client->mSock = thread->mSock; // use the same socket for both directions
+        FAIL((!reverse_client || !(thread->mSock > 0)),
+             "Reverse test failed to start per thread settings or socket problem", thread);
+        reverse_client->mSock = thread->mSock;  // use the same socket for both directions
         reverse_client->mThreadMode = kMode_Server;
         setReverse(reverse_client);
         if (isModeTime(reverse_client)) {
-            reverse_client->mAmount += (SLOPSECS * 100);  // add 2 sec for slop on reverse, units are 10 ms
+            reverse_client->mAmount +=
+                (SLOPSECS * 100);  // add 2 sec for slop on reverse, units are 10 ms
         }
         thread_start(reverse_client);
         if (theClient->StartSynch() != -1) {
@@ -261,7 +268,7 @@ static void clientside_client_fullduplex (struct thread_Settings *thread, \
     }
 }
 
-static void serverside_client_fullduplex (struct thread_Settings *thread, Client *theClient) {
+static void serverside_client_fullduplex(struct thread_Settings *thread, Client *theClient) {
 #ifdef HAVE_THREAD_DEBUG
     thread_debug("Launch: Listener spawn client thread (fd sock=%d)", thread->mSock);
 #endif
@@ -271,7 +278,7 @@ static void serverside_client_fullduplex (struct thread_Settings *thread, Client
     }
 }
 
-static void serverside_client_bidir (struct thread_Settings *thread, Client *theClient) {
+static void serverside_client_bidir(struct thread_Settings *thread, Client *theClient) {
 #ifdef HAVE_THREAD_DEBUG
     thread_debug("Launch: Listener spawn client thread (bidir sock=%d)", thread->mSock);
 #endif
@@ -311,7 +318,7 @@ static void serverside_client_bidir (struct thread_Settings *thread, Client *the
  *
  * Note: This runs in client thread context
  */
-void client_spawn (struct thread_Settings *thread) {
+void client_spawn(struct thread_Settings *thread) {
     Client *theClient = NULL;
 
     // set traffic thread to realtime if needed
@@ -333,22 +340,22 @@ void client_spawn (struct thread_Settings *thread) {
     } else if (!isServerReverse(thread)) {
         // These are the client side spawning of clients
         if (!isReverse(thread) && !isFullDuplex(thread)) {
-	    clientside_client_basic(thread, theClient);
+            clientside_client_basic(thread, theClient);
         } else if (isReverse(thread) && !isFullDuplex(thread)) {
             struct thread_Settings *reverse_thread = NULL;
             Settings_Copy(thread, &reverse_thread, DEEP_COPY);
-            FAIL((reverse_thread == NULL), "Reverse thread alloc failed",  thread);
-	    if (isUDP(reverse_thread)) {
-		Settings_Resize_mBuf(reverse_thread, kDefault_UDPRxBufLen);
-	    }
+            FAIL((reverse_thread == NULL), "Reverse thread alloc failed", thread);
+            if (isUDP(reverse_thread)) {
+                Settings_Resize_mBuf(reverse_thread, kDefault_UDPRxBufLen);
+            }
             clientside_client_reverse(thread, reverse_thread, theClient);
         } else if (isFullDuplex(thread)) {
             struct thread_Settings *reverse_thread = NULL;
             Settings_Copy(thread, &reverse_thread, DEEP_COPY);
-            FAIL((reverse_thread == NULL), "Reverse in full-duplex thread alloc failed",  thread);
-	    if (isUDP(reverse_thread)) {
-		Settings_Resize_mBuf(reverse_thread, kDefault_UDPRxBufLen);
-	    }
+            FAIL((reverse_thread == NULL), "Reverse in full-duplex thread alloc failed", thread);
+            if (isUDP(reverse_thread)) {
+                Settings_Resize_mBuf(reverse_thread, kDefault_UDPRxBufLen);
+            }
             clientside_client_fullduplex(thread, reverse_thread, theClient);
         } else {
             fprintf(stdout, "Program error in client side client_spawn");
@@ -409,16 +416,18 @@ void client_init(struct thread_Settings *clients) {
                 // notable with --tx-starttime and -P > 1
                 // use max cores & a max aggregate delay to limit this so it's bounded
 #define MAXCORES 10
-#define MAXDELAY 20000 // 20 ms
-                next->sendfirst_pacing = (i % MAXCORES)  * (MAXDELAY  / MAXCORES);
+#define MAXDELAY 20000  // 20 ms
+                next->sendfirst_pacing = (i % MAXCORES) * (MAXDELAY / MAXCORES);
             }
             if (isIncrDstIP(clients)) {
                 next->incrdstip = i;
                 // force a setHostname
                 SockAddr_zeroAddress(&next->peer);
             } else if (clients->mBindPort) {
-                // Increment the source port of none of the quintuple is being change or the user requests it
-                if ((!isIncrDstPort(clients) && !isIncrDstIP(clients) && !isIncrSrcIP(clients)) || isIncrSrcPort(clients)) {
+                // Increment the source port of none of the quintuple is being change or the user
+                // requests it
+                if ((!isIncrDstPort(clients) && !isIncrDstIP(clients) && !isIncrSrcIP(clients)) ||
+                    isIncrSrcPort(clients)) {
                     // case -B with src port and -P > 1
                     next->incrsrcport = i;
                 }
@@ -432,13 +441,14 @@ void client_init(struct thread_Settings *clients) {
         itr = next;
     }
     if (isWorkingLoadUp(clients) || isWorkingLoadDown(clients)) {
-        int working_load_threads = (clients->mWorkingLoadThreads == 0) ? 1 : clients->mWorkingLoadThreads;
+        int working_load_threads =
+            (clients->mWorkingLoadThreads == 0) ? 1 : clients->mWorkingLoadThreads;
         while (working_load_threads--) {
             Settings_Copy(clients, &next, DEEP_COPY);
             if (isUDP(next)) {
                 unsetUDP(next);
                 unsetBWSet(next);
-                next->mAppRate=0;
+                next->mAppRate = 0;
             }
             if (isLoadCCA(next)) {
                 unsetCongestionControl(next);
@@ -450,8 +460,8 @@ void client_init(struct thread_Settings *clients) {
                 unsetBounceBack(next);
                 unsetConnectOnly(next);
                 unsetPeriodicBurst(next);
-                unsetTxHoldback(next); // don't delay working load threads
-                next->mTOS = 0; // disable any QoS on the congestion stream
+                unsetTxHoldback(next);  // don't delay working load threads
+                next->mTOS = 0;         // disable any QoS on the congestion stream
 #if HAVE_DECL_TCP_NOTSENT_LOWAT
                 next->mWritePrefetch = SMALL_WRITE_PREFETCH;
                 setWritePrefetch(next);
@@ -475,8 +485,7 @@ void client_init(struct thread_Settings *clients) {
                 if (isLoadCCA(next)) {
                     char *tmp = new char[strlen(next->mLoadCCA) + 1];
                     if (tmp) {
-                        if (next->mCongestion)
-                            DELETE_ARRAY(next->mCongestion);
+                        if (next->mCongestion) DELETE_ARRAY(next->mCongestion);
                         setCongestionControl(next);
                         strcpy(tmp, next->mLoadCCA);
                         tmp[strlen(next->mLoadCCA)] = '\0';
@@ -500,7 +509,7 @@ void client_init(struct thread_Settings *clients) {
 void listeners_init(struct thread_Settings *listener) {
     struct thread_Settings *itr = listener;
     struct thread_Settings *next = NULL;
-    for (int ix = 1; ix < (listener->mPortLast - listener->mPort + 1); ix++)  {
+    for (int ix = 1; ix < (listener->mPortLast - listener->mPort + 1); ix++) {
         Settings_Copy(listener, &next, DEEP_COPY);
         if (next != NULL) {
             setNoSettReport(next);

@@ -56,19 +56,18 @@
 #ifndef HEADERS_H
 #define HEADERS_H
 
-
 #ifdef HAVE_CONFIG_H
-    #include "config.h"
+#include "config.h"
 
 /* OSF1 (at least the system I use) needs extern C
  * around the <netdb.h> and <arpa/inet.h> files. */
-    #if defined( SPECIAL_OSF1_EXTERN ) && defined( __cplusplus )
-        #define SPECIAL_OSF1_EXTERN_C_START extern "C" {
-        #define SPECIAL_OSF1_EXTERN_C_STOP  }
-    #else
-        #define SPECIAL_OSF1_EXTERN_C_START
-        #define SPECIAL_OSF1_EXTERN_C_STOP
-    #endif
+#if defined(SPECIAL_OSF1_EXTERN) && defined(__cplusplus)
+#define SPECIAL_OSF1_EXTERN_C_START extern "C" {
+#define SPECIAL_OSF1_EXTERN_C_STOP }
+#else
+#define SPECIAL_OSF1_EXTERN_C_START
+#define SPECIAL_OSF1_EXTERN_C_STOP
+#endif
 #endif /* HAVE_CONFIG_H */
 
 /* standard C headers */
@@ -86,32 +85,35 @@
 #include <limits.h>
 
 #ifdef HAVE_STDBOOL_H
-# include <stdbool.h>
+#include <stdbool.h>
 #else
-# ifndef HAVE__BOOL
-#  ifdef __cplusplus
+#ifndef HAVE__BOOL
+#ifdef __cplusplus
 typedef bool _Bool;
-#  else
-#   define _Bool signed char
-#  endif
-# endif
-# define bool _Bool
-# define false 0
-# define true 1
-# define __bool_true_false_are_defined 1
+#else
+#define _Bool signed char
+#endif
+#endif
+#define bool _Bool
+#define false 0
+#define true 1
+#define __bool_true_false_are_defined 1
 #endif
 
+// v4: 1470 bytes UDP payload will fill one and only one ethernet datagram (IPv4 overhead is 20
+// bytes)
+#define kDefault_UDPTxBufLen 1470
+// v6: 1450 bytes UDP payload will fill one and only one ethernet datagram (IPv6 overhead is 40
+// bytes)
+#define kDefault_UDPTxBufLenV6 1450
+#define kDefault_UDPRxBufLen \
+    128 * 1024  // 128 Kbytes, ok for UDP reads (actual size is set by the sender and part of the
+                // read)
+#define IPV4HDRLEN 20
+#define IPV6HDRLEN 40
+#define UDPHDRLEN 8
 
-// v4: 1470 bytes UDP payload will fill one and only one ethernet datagram (IPv4 overhead is 20 bytes)
-#define  kDefault_UDPTxBufLen 1470
-// v6: 1450 bytes UDP payload will fill one and only one ethernet datagram (IPv6 overhead is 40 bytes)
-#define  kDefault_UDPTxBufLenV6 1450
-#define  kDefault_UDPRxBufLen 128 * 1024 // 128 Kbytes, ok for UDP reads (actual size is set by the sender and part of the read)
-#define  IPV4HDRLEN 20
-#define  IPV6HDRLEN 40
-#define  UDPHDRLEN  8
-
-#if ((defined HAVE_SSM_MULTICAST) || (defined HAVE_DECL_SO_BINDTODEVICE))  && (defined HAVE_NET_IF_H)
+#if ((defined HAVE_SSM_MULTICAST) || (defined HAVE_DECL_SO_BINDTODEVICE)) && (defined HAVE_NET_IF_H)
 #include <net/if.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
@@ -161,7 +163,7 @@ typedef bool _Bool;
 //
 // force the ipv6hdr length to 40 vs use of sizeof(struct ipv6hdr)
 
-#endif // HAVE_AF_PACKET
+#endif  // HAVE_AF_PACKET
 
 #ifdef WIN32
 
@@ -172,36 +174,36 @@ typedef bool _Bool;
 #ifdef _WIN32_WINNT
 #undef _WIN32_WINNT
 #endif
-    #define _WIN32_WINNT 0x0501 /* use (at least) WinXP API */
-    #define WIN32_LEAN_AND_MEAN /* exclude unnecesary headers */
-    #include <windows.h>
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #include <process.h>
+#define _WIN32_WINNT 0x0501 /* use (at least) WinXP API */
+#define WIN32_LEAN_AND_MEAN /* exclude unnecesary headers */
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <process.h>
 
 /* define EINTR, just to help compile; it isn't useful */
-    #ifndef EINTR
-        #define EINTR  WSAEINTR
-    #endif // EINTR
+#ifndef EINTR
+#define EINTR WSAEINTR
+#endif  // EINTR
 
 /* Visual C++ has INT64, but not 'long long'.
  * Metrowerks has 'long long', but INT64 doesn't work. */
-    #ifdef __MWERKS__
-        #define int64_t  long long
-    #else
-        #define int64_t  INT64
-    #endif // __MWERKS__
+#ifdef __MWERKS__
+#define int64_t long long
+#else
+#define int64_t INT64
+#endif  // __MWERKS__
 
 /* Visual C++ has _snprintf instead of snprintf */
-    #ifndef __MWERKS__
-        #define snprintf _snprintf
-    #endif // __MWERKS__
+#ifndef __MWERKS__
+#define snprintf _snprintf
+#endif  // __MWERKS__
 
 /* close, read, and write only work on files in Windows.
  * I get away with #defining them because I don't read files. */
-    #define close( s )       closesocket( s )
-    #define read( s, b, l )  recv( s, (char*) b, l, 0 )
-    #define write( s, b, l ) send( s, (char*) b, l, 0 )
+#define close(s) closesocket(s)
+#define read(s, b, l) recv(s, (char*)b, l, 0)
+#define write(s, b, l) send(s, (char*)b, l, 0)
 
 /* usleep is in unistd.h, but that would conflict with the
 close/read/write redefinitin above */
@@ -211,7 +213,7 @@ int usleep(useconds_t usec);
 
 /* used in Win32 for error checking,
  * rather than checking rc < 0 as unix usually does */
-#define SOCKET_ERROR   -1
+#define SOCKET_ERROR -1
 #define INVALID_SOCKET -1
 
 #include <unistd.h>
@@ -220,33 +222,33 @@ int usleep(useconds_t usec);
 
 /* required on AIX for FD_SET (requires bzero).
  * often this is the same as <string.h> */
-    #ifdef HAVE_STRINGS_H
-        #include <strings.h>
-    #endif // HAVE_STRINGS_H
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif  // HAVE_STRINGS_H
 
 /* unix headers */
 #ifdef HAVE_SYS_SOCKET_H
-    #include <sys/socket.h>
+#include <sys/socket.h>
 #endif
-    #include <sys/time.h>
+#include <sys/time.h>
 #ifdef HAVE_SIGNAL_H
-    #include <signal.h>
+#include <signal.h>
 #endif
 
 #ifdef HAVE_SYSLOG_H
 /** Added for daemonizing the process */
-    #include <syslog.h>
+#include <syslog.h>
 #endif
 
 #ifdef HAVE_NETDB_H
 SPECIAL_OSF1_EXTERN_C_START
-    #include <netdb.h>
+#include <netdb.h>
 SPECIAL_OSF1_EXTERN_C_STOP
 #endif
 #if HAVE_NETINET_IN_H
 #include <netinet/in.h>
 SPECIAL_OSF1_EXTERN_C_START
-    #include <arpa/inet.h>   /* netinet/in.h must be before this on SunOS */
+#include <arpa/inet.h> /* netinet/in.h must be before this on SunOS */
 SPECIAL_OSF1_EXTERN_C_STOP
 #endif
 #if HAVE_LINUX_TCP_H && HAVE_DECL_TCP_TX_DELAY
@@ -257,24 +259,24 @@ SPECIAL_OSF1_EXTERN_C_STOP
 
 #ifdef HAVE_POSIX_THREAD
 #include <pthread.h>
-#endif // HAVE_POSIX_THREAD
+#endif  // HAVE_POSIX_THREAD
 
 #ifndef INET6_ADDRSTRLEN
-    #define INET6_ADDRSTRLEN 40
+#define INET6_ADDRSTRLEN 40
 #endif
 #ifndef INET_ADDRSTRLEN
-    #define INET_ADDRSTRLEN 15
+#define INET_ADDRSTRLEN 15
 #endif
 
-//#ifdef __cplusplus
-    #if HAVE_IPV6
-        #define REPORT_ADDRLEN (INET6_ADDRSTRLEN + 1)
+// #ifdef __cplusplus
+#if HAVE_IPV6
+#define REPORT_ADDRLEN (INET6_ADDRSTRLEN + 1)
 typedef struct sockaddr_storage iperf_sockaddr;
-    #else
-        #define REPORT_ADDRLEN (INET_ADDRSTRLEN + 1)
+#else
+#define REPORT_ADDRLEN (INET_ADDRSTRLEN + 1)
 typedef struct sockaddr_in iperf_sockaddr;
-    #endif
-//#endif
+#endif
+// #endif
 
 // inttypes.h is already included
 
@@ -292,13 +294,13 @@ typedef struct sockaddr_in iperf_sockaddr;
 #include "snprintf.h"
 
 #ifndef SHUT_RD
-    #define SHUT_RD   0
-    #define SHUT_WR   1
-    #define SHUT_RDWR 2
-#endif // SHUT_RD
+#define SHUT_RD 0
+#define SHUT_WR 1
+#define SHUT_RDWR 2
+#endif  // SHUT_RD
 
 /* Internal debug */
-//#define INITIAL_PACKETID 0x7FFFFF00LL
-//#define SHOW_PACKETID
+// #define INITIAL_PACKETID 0x7FFFFF00LL
+// #define SHOW_PACKETID
 
 #endif /* HEADERS_H */

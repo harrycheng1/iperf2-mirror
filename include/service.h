@@ -62,30 +62,26 @@
 #ifndef _SERVICE_H
 #define _SERVICE_H
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 //////////////////////////////////////////////////////////////////////////////
 //// todo: change to desired strings
 ////
 // name of the executable
-#define SZAPPNAME            "IPerf"
+#define SZAPPNAME "IPerf"
 
 // internal name of the service
-#define SZSERVICENAME        "IPerfService"
+#define SZSERVICENAME "IPerfService"
 
 // displayed name of the service
 #define SZSERVICEDISPLAYNAME "IPerf Service"
 
 // list of service dependencies - "dep1\0dep2\0\0"
-#define SZDEPENDENCIES       ""
+#define SZDEPENDENCIES ""
 
 //////////////////////////////////////////////////////////////////////////////
-
-
 
 //////////////////////////////////////////////////////////////////////////////
 //// todo: ServiceStart()must be defined by in your code.
@@ -108,8 +104,8 @@ VOID WINAPI service_main(DWORD dwArgc, LPTSTR *lpszArgv);
 VOID CmdInstallService(int argc, char **argv);
 BOOL CmdRemoveService();
 BOOL CmdStartService(int argc, char **argv);
-LPTSTR GetLastErrorText( LPTSTR lpszBuf, DWORD dwSize );
-VOID ServiceStart (DWORD dwArgc, LPTSTR *lpszArgv);
+LPTSTR GetLastErrorText(LPTSTR lpszBuf, DWORD dwSize);
+VOID ServiceStart(DWORD dwArgc, LPTSTR *lpszArgv);
 VOID ServiceStop();
 
 //////////////////////////////////////////////////////////////////////////////
@@ -135,7 +131,6 @@ VOID ServiceStop();
 //
 BOOL ReportStatusToSCMgr(DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwWaitHint);
 
-
 //
 //  FUNCTION: AddToMessageLog(LPTSTR lpszMsg)
 //
@@ -150,10 +145,8 @@ BOOL ReportStatusToSCMgr(DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwWa
 void AddToMessageLog(LPTSTR lpszMsg);
 //////////////////////////////////////////////////////////////////////////////
 
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-

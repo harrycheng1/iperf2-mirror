@@ -43,13 +43,11 @@
 
 #include "service.h"
 
-
-
 // internal variables
-SERVICE_STATUS          ssStatus;       // current status of the service
-SERVICE_STATUS_HANDLE   sshStatusHandle;
-DWORD                   dwErr = 0;
-TCHAR                   szErr[256];
+SERVICE_STATUS ssStatus;  // current status of the service
+SERVICE_STATUS_HANDLE sshStatusHandle;
+DWORD dwErr = 0;
+TCHAR szErr[256];
 
 //
 //  FUNCTION: service_main
@@ -71,10 +69,9 @@ TCHAR                   szErr[256];
 void WINAPI service_main(DWORD dwArgc, LPTSTR *lpszArgv) {
     // register our service control handler:
     //
-    sshStatusHandle = RegisterServiceCtrlHandler( TEXT(SZSERVICENAME), service_ctrl);
+    sshStatusHandle = RegisterServiceCtrlHandler(TEXT(SZSERVICENAME), service_ctrl);
 
-    if ( !sshStatusHandle )
-        goto clean;
+    if (!sshStatusHandle) goto clean;
 
     // SERVICE_STATUS members that don't change in example
     //
@@ -83,29 +80,21 @@ void WINAPI service_main(DWORD dwArgc, LPTSTR *lpszArgv) {
 
     // report the status to the service control manager.
     //
-    if ( !ReportStatusToSCMgr(
-                             SERVICE_START_PENDING, // service state
-                             NO_ERROR,              // exit code
-                             3000) )                 // wait hint
+    if (!ReportStatusToSCMgr(SERVICE_START_PENDING,  // service state
+                             NO_ERROR,               // exit code
+                             3000))                  // wait hint
         goto clean;
 
+    ServiceStart(dwArgc, lpszArgv);
 
-    ServiceStart( dwArgc, lpszArgv );
-
-    clean:
+clean:
 
     // try to report the stopped status to the service control manager.
     //
-    if ( sshStatusHandle )
-        (VOID)ReportStatusToSCMgr(
-                                 SERVICE_STOPPED,
-                                 dwErr,
-                                 0);
+    if (sshStatusHandle) (VOID) ReportStatusToSCMgr(SERVICE_STOPPED, dwErr, 0);
 
     return;
 }
-
-
 
 //
 //  FUNCTION: service_ctrl
@@ -124,7 +113,7 @@ void WINAPI service_main(DWORD dwArgc, LPTSTR *lpszArgv) {
 VOID WINAPI service_ctrl(DWORD dwCtrlCode) {
     // Handle the requested control code.
     //
-    switch ( dwCtrlCode ) {
+    switch (dwCtrlCode) {
         // Stop the service.
         //
         // SERVICE_STOP_PENDING should be reported before
@@ -147,13 +136,10 @@ VOID WINAPI service_ctrl(DWORD dwCtrlCode) {
             //
         default:
             break;
-
     }
     ReportStatusToSCMgr(SERVICE_STOPPED, NO_ERROR, 0);
-//    ReportStatusToSCMgr(ssStatus.dwCurrentState, NO_ERROR, 0);
+    //    ReportStatusToSCMgr(ssStatus.dwCurrentState, NO_ERROR, 0);
 }
-
-
 
 //
 //  FUNCTION: ReportStatusToSCMgr()
@@ -172,14 +158,11 @@ VOID WINAPI service_ctrl(DWORD dwCtrlCode) {
 //
 //  COMMENTS:
 //
-BOOL ReportStatusToSCMgr(DWORD dwCurrentState,
-                         DWORD dwWin32ExitCode,
-                         DWORD dwWaitHint) {
+BOOL ReportStatusToSCMgr(DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwWaitHint) {
     static DWORD dwCheckPoint = 1;
     BOOL fResult = TRUE;
 
-
-    if ( dwCurrentState == SERVICE_START_PENDING )
+    if (dwCurrentState == SERVICE_START_PENDING)
         ssStatus.dwControlsAccepted = 0;
     else
         ssStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP;
@@ -188,22 +171,18 @@ BOOL ReportStatusToSCMgr(DWORD dwCurrentState,
     ssStatus.dwWin32ExitCode = dwWin32ExitCode;
     ssStatus.dwWaitHint = dwWaitHint;
 
-    if ( ( dwCurrentState == SERVICE_RUNNING ) ||
-         ( dwCurrentState == SERVICE_STOPPED ) )
+    if ((dwCurrentState == SERVICE_RUNNING) || (dwCurrentState == SERVICE_STOPPED))
         ssStatus.dwCheckPoint = 0;
     else
         ssStatus.dwCheckPoint = dwCheckPoint++;
 
-
     // Report the status of the service to the service control manager.
     //
-    if ( !(fResult = SetServiceStatus( sshStatusHandle, &ssStatus)) ) {
+    if (!(fResult = SetServiceStatus(sshStatusHandle, &ssStatus))) {
         AddToMessageLog(TEXT("SetServiceStatus"));
     }
     return fResult;
 }
-
-
 
 //
 //  FUNCTION: AddToMessageLog(LPTSTR lpszMsg)
@@ -219,10 +198,9 @@ BOOL ReportStatusToSCMgr(DWORD dwCurrentState,
 //  COMMENTS:
 //
 VOID AddToMessageLog(LPTSTR lpszMsg) {
-    TCHAR   szMsg[256];
-    HANDLE  hEventSource;
+    TCHAR szMsg[256];
+    HANDLE hEventSource;
     LPCTSTR lpszStrings[2];
-
 
     dwErr = GetLastError();
 
@@ -236,8 +214,8 @@ VOID AddToMessageLog(LPTSTR lpszMsg) {
     lpszStrings[0] = szMsg;
     lpszStrings[1] = lpszMsg;
 
-    if ( hEventSource != NULL ) {
-        ReportEvent(hEventSource, // handle of event source
+    if (hEventSource != NULL) {
+        ReportEvent(hEventSource,         // handle of event source
                     EVENTLOG_ERROR_TYPE,  // event type
                     0,                    // event category
                     0,                    // event ID
@@ -250,9 +228,6 @@ VOID AddToMessageLog(LPTSTR lpszMsg) {
         (VOID) DeregisterEventSource(hEventSource);
     }
 }
-
-
-
 
 ///////////////////////////////////////////////////////////////////
 //
@@ -273,51 +248,48 @@ VOID AddToMessageLog(LPTSTR lpszMsg) {
 //  COMMENTS:
 //
 void CmdInstallService(int argc, char **argv) {
-    SC_HANDLE   schService;
-    SC_HANDLE   schSCManager;
+    SC_HANDLE schService;
+    SC_HANDLE schSCManager;
 
     TCHAR szPath[512];
 
-    if ( GetModuleFileName( NULL, szPath, 512 ) == 0 ) {
-        _tprintf(TEXT("Unable to install %s - %s\n"), TEXT(SZSERVICEDISPLAYNAME), GetLastErrorText(szErr, 256));
+    if (GetModuleFileName(NULL, szPath, 512) == 0) {
+        _tprintf(TEXT("Unable to install %s - %s\n"), TEXT(SZSERVICEDISPLAYNAME),
+                 GetLastErrorText(szErr, 256));
         return;
     }
 
-    schSCManager = OpenSCManager(
-                                NULL,                   // machine (NULL == local)
-                                NULL,                   // database (NULL == default)
-                                SC_MANAGER_ALL_ACCESS   // access required
-                                );
-    if ( schSCManager ) {
+    schSCManager = OpenSCManager(NULL,                  // machine (NULL == local)
+                                 NULL,                  // database (NULL == default)
+                                 SC_MANAGER_ALL_ACCESS  // access required
+    );
+    if (schSCManager) {
         schService = OpenService(schSCManager, TEXT(SZSERVICENAME), SERVICE_ALL_ACCESS);
-        if ( !schService ) {
-            schService = CreateService(
-                                      schSCManager,               // SCManager database
-                                      TEXT(SZSERVICENAME),        // name of service
-                                      TEXT(SZSERVICEDISPLAYNAME), // name to display
-                                      SERVICE_ALL_ACCESS,         // desired access
-                                      SERVICE_WIN32_OWN_PROCESS,  // service type
-                                      SERVICE_DEMAND_START,       // start type
-                                      SERVICE_ERROR_NORMAL,       // error control type
-                                      szPath,                     // service's binary
-                                      NULL,                       // no load ordering group
-                                      NULL,                       // no tag identifier
-                                      TEXT(SZDEPENDENCIES),       // dependencies
-                                      NULL,                       // LocalSystem account
-                                      NULL);                      // no password
+        if (!schService) {
+            schService = CreateService(schSCManager,                // SCManager database
+                                       TEXT(SZSERVICENAME),         // name of service
+                                       TEXT(SZSERVICEDISPLAYNAME),  // name to display
+                                       SERVICE_ALL_ACCESS,          // desired access
+                                       SERVICE_WIN32_OWN_PROCESS,   // service type
+                                       SERVICE_DEMAND_START,        // start type
+                                       SERVICE_ERROR_NORMAL,        // error control type
+                                       szPath,                      // service's binary
+                                       NULL,                        // no load ordering group
+                                       NULL,                        // no tag identifier
+                                       TEXT(SZDEPENDENCIES),        // dependencies
+                                       NULL,                        // LocalSystem account
+                                       NULL);                       // no password
         } else {
-            _tprintf(TEXT("%s already installed.\n"), TEXT(SZSERVICEDISPLAYNAME) );
+            _tprintf(TEXT("%s already installed.\n"), TEXT(SZSERVICEDISPLAYNAME));
         }
-        if ( schService ) {
-            if ( QueryServiceStatus( schService, &ssStatus ) ) {
+        if (schService) {
+            if (QueryServiceStatus(schService, &ssStatus)) {
                 int rc = 0;
-                if ( ssStatus.dwCurrentState == SERVICE_STOPPED ) {
-		    rc = StartService(schService, argc-1, (LPCTSTR*)argv+1);
+                if (ssStatus.dwCurrentState == SERVICE_STOPPED) {
+                    rc = StartService(schService, argc - 1, (LPCTSTR *)argv + 1);
                 }
 
-
-                if ( rc != 0 )
-                    _tprintf(TEXT("%s started.\n"), TEXT(SZSERVICEDISPLAYNAME) );
+                if (rc != 0) _tprintf(TEXT("%s started.\n"), TEXT(SZSERVICEDISPLAYNAME));
             }
 
             CloseServiceHandle(schService);
@@ -327,12 +299,8 @@ void CmdInstallService(int argc, char **argv) {
 
         CloseServiceHandle(schSCManager);
     } else
-        _tprintf(TEXT("OpenSCManager failed - %s\n"), GetLastErrorText(szErr,256));
-
-
+        _tprintf(TEXT("OpenSCManager failed - %s\n"), GetLastErrorText(szErr, 256));
 }
-
-
 
 //
 //  FUNCTION: CmdRemoveService()
@@ -350,52 +318,49 @@ void CmdInstallService(int argc, char **argv) {
 //
 BOOL CmdRemoveService() {
     BOOL isExist = FALSE;
-    SC_HANDLE   schService;
-    SC_HANDLE   schSCManager;
+    SC_HANDLE schService;
+    SC_HANDLE schSCManager;
 
-    schSCManager = OpenSCManager(
-                                NULL,                   // machine (NULL == local)
-                                NULL,                   // database (NULL == default)
-                                SC_MANAGER_ALL_ACCESS   // access required
-                                );
-    if ( schSCManager ) {
+    schSCManager = OpenSCManager(NULL,                  // machine (NULL == local)
+                                 NULL,                  // database (NULL == default)
+                                 SC_MANAGER_ALL_ACCESS  // access required
+    );
+    if (schSCManager) {
         schService = OpenService(schSCManager, TEXT(SZSERVICENAME), SERVICE_ALL_ACCESS);
 
-        if ( schService ) {
+        if (schService) {
             isExist = TRUE;
             // try to stop the service
-            if ( ControlService( schService, SERVICE_CONTROL_STOP, &ssStatus ) ) {
+            if (ControlService(schService, SERVICE_CONTROL_STOP, &ssStatus)) {
                 _tprintf(TEXT("Stopping %s."), TEXT(SZSERVICEDISPLAYNAME));
-                Sleep( 1000 );
+                Sleep(1000);
 
-                while ( QueryServiceStatus( schService, &ssStatus ) ) {
-                    if ( ssStatus.dwCurrentState == SERVICE_STOP_PENDING ) {
+                while (QueryServiceStatus(schService, &ssStatus)) {
+                    if (ssStatus.dwCurrentState == SERVICE_STOP_PENDING) {
                         _tprintf(TEXT("."));
-                        Sleep( 1000 );
+                        Sleep(1000);
                     } else
                         break;
                 }
 
-                if ( ssStatus.dwCurrentState == SERVICE_STOPPED )
-                    _tprintf(TEXT("\n%s stopped.\n"), TEXT(SZSERVICEDISPLAYNAME) );
+                if (ssStatus.dwCurrentState == SERVICE_STOPPED)
+                    _tprintf(TEXT("\n%s stopped.\n"), TEXT(SZSERVICEDISPLAYNAME));
                 else
-                    _tprintf(TEXT("\n%s failed to stop.\n"), TEXT(SZSERVICEDISPLAYNAME) );
-
+                    _tprintf(TEXT("\n%s failed to stop.\n"), TEXT(SZSERVICEDISPLAYNAME));
             }
 
             // now remove the service
-            if ( DeleteService(schService) )
-                _tprintf(TEXT("%s removed.\n"), TEXT(SZSERVICEDISPLAYNAME) );
+            if (DeleteService(schService))
+                _tprintf(TEXT("%s removed.\n"), TEXT(SZSERVICEDISPLAYNAME));
             else
-                _tprintf(TEXT("DeleteService failed - %s\n"), GetLastErrorText(szErr,256));
-
+                _tprintf(TEXT("DeleteService failed - %s\n"), GetLastErrorText(szErr, 256));
 
             CloseServiceHandle(schService);
         }
 
         CloseServiceHandle(schSCManager);
     } else
-        _tprintf(TEXT("OpenSCManager failed - %s\n"), GetLastErrorText(szErr,256));
+        _tprintf(TEXT("OpenSCManager failed - %s\n"), GetLastErrorText(szErr, 256));
 
     return isExist;
 }
@@ -417,40 +382,34 @@ BOOL CmdRemoveService() {
 //
 BOOL CmdStartService(int argc, char **argv) {
     BOOL isExist = FALSE;
-    SC_HANDLE   schService;
-    SC_HANDLE   schSCManager;
+    SC_HANDLE schService;
+    SC_HANDLE schSCManager;
 
-    schSCManager = OpenSCManager(
-                                NULL,                   // machine (NULL == local)
-                                NULL,                   // database (NULL == default)
-                                SC_MANAGER_ALL_ACCESS   // access required
-                                );
-    if ( schSCManager ) {
+    schSCManager = OpenSCManager(NULL,                  // machine (NULL == local)
+                                 NULL,                  // database (NULL == default)
+                                 SC_MANAGER_ALL_ACCESS  // access required
+    );
+    if (schSCManager) {
         schService = OpenService(schSCManager, TEXT(SZSERVICENAME), SERVICE_ALL_ACCESS);
 
-        if ( schService ) {
+        if (schService) {
             isExist = TRUE;
-            if ( QueryServiceStatus( schService, &ssStatus ) ) {
+            if (QueryServiceStatus(schService, &ssStatus)) {
                 int rc = 0;
-                if ( ssStatus.dwCurrentState == SERVICE_STOPPED ) {
-		    rc = StartService(schService, argc-1, (LPCTSTR*)argv+1);
+                if (ssStatus.dwCurrentState == SERVICE_STOPPED) {
+                    rc = StartService(schService, argc - 1, (LPCTSTR *)argv + 1);
                 }
 
-
-                if ( rc != 0 )
-                    _tprintf(TEXT("%s started.\n"), TEXT(SZSERVICEDISPLAYNAME) );
+                if (rc != 0) _tprintf(TEXT("%s started.\n"), TEXT(SZSERVICEDISPLAYNAME));
             }
             CloseServiceHandle(schService);
         }
         CloseServiceHandle(schSCManager);
     } else
-        _tprintf(TEXT("OpenSCManager failed - %s\n"), GetLastErrorText(szErr,256));
+        _tprintf(TEXT("OpenSCManager failed - %s\n"), GetLastErrorText(szErr, 256));
 
     return isExist;
 }
-
-
-
 
 //
 //  FUNCTION: GetLastErrorText
@@ -466,33 +425,25 @@ BOOL CmdStartService(int argc, char **argv) {
 //
 //  COMMENTS:
 //
-LPTSTR GetLastErrorText( LPTSTR lpszBuf, DWORD dwSize ) {
+LPTSTR GetLastErrorText(LPTSTR lpszBuf, DWORD dwSize) {
     DWORD dwRet;
     LPTSTR lpszTemp = NULL;
 
-    dwRet = FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |FORMAT_MESSAGE_ARGUMENT_ARRAY,
-                           NULL,
-                           GetLastError(),
-                           LANG_NEUTRAL,
-                           (LPTSTR)&lpszTemp,
-                           0,
-                           NULL );
+    dwRet = FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
+        NULL, GetLastError(), LANG_NEUTRAL, (LPTSTR)&lpszTemp, 0, NULL);
 
     // supplied buffer is not long enough
-    if ( !dwRet || ( (long)dwSize < (long)dwRet+14 ) )
+    if (!dwRet || ((long)dwSize < (long)dwRet + 14))
         lpszBuf[0] = TEXT('\0');
     else {
-        lpszTemp[lstrlen(lpszTemp)-2] = TEXT('\0');  //remove cr and newline character
-        _stprintf( lpszBuf, TEXT("%s (0x%x)"), lpszTemp, (unsigned int)GetLastError() );
+        lpszTemp[lstrlen(lpszTemp) - 2] = TEXT('\0');  // remove cr and newline character
+        _stprintf(lpszBuf, TEXT("%s (0x%x)"), lpszTemp, (unsigned int)GetLastError());
     }
 
-    if ( lpszTemp )
-        LocalFree((HLOCAL) lpszTemp );
+    if (lpszTemp) LocalFree((HLOCAL)lpszTemp);
 
     return lpszBuf;
 }
 
 #endif
-
-
-

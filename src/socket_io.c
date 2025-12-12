@@ -68,8 +68,8 @@ extern "C" {
  *
  * from Stevens, 1998, section 3.9
  * ------------------------------------------------------------------- */
-ssize_t readn (int inSock, void *outBuf, size_t inLen) {
-    size_t  nleft;
+ssize_t readn(int inSock, void *outBuf, size_t inLen) {
+    size_t nleft;
     ssize_t nread;
     char *ptr;
 
@@ -77,24 +77,24 @@ ssize_t readn (int inSock, void *outBuf, size_t inLen) {
     assert(outBuf != NULL);
     assert(inLen > 0);
 
-    ptr   = (char*) outBuf;
+    ptr = (char *)outBuf;
     nleft = inLen;
 
     while (nleft > 0) {
         nread = read(inSock, ptr, nleft);
         if (nread < 0) {
             if (errno == EINTR)
-                nread = 0;  /* interupted, call read again */
+                nread = 0; /* interupted, call read again */
             else
-                return SOCKET_ERROR;  /* error */
+                return SOCKET_ERROR; /* error */
         } else if (nread == 0)
-            break;        /* EOF */
+            break; /* EOF */
 
         nleft -= nread;
-        ptr   += nread;
+        ptr += nread;
     }
 
-    return(inLen - nleft);
+    return (inLen - nleft);
 } /* end readn */
 
 /* -------------------------------------------------------------------
@@ -103,8 +103,8 @@ ssize_t readn (int inSock, void *outBuf, size_t inLen) {
  * If number read < inLen then we reached EOF.
  * from Stevens, 1998, section 3.9
  * ------------------------------------------------------------------- */
-int recvn (int inSock, char *outBuf, int inLen, int flags) {
-    int  nleft;
+int recvn(int inSock, char *outBuf, int inLen, int flags) {
+    int nleft;
     int nread = 0;
     char *ptr;
 
@@ -112,95 +112,96 @@ int recvn (int inSock, char *outBuf, int inLen, int flags) {
     assert(outBuf != NULL);
     assert(inLen > 0);
 
-    ptr   = outBuf;
+    ptr = outBuf;
     nleft = inLen;
 #if (HAVE_DECL_MSG_PEEK)
     if (flags & MSG_PEEK) {
-	while ((nleft != nread) && !sInterupted) {
-	    nread = recv(inSock, ptr, nleft, flags);
-	    switch (nread) {
-	    case SOCKET_ERROR :
-		// Note: use TCP fatal error codes even for UDP
-		if (FATALTCPREADERR(errno)) {
-		    WARN_errno(1, "recvn peek");
-		    nread = SOCKET_ERROR;
-		    sInterupted = 1;
-		    goto DONE;
-		}
+        while ((nleft != nread) && !sInterupted) {
+            nread = recv(inSock, ptr, nleft, flags);
+            switch (nread) {
+                case SOCKET_ERROR:
+                    // Note: use TCP fatal error codes even for UDP
+                    if (FATALTCPREADERR(errno)) {
+                        WARN_errno(1, "recvn peek");
+                        nread = SOCKET_ERROR;
+                        sInterupted = 1;
+                        goto DONE;
+                    }
 #ifdef HAVE_THREAD_DEBUG
-		WARN_errno(1, "recvn peek non-fatal");
+                    WARN_errno(1, "recvn peek non-fatal");
 #endif
-		break;
-	    case 0:
-		WARN(1, "recvn peek checking connection status");
+                    break;
+                case 0:
+                    WARN(1, "recvn peek checking connection status");
 
 #ifdef MSG_DONTWAIT
-		    // Distinguish between no data available vs connection closed
-		    {
-			char test_byte;
-			int test_recv = recv(inSock, &test_byte, 1, MSG_DONTWAIT);
-			if (test_recv == 0) {
-			    // Definitely closed - peer performed orderly shutdown
+                    // Distinguish between no data available vs connection closed
+                    {
+                        char test_byte;
+                        int test_recv = recv(inSock, &test_byte, 1, MSG_DONTWAIT);
+                        if (test_recv == 0) {
+                            // Definitely closed - peer performed orderly shutdown
 #ifdef HAVE_THREAD_DEBUG
-			    WARN(1, "recvn peek peer close confirmed");
+                            WARN(1, "recvn peek peer close confirmed");
 #endif
-			    goto DONE;
-			} else if (test_recv < 0 && (errno == EWOULDBLOCK || errno == EAGAIN)) {
-			    // Just no data available, connection still open, continue waiting for data
-			    break;
-			}
-			// For other errors, fall through to peer close
-		    }
+                            goto DONE;
+                        } else if (test_recv < 0 && (errno == EWOULDBLOCK || errno == EAGAIN)) {
+                            // Just no data available, connection still open, continue waiting for
+                            // data
+                            break;
+                        }
+                        // For other errors, fall through to peer close
+                    }
 #else
-		goto DONE;
+                    goto DONE;
 #endif
-		break;
-	    default :
-		break;
-	    }
-	}
+                    break;
+                default:
+                    break;
+            }
+        }
     } else
 #endif
-	{
-	    while ((nleft > 0) && !sInterupted) {
+    {
+        while ((nleft > 0) && !sInterupted) {
 #if (HAVE_DECL_MSG_WAITALL)
-		nread = recv(inSock, ptr, nleft, MSG_WAITALL);
+            nread = recv(inSock, ptr, nleft, MSG_WAITALL);
 #else
-		nread = recv(inSock, ptr, nleft, 0);
+            nread = recv(inSock, ptr, nleft, 0);
 #endif
-		switch (nread) {
-		case SOCKET_ERROR :
-		    // Note: use TCP fatal error codes even for UDP
-		    if (FATALTCPREADERR(errno)) {
-			WARN_errno(1, "recvn");
-			nread = SOCKET_ERROR;
-			sInterupted = 1;
-			goto DONE;
-		    } else {
-			nread = IPERF_SOCKET_ERROR_NONFATAL;
-			goto DONE;
-		    }
+            switch (nread) {
+                case SOCKET_ERROR:
+                    // Note: use TCP fatal error codes even for UDP
+                    if (FATALTCPREADERR(errno)) {
+                        WARN_errno(1, "recvn");
+                        nread = SOCKET_ERROR;
+                        sInterupted = 1;
+                        goto DONE;
+                    } else {
+                        nread = IPERF_SOCKET_ERROR_NONFATAL;
+                        goto DONE;
+                    }
 #ifdef HAVE_THREAD_DEBUG
-		    WARN_errno(1, "recvn non-fatal");
+                    WARN_errno(1, "recvn non-fatal");
 #endif
-		    break;
-		case 0:
+                    break;
+                case 0:
 #ifdef HAVE_THREAD_DEBUG
-		    WARN(1, "recvn peer close");
+                    WARN(1, "recvn peer close");
 #endif
-		    nread = inLen - nleft;
-		    goto DONE;
-		    break;
-		default :
-		    nleft -= nread;
-		    ptr   += nread;
-		    break;
-		}
-		nread = inLen - nleft;
-	    }
-	}
-  DONE:
-    return(nread);
+                    nread = inLen - nleft;
+                    goto DONE;
+                    break;
+                default:
+                    nleft -= nread;
+                    ptr += nread;
+                    break;
+            }
+            nread = inLen - nleft;
+        }
+    }
+DONE:
+    return (nread);
 } /* end recvn */
 
 /* -------------------------------------------------------------------
@@ -211,7 +212,7 @@ int recvn (int inSock, char *outBuf, int inLen, int flags) {
  * from Stevens, 1998, section 3.9
  * ------------------------------------------------------------------- */
 
-int writen (int inSock, const void *inBuf, int inLen, int *count) {
+int writen(int inSock, const void *inBuf, int inLen, int *count) {
     int nleft;
     int nwritten;
     const char *ptr;
@@ -221,34 +222,34 @@ int writen (int inSock, const void *inBuf, int inLen, int *count) {
     assert(inLen > 0);
     assert(count != NULL);
 
-    ptr   = (char*) inBuf;
+    ptr = (char *)inBuf;
     nleft = inLen;
     nwritten = 0;
 
     while ((nleft > 0) && !sInterupted) {
         nwritten = write(inSock, ptr, nleft);
-	(*count)++;
-	switch (nwritten) {
-	case SOCKET_ERROR :
-	    // check for a fatal error vs an error that should retry
-	    if ((errno != EINTR) && (errno != EAGAIN) && (errno != EWOULDBLOCK)) {
-		nwritten = inLen - nleft;
-		fprintf(stdout, "FAIL: writen errno = %d (bytes=%d)\n", errno, nwritten);
-//		sInterupted = 1;
-		goto DONE;
-	    }
-	    break;
-	case 0:
-	    // write timeout - retry
-	    break;
-	default :
-	    nleft -= nwritten;
-	    ptr   += nwritten;
-	    break;
-	}
-	nwritten = inLen - nleft;
+        (*count)++;
+        switch (nwritten) {
+            case SOCKET_ERROR:
+                // check for a fatal error vs an error that should retry
+                if ((errno != EINTR) && (errno != EAGAIN) && (errno != EWOULDBLOCK)) {
+                    nwritten = inLen - nleft;
+                    fprintf(stdout, "FAIL: writen errno = %d (bytes=%d)\n", errno, nwritten);
+                    //		sInterupted = 1;
+                    goto DONE;
+                }
+                break;
+            case 0:
+                // write timeout - retry
+                break;
+            default:
+                nleft -= nwritten;
+                ptr += nwritten;
+                break;
+        }
+        nwritten = inLen - nleft;
     }
-  DONE:
+DONE:
     return (nwritten);
 } /* end writen */
 
@@ -274,7 +275,7 @@ int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_
     assert(tos_value >= -1 && tos_value <= 255);
 
     /* Set up iovec */
-    iov.iov_base = (void*)inBuf;
+    iov.iov_base = (void *)inBuf;
     iov.iov_len = inLen;
 
     /* Set up message header */
@@ -291,10 +292,10 @@ int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_
     /* Add SO_TXTIME control message if delay requested */
     if (delay_ns > 0) {
         /* Get current time */
-	if (clock_gettime(CLOCK_MONOTONIC, &now) != 0) {
-	    WARN_errno(1, "writemsg_delay clock_gettime failed");
-	    return -1;
-	}
+        if (clock_gettime(CLOCK_MONOTONIC, &now) != 0) {
+            WARN_errno(1, "writemsg_delay clock_gettime failed");
+            return -1;
+        }
 
         /* Calculate transmit time */
         txtime = (uint64_t)now.tv_sec * 1000000000ULL + now.tv_nsec + delay_ns;
@@ -307,25 +308,25 @@ int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_
         cmsg->cmsg_level = SOL_SOCKET;
         cmsg->cmsg_type = SCM_TXTIME;
         cmsg->cmsg_len = CMSG_LEN(sizeof(uint64_t));
-        *((uint64_t*)CMSG_DATA(cmsg)) = txtime;
+        *((uint64_t *)CMSG_DATA(cmsg)) = txtime;
         cmsg = CMSG_NXTHDR(&msg, cmsg);
     }
     /* Add IP_TOS control message if TOS value specified */
     if (tos_value >= 0) {
-	if (cmsg == NULL) {
-	    WARN(1, "writemsg_delay insufficient control buffer space for TOS");
-	    return -1;
-	}
+        if (cmsg == NULL) {
+            WARN(1, "writemsg_delay insufficient control buffer space for TOS");
+            return -1;
+        }
 
-	cmsg->cmsg_level = IPPROTO_IP;
-	cmsg->cmsg_type = IP_TOS;
-	cmsg->cmsg_len = CMSG_LEN(sizeof(int));
-	*((int*)CMSG_DATA(cmsg)) = tos_value;
-	cmsg = CMSG_NXTHDR(&msg, cmsg);
+        cmsg->cmsg_level = IPPROTO_IP;
+        cmsg->cmsg_type = IP_TOS;
+        cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+        *((int *)CMSG_DATA(cmsg)) = tos_value;
+        cmsg = CMSG_NXTHDR(&msg, cmsg);
     }
     /* Calculate actual control length used */
     if (cmsg != NULL) {
-        msg.msg_controllen = (char*)cmsg - (char*)control;
+        msg.msg_controllen = (char *)cmsg - (char *)control;
     } else {
         /* Calculate based on what we added */
         msg.msg_controllen = 0;
@@ -336,16 +337,16 @@ int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_
     /* Send the message */
     result = sendmsg(inSock, &msg, 0);
     if (result < 0) {
-	if (errno == EINVAL) {
-	    WARN(1, "writemsg_delay: control message not configured on socket");
-	} else if (errno == ENOTSUP) {
-	    WARN(1, "writemsg_delay: control message not supported by kernel/driver");
-	} else if (errno == EPERM) {
-	    WARN(1, "writemsg_delay: permission denied (may need CAP_NET_ADMIN for some options)");
-	} else {
-	    WARN_errno(1, "writemsg_delay sendmsg failed");
-	}
-	return -1;
+        if (errno == EINVAL) {
+            WARN(1, "writemsg_delay: control message not configured on socket");
+        } else if (errno == ENOTSUP) {
+            WARN(1, "writemsg_delay: control message not supported by kernel/driver");
+        } else if (errno == EPERM) {
+            WARN(1, "writemsg_delay: permission denied (may need CAP_NET_ADMIN for some options)");
+        } else {
+            WARN_errno(1, "writemsg_delay sendmsg failed");
+        }
+        return -1;
     }
     return result;
 } /* end writemsg_delay */

@@ -51,7 +51,7 @@
  * Implements the Polar form of the Box-Muller Transformation
  *
  *
-*/
+ */
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -73,18 +73,18 @@
 #ifdef HAVE_CLOCK_GETTIME
 static double timespec_diff(struct timespec tv1, struct timespec tv0);
 #else
-static double timeval_diff (struct timeval tv1, struct timeval tv0);
+static double timeval_diff(struct timeval tv1, struct timeval tv0);
 #endif
 
-int main (int argc, char **argv) {
+int main(int argc, char **argv) {
     int c, i;
     int minbin = MAXBINS;
     int maxbin = 0;
-    int bincount=MAXBINS;
+    int bincount = MAXBINS;
     time_t t;
     int histogram[MAXBINS];
-    float mean=100.0;
-    float variance=30.0;
+    float mean = 100.0;
+    float variance = 30.0;
     int count = 10000;
     int gaussian = TRUE;
     int printout = FALSE;
@@ -92,51 +92,52 @@ int main (int argc, char **argv) {
     int exectime;
     int random = FALSE;
     double total;
-    double binwidth=1.0;
+    double binwidth = 1.0;
 
-    while ((c=getopt(argc, argv, "b:c:lm:prsv:w:")) != -1)
-	switch (c) {
-	case 'b':
-	    bincount = atoi(optarg);
-	    break;
-	case 'c':
-	    count = atoi(optarg);
-	    break;
-	case 'l':
-	    gaussian = FALSE;
-	    break;
-	case 'm':
-	    mean = bitorbyte_atof(optarg);
-	    break;
-	case 'p':
-	    printout = TRUE;
-	    break;
-	case 'r':
-	    random = TRUE;
-	    break;
-	case 's':
-	    speedonly = TRUE;
-	    break;
-	case 'v':
-	    variance = bitorbyte_atof(optarg);
-	    break;
-	case 'w':
-	    binwidth = bitorbyte_atof(optarg);
-	    break;
-	case '?':
-	default:
-	    fprintf(stderr,"Usage -b bins, -c count, -l log normal, -m mean, -p print, -s speed only, -v variance");
-	    exit(-1);
-	}
+    while ((c = getopt(argc, argv, "b:c:lm:prsv:w:")) != -1) switch (c) {
+            case 'b':
+                bincount = atoi(optarg);
+                break;
+            case 'c':
+                count = atoi(optarg);
+                break;
+            case 'l':
+                gaussian = FALSE;
+                break;
+            case 'm':
+                mean = bitorbyte_atof(optarg);
+                break;
+            case 'p':
+                printout = TRUE;
+                break;
+            case 'r':
+                random = TRUE;
+                break;
+            case 's':
+                speedonly = TRUE;
+                break;
+            case 'v':
+                variance = bitorbyte_atof(optarg);
+                break;
+            case 'w':
+                binwidth = bitorbyte_atof(optarg);
+                break;
+            case '?':
+            default:
+                fprintf(stderr,
+                        "Usage -b bins, -c count, -l log normal, -m mean, -p print, -s speed only, "
+                        "-v variance");
+                exit(-1);
+        }
     if (bincount > MAXBINS) {
-	int max = MAXBINS;
-	fprintf(stderr, "Maximum number of bins is %d while %d requested\n", max, bincount);
-	abort();
+        int max = MAXBINS;
+        fprintf(stderr, "Maximum number of bins is %d while %d requested\n", max, bincount);
+        abort();
     }
     /* Intializes random number generator */
     if (random) {
-	srand((unsigned) time(&t));
-	printf("seed = %ld\n", t);
+        srand((unsigned)time(&t));
+        printf("seed = %ld\n", t);
     }
     memset(histogram, 0, sizeof(histogram));
 #ifdef HAVE_CLOCK_GETTIME
@@ -144,34 +145,30 @@ int main (int argc, char **argv) {
     clock_gettime(CLOCK_REALTIME, &t1);
 #else
     struct timeval t1;
-    gettimeofday( &t1, NULL );
+    gettimeofday(&t1, NULL);
 #endif
     if (gaussian) {
-	for( i = 0 ; i < count ; i++ )  {
-	    int result = round(normal(mean,variance)/binwidth);
-	    if (!speedonly) {
-		if (result >= 0 && result < (MAXBINS - 1)) {
-		    histogram[result]++;
-		    if (result < minbin)
-			minbin = result;
-		    if (result > maxbin)
-			maxbin = result;
-		}
-	    }
-	}
+        for (i = 0; i < count; i++) {
+            int result = round(normal(mean, variance) / binwidth);
+            if (!speedonly) {
+                if (result >= 0 && result < (MAXBINS - 1)) {
+                    histogram[result]++;
+                    if (result < minbin) minbin = result;
+                    if (result > maxbin) maxbin = result;
+                }
+            }
+        }
     } else {
-	for( i = 0 ; i < count ; i++ )  {
-	    int result = round(lognormal(mean,variance)/binwidth);
-	    if (!speedonly) {
-		if (result >= 0 && result < (MAXBINS - 1)) {
-		    histogram[result]++;
-		    if (result < minbin)
-			minbin = result;
-		    if (result > maxbin)
-			maxbin = result;
-		}
-	    }
-	}
+        for (i = 0; i < count; i++) {
+            int result = round(lognormal(mean, variance) / binwidth);
+            if (!speedonly) {
+                if (result >= 0 && result < (MAXBINS - 1)) {
+                    histogram[result]++;
+                    if (result < minbin) minbin = result;
+                    if (result > maxbin) maxbin = result;
+                }
+            }
+        }
     }
 #ifdef HAVE_CLOCK_GETTIME
     struct timespec t2;
@@ -179,39 +176,39 @@ int main (int argc, char **argv) {
     total = timespec_diff(t2, t1);
 #else
     struct timeval t2;
-    gettimeofday( &t2, NULL );
+    gettimeofday(&t2, NULL);
     total = timeval_diff(t2, t1);
 #endif
     if (printout) {
-	for( i = minbin ; i <= maxbin ; i++ )
-	    printf("%.0f %d\n", i * binwidth, histogram[i]);
+        for (i = minbin; i <= maxbin; i++) printf("%.0f %d\n", i * binwidth, histogram[i]);
     }
     exectime = round(1e9 * total / count);
     if (!printout) {
-	printf("Total time=%f secs, count= %d, average generate time of %d nanoseconds\n", total, count, exectime);
+        printf("Total time=%f secs, count= %d, average generate time of %d nanoseconds\n", total,
+               count, exectime);
     }
-    return(0);
+    return (0);
 }
 #ifdef HAVE_CLOCK_GETTIME
 // tv1 assumed greater than tv0
-static double timespec_diff (struct timespec tv1, struct timespec tv0) {
+static double timespec_diff(struct timespec tv1, struct timespec tv0) {
     double result;
     if (tv1.tv_nsec < tv0.tv_nsec) {
-	tv1.tv_nsec += BILLION;
-	tv1.tv_sec--;
+        tv1.tv_nsec += BILLION;
+        tv1.tv_sec--;
     }
-    result = (double) (((tv1.tv_sec - tv0.tv_sec) * BILLION) + (tv1.tv_nsec - tv0.tv_nsec));
+    result = (double)(((tv1.tv_sec - tv0.tv_sec) * BILLION) + (tv1.tv_nsec - tv0.tv_nsec));
     return (result / 1e9);
 }
 #else
 // tv1 assumed greater than tv0
-static double timeval_diff (struct timeval tv1, struct timeval tv0) {
+static double timeval_diff(struct timeval tv1, struct timeval tv0) {
     double result;
     if (tv1.tv_usec < tv0.tv_usec) {
-	tv1.tv_usec += MILLION;
-	tv1.tv_sec--;
+        tv1.tv_usec += MILLION;
+        tv1.tv_sec--;
     }
-    result = (double) (((tv1.tv_sec - tv0.tv_sec) * MILLION) + (tv1.tv_usec - tv0.tv_usec));
+    result = (double)(((tv1.tv_sec - tv0.tv_sec) * MILLION) + (tv1.tv_usec - tv0.tv_usec));
     return (result / 1e6);
 }
 #endif

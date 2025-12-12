@@ -61,16 +61,14 @@
 #endif
 #endif
 
-
-
 #define BILLION 1000000000
 #define MILLION 1000000
 
-int main (int argc, char **argv) {
-    double sum=0;
+int main(int argc, char **argv) {
+    double sum = 0;
     double time1, time2;
-    double delta, max=0, min=-1;
-    int ix, delay=1,loopcount=1000;
+    double delta, max = 0, min = -1;
+    int ix, delay = 1, loopcount = 1000;
     int c;
     int clockgettime = 0, kalman = 0;
 #if HAVE_DECL_CPU_SET
@@ -86,43 +84,43 @@ int main (int argc, char **argv) {
     struct timeval t1;
 #endif
 
-    while ((c=getopt(argc, argv, "a:bkd:i:r")) != -1)
-	switch (c) {
-	case 'b':
-	    clockgettime = 1;
-	    break;
-	case 'k':
-	    kalman = 1;
-	    break;
-	case 'd':
-	    delay = atoi(optarg);
-	    break;
-	case 'i':
-	    loopcount = atoi(optarg);
-	    break;
+    while ((c = getopt(argc, argv, "a:bkd:i:r")) != -1) switch (c) {
+            case 'b':
+                clockgettime = 1;
+                break;
+            case 'k':
+                kalman = 1;
+                break;
+            case 'd':
+                delay = atoi(optarg);
+                break;
+            case 'i':
+                loopcount = atoi(optarg);
+                break;
 #if HAVE_DECL_CPU_SET
-	case 'a':
-	    affinity=atoi(optarg);
-	    break;
+            case 'a':
+                affinity = atoi(optarg);
+                break;
 #endif
 #if HAVE_SCHED_SETSCHEDULER
-	case 'r':
-	    realtime = 1;
-	    break;
+            case 'r':
+                realtime = 1;
+                break;
 #endif
-	case '?':
-	    fprintf(stderr,"Usage -b busyloop, -d usec delay, -i iterations"
+            case '?':
+                fprintf(stderr,
+                        "Usage -b busyloop, -d usec delay, -i iterations"
 #if HAVE_DECL_CPU_SET
-		    ", -a affinity"
+                        ", -a affinity"
 #endif
 #if HAVE_SCHED_SETSCHEDULER
-		    ", -r realtime"
+                        ", -r realtime"
 #endif
-		    "\n");
-	    return 1;
-	default:
-	    abort();
-	}
+                        "\n");
+                return 1;
+            default:
+                abort();
+        }
 
 #ifndef HAVE_NANOSLEEP
     clockgettime = 1;
@@ -130,74 +128,74 @@ int main (int argc, char **argv) {
 
 #if HAVE_SCHED_SETSCHEDULER
     if (realtime) {
-	fprintf(stdout,"Setting scheduler to realtime via SCHED_RR\n");
-	// SCHED_OTHER, SCHED_FIFO, SCHED_RR
-	sp.sched_priority = sched_get_priority_max(SCHED_RR);
-	WARN_errno(sched_setscheduler(0, SCHED_RR, &sp) < 0,
-		   "Client set scheduler");
+        fprintf(stdout, "Setting scheduler to realtime via SCHED_RR\n");
+        // SCHED_OTHER, SCHED_FIFO, SCHED_RR
+        sp.sched_priority = sched_get_priority_max(SCHED_RR);
+        WARN_errno(sched_setscheduler(0, SCHED_RR, &sp) < 0, "Client set scheduler");
 #ifdef HAVE_MLOCKALL
-	// lock the threads memory
-	WARN_errno(mlockall(MCL_CURRENT | MCL_FUTURE) != 0, "mlockall");
+        // lock the threads memory
+        WARN_errno(mlockall(MCL_CURRENT | MCL_FUTURE) != 0, "mlockall");
 #endif
     }
 #if HAVE_DECL_CPU_SET
     if (affinity) {
-	fprintf(stdout,"CPU affinity set to %d\n", affinity);
-	cpu_set_t myset;
-	CPU_ZERO(&myset);
-	CPU_SET(affinity,&myset);
+        fprintf(stdout, "CPU affinity set to %d\n", affinity);
+        cpu_set_t myset;
+        CPU_ZERO(&myset);
+        CPU_SET(affinity, &myset);
     }
 #endif
 #endif
     if (loopcount > 1000)
-        fprintf(stdout,"Measuring %s over %.0e iterations using %d usec delay\n",
-		kalman ? "kalman" :
-		clockgettime ? "clock_gettime" : "nanosleep",
-		(double) loopcount, delay);
+        fprintf(stdout, "Measuring %s over %.0e iterations using %d usec delay\n",
+                kalman         ? "kalman"
+                : clockgettime ? "clock_gettime"
+                               : "nanosleep",
+                (double)loopcount, delay);
     else
-        fprintf(stdout,"Measuring %s over %d iterations using %d usec delay\n",
-		kalman ? "kalman" :
-		clockgettime ? "clock_gettime" : "nanosleep",
-		loopcount, delay);
+        fprintf(stdout, "Measuring %s over %d iterations using %d usec delay\n",
+                kalman         ? "kalman"
+                : clockgettime ? "clock_gettime"
+                               : "nanosleep",
+                loopcount, delay);
     fflush(stdout);
-    for (ix=0; ix < loopcount; ix++) {
-	// Find the max jitter for delay call
+    for (ix = 0; ix < loopcount; ix++) {
+        // Find the max jitter for delay call
 #ifdef HAVE_CLOCK_GETTIME
         clock_gettime(CLOCK_REALTIME, &t1);
-	time1 = t1.tv_sec + (t1.tv_nsec / 1000000000.0);
+        time1 = t1.tv_sec + (t1.tv_nsec / 1000000000.0);
 #else
-	gettimeofday( &t1, NULL );
-	time1 = t1.tv_sec + (t1.tv_usec / 1000000.0);
+        gettimeofday(&t1, NULL);
+        time1 = t1.tv_sec + (t1.tv_usec / 1000000.0);
 #endif
 #ifdef HAVE_KALMAN
-	if (kalman) {
-	    delay_kalman(delay);
-	} else
+        if (kalman) {
+            delay_kalman(delay);
+        } else
 #endif
-	if (clockgettime) {
-	    delay_busyloop(delay);
-	} else {
+            if (clockgettime) {
+            delay_busyloop(delay);
+        } else {
 #ifdef HAVE_NANOSLEEP
-	    delay_nanosleep(delay);
+            delay_nanosleep(delay);
 #endif
-	}
+        }
 #ifdef HAVE_CLOCK_GETTIME
-	clock_gettime(CLOCK_REALTIME, &t1);
-	time2 = t1.tv_sec + (t1.tv_nsec / 1000000000.0);
+        clock_gettime(CLOCK_REALTIME, &t1);
+        time2 = t1.tv_sec + (t1.tv_nsec / 1000000000.0);
 #else
-	gettimeofday( &t1, NULL );
-	time2 = t1.tv_sec + (t1.tv_usec / 1000000.0);
+        gettimeofday(&t1, NULL);
+        time2 = t1.tv_sec + (t1.tv_usec / 1000000.0);
 #endif
-	delta = (time2 - time1) * 1e6;
-	if (delta > max) {
-	  max = delta;
-	}
-	if (delta < min || min < 0) {
-	  min = delta;
-	}
-	sum += (double) delta;
+        delta = (time2 - time1) * 1e6;
+        if (delta > max) {
+            max = delta;
+        }
+        if (delta < min || min < 0) {
+            min = delta;
+        }
+        sum += (double)delta;
     }
-    fprintf(stdout,"delay=%.03f/%.03f/%.03f usec (mean/min/max)\n",
-	    (sum / loopcount), min, max);
-    return(0);
+    fprintf(stdout, "delay=%.03f/%.03f/%.03f usec (mean/min/max)\n", (sum / loopcount), min, max);
+    return (0);
 }

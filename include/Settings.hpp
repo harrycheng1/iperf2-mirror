@@ -74,10 +74,10 @@ extern "C" {
 
 /* Smallest report interval supported. Units is microseconds */
 #ifndef HAVE_FASTSAMPLING
-#define SMALLEST_INTERVAL 5000 // 5ms
-#define SMALLEST_INTERVAL_SEC 0.005 // 5ms
+#define SMALLEST_INTERVAL 5000       // 5ms
+#define SMALLEST_INTERVAL_SEC 0.005  // 5ms
 #else
-#define SMALLEST_INTERVAL 100 // 100 usec
+#define SMALLEST_INTERVAL 100  // 100 usec
 #define SMALLEST_INTERVAL_SEC 0.0001
 #endif
 
@@ -94,8 +94,8 @@ extern "C" {
 #define MAXIPGSECS 60
 #define CSVPEERLIMIT ((REPORT_ADDRLEN * 2) + 40)
 #define NEARCONGEST_DEFAULT 0.5
-#define DEFAULT_PERMITKEY_LIFE 20.0 // units is seconds
-#define DEFAULT_TESTEXCHANGETIMEOUT (60 * 1000000) // 60 secs, units is microseconds
+#define DEFAULT_PERMITKEY_LIFE 20.0                 // units is seconds
+#define DEFAULT_TESTEXCHANGETIMEOUT (60 * 1000000)  // 60 secs, units is microseconds
 #ifndef MAXTTL
 #define MAXTTL 255
 #endif
@@ -109,10 +109,10 @@ extern "C" {
 //
 // I would at least use 128KB or 256KB."
 #define SKB_SIZE (64 * 1024)
-#define SKB_NUM 4 // minimum is 2
+#define SKB_NUM 4  // minimum is 2
 #define SMALL_WRITE_PREFETCH (SKB_SIZE * SKB_NUM)
 
-#define SHALLOW_COPY 1 // This is likley a bug, using a deep copy is safer but overkill
+#define SHALLOW_COPY 1  // This is likley a bug, using a deep copy is safer but overkill
 #define DEEP_COPY 1
 // server/client mode
 enum ThreadMode {
@@ -127,31 +127,16 @@ enum ThreadMode {
 };
 
 // report mode
-enum ReportMode {
-    kReport_Default = 0,
-    kReport_CSV
-};
+enum ReportMode { kReport_Default = 0, kReport_CSV };
 
 // test mode
-enum TestMode {
-    kTest_Normal = 0,
-    kTest_DualTest,
-    kTest_TradeOff,
-    kTest_Unknown
-};
+enum TestMode { kTest_Normal = 0, kTest_DualTest, kTest_TradeOff, kTest_Unknown };
 
 // interval reporting mode
-enum IntervalMode {
-    kInterval_None = 0,
-    kInterval_Time,
-    kInterval_Frames
-};
+enum IntervalMode { kInterval_None = 0, kInterval_Time, kInterval_Frames };
 
 // rate request units
-enum RateUnits {
-    kRate_BW = 0,
-    kRate_PPS
-};
+enum RateUnits { kRate_BW = 0, kRate_PPS };
 
 #include "Reporter.h"
 #include "payloads.h"
@@ -169,30 +154,30 @@ enum RateUnits {
  */
 struct thread_Settings {
     // Pointers
-    char*  mFileName;               // -F
-    char*  mHost;                   // -c
-    char*  mHideHost;
-    char*  mLocalhost;              // -B
-    char*  mOutputFileName;         // -o
-    char*  mIfrname;                // %<device> name (for rx)
-    char*  mIfrnametx;              // %<device> name (for tx)
-    char*  mSSMMulticastStr;        // --ssm-host
-    char*  mIsochronousStr;         // --isochronous
-    char*  mHistogramStr;         // --histograms (packets)
-    char*  mTransferIDStr;          //
-    char*  mBuf;
-    FILE*  Extractor_file;
+    char* mFileName;  // -F
+    char* mHost;      // -c
+    char* mHideHost;
+    char* mLocalhost;        // -B
+    char* mOutputFileName;   // -o
+    char* mIfrname;          // %<device> name (for rx)
+    char* mIfrnametx;        // %<device> name (for tx)
+    char* mSSMMulticastStr;  // --ssm-host
+    char* mIsochronousStr;   // --isochronous
+    char* mHistogramStr;     // --histograms (packets)
+    char* mTransferIDStr;    //
+    char* mBuf;
+    FILE* Extractor_file;
 
     struct ReportHeader* reporthdr;
     struct SumReport* mSumReport;
     struct SumReport* mFullDuplexReport;
-    struct thread_Settings *runNow;
-    struct thread_Settings *runNext;
+    struct thread_Settings* runNow;
+    struct thread_Settings* runNext;
     // int's
     int sosndtimer;
-    int mThreads;                   // -P
-    int mTOS;                       // -S
-    int mRTOS;                      // reflected TOS
+    int mThreads;  // -P
+    int mTOS;      // -S
+    int mRTOS;     // reflected TOS
     int mTransferID;
     int mPeerTransferID;
 #if WIN32
@@ -204,11 +189,11 @@ struct thread_Settings {
     int mSockDrop;
 #endif
     int Extractor_size;
-    int mBufLen;                    // -l
-    char *mBraKetGraph;            // -l braket string
-    int mWriteAckLen;               // --write-ack
-    int mMSS;                       // -M
-    int mTCPWin;                    // -w
+    int mBufLen;         // -l
+    char* mBraKetGraph;  // -l braket string
+    int mWriteAckLen;    // --write-ack
+    int mMSS;            // -M
+    int mTCPWin;         // -w
     /*   flags is a BitMask of old bools
         bool   mBufLenSet;              // -l
         bool   mCompat;                 // -C
@@ -235,25 +220,25 @@ struct thread_Settings {
     int flags_extend;
     int flags_extend2;
     // enums (which should be special int's)
-    enum ThreadMode mThreadMode;         // -s or -c
+    enum ThreadMode mThreadMode;  // -s or -c
     enum ReportMode mReportMode;
-    enum TestMode mMode;              // -r or -d
-    bool clientListener;              // set to True if client mode listener per -r or -d
+    enum TestMode mMode;  // -r or -d
+    bool clientListener;  // set to True if client mode listener per -r or -d
     // Hopefully int64_t's
-    uintmax_t mAppRate;            // -b or -u
-    char mAppRateUnits;            // -b is either bw or pps
-    uintmax_t mAmount;             // -n or -t time unit is 10 ms
-    uintmax_t mOmitAmount;             // -n or -t time unit is 10 ms
-    unsigned int mInterval;               // -i integer time units is usec
+    uintmax_t mAppRate;      // -b or -u
+    char mAppRateUnits;      // -b is either bw or pps
+    uintmax_t mAmount;       // -n or -t time unit is 10 ms
+    uintmax_t mOmitAmount;   // -n or -t time unit is 10 ms
+    unsigned int mInterval;  // -i integer time units is usec
     enum IntervalMode mIntervalMode;
     // shorts
-    unsigned short mListenPort;     // -L
-    unsigned short mPort;           // -p
-    unsigned short mPortLast;       // -p last port, e.g. when -p 6001-6010
-    unsigned short mBindPort;      // -B
+    unsigned short mListenPort;  // -L
+    unsigned short mPort;        // -p
+    unsigned short mPortLast;    // -p last port, e.g. when -p 6001-6010
+    unsigned short mBindPort;    // -B
     // chars
-    char   mFormat;                 // -f
-    int mTTL;                    // -T
+    char mFormat;  // -f
+    int mTTL;      // -T
     char pad1[2];
     // structs or miscellaneous
     iperf_sockaddr peer;
@@ -278,15 +263,15 @@ struct thread_Settings {
 #if defined(HAVE_WIN32_THREAD)
     HANDLE mHandle;
 #endif
-    double mFPS; //frames per second
-    double mMean; //variable bit rate mean
-    uint32_t mBurstSize; //number of bytes in a burst
-    int mJitterBufSize; //Server jitter buffer size, units is frames
-    double mBurstIPG; //Interpacket gap
-    int l4offset; // used in l2 mode to offset the raw packet
+    double mFPS;          // frames per second
+    double mMean;         // variable bit rate mean
+    uint32_t mBurstSize;  // number of bytes in a burst
+    int mJitterBufSize;   // Server jitter buffer size, units is frames
+    double mBurstIPG;     // Interpacket gap
+    int l4offset;         // used in l2 mode to offset the raw packet
     int l4payloadoffset;
-    int recvflags; // used to set recv flags,e.g. MSG_TRUNC with L
-    double mVariance; //vbr variance
+    int recvflags;     // used to set recv flags,e.g. MSG_TRUNC with L
+    double mVariance;  // vbr variance
     uintmax_t mFQPacingRate;
 #if (HAVE_DECL_SO_MAX_PACING_RATE)
     int mFQPacingRateStep;
@@ -298,14 +283,14 @@ struct thread_Settings {
     struct timeval accept_time;
     struct timeval sent_time;
     struct Condition awake_me;
-    struct PacketRing *ackring;
-    struct BarrierMutex *connects_done;
+    struct PacketRing* ackring;
+    struct BarrierMutex* connects_done;
     int numreportstructs;
     int32_t peer_version_u;
     int32_t peer_version_l;
-    long barrier_time; // wait in units of microseconds
+    long barrier_time;  // wait in units of microseconds
     double rtt_nearcongest_weight_factor;
-    char mPermitKey[MAX_PERMITKEY_LEN + 1]; //add some space for timestamp
+    char mPermitKey[MAX_PERMITKEY_LEN + 1];  // add some space for timestamp
     struct timeval mPermitKeyTime;
     bool mKeyCheck;
     double mListenerTimeout;
@@ -314,8 +299,8 @@ struct thread_Settings {
     int mBounceBackBytes;
     int mBounceBackReplyBytes;
     int mBounceBackBurst;
-    int mWorkingLoadThreads; // number of congest threads
-    uint32_t mBounceBackHold; // units of usecs
+    int mWorkingLoadThreads;   // number of congest threads
+    uint32_t mBounceBackHold;  // units of usecs
     struct iperf_tcpstats tcpinitstats;
 #if HAVE_DECL_TCP_WINDOW_CLAMP
     int mClampSize;
@@ -329,8 +314,8 @@ struct thread_Settings {
 #endif
     int sendfirst_pacing;
     double connecttime;
-    double connect_retry_time;    // units in seconds
-    unsigned int connect_retry_timer; // units in usecs
+    double connect_retry_time;         // units in seconds
+    unsigned int connect_retry_timer;  // units in usecs
     int rand_seed;
     struct Condition receiving;
     intmax_t first_packetID;
@@ -349,368 +334,369 @@ struct thread_Settings {
  * To add a flag simply define it as the next bit then
  * add the 3 support functions below.
  */
-#define FLAG_BUFLENSET      0x00000001
-#define FLAG_COMPAT         0x00000002
-#define FLAG_DAEMON         0x00000004
-#define FLAG_DOMAINV6       0x00000008
-#define FLAG_FILEINPUT      0x00000010
-#define FLAG_NODELAY        0x00000020
-#define FLAG_PRINTMSS       0x00000040
-#define FLAG_REMOVESERVICE  0x00000080
-#define FLAG_STDIN          0x00000100
-#define FLAG_STDOUT         0x00000200
-#define FLAG_SUGGESTWIN     0x00000400
-#define FLAG_UDP            0x00000800
-#define FLAG_MODETIME       0x00001000
+#define FLAG_BUFLENSET 0x00000001
+#define FLAG_COMPAT 0x00000002
+#define FLAG_DAEMON 0x00000004
+#define FLAG_DOMAINV6 0x00000008
+#define FLAG_FILEINPUT 0x00000010
+#define FLAG_NODELAY 0x00000020
+#define FLAG_PRINTMSS 0x00000040
+#define FLAG_REMOVESERVICE 0x00000080
+#define FLAG_STDIN 0x00000100
+#define FLAG_STDOUT 0x00000200
+#define FLAG_SUGGESTWIN 0x00000400
+#define FLAG_UDP 0x00000800
+#define FLAG_MODETIME 0x00001000
 #define FLAG_REPORTSETTINGS 0x00002000
-#define FLAG_MULTICAST      0x00004000
-#define FLAG_NOSETTREPORT   0x00008000
-#define FLAG_NOCONNREPORT   0x00010000
-#define FLAG_NODATAREPORT   0x00020000
-#define FLAG_NOSERVREPORT   0x00040000
-#define FLAG_NOMULTREPORT   0x00080000
-#define FLAG_SINGLECLIENT   0x00100000
-#define FLAG_SINGLEUDP      0x00200000
-#define FLAG_CONGESTION     0x00400000
-#define FLAG_REALTIME       0x00800000
-#define FLAG_BWSET          0x01000000
+#define FLAG_MULTICAST 0x00004000
+#define FLAG_NOSETTREPORT 0x00008000
+#define FLAG_NOCONNREPORT 0x00010000
+#define FLAG_NODATAREPORT 0x00020000
+#define FLAG_NOSERVREPORT 0x00040000
+#define FLAG_NOMULTREPORT 0x00080000
+#define FLAG_SINGLECLIENT 0x00100000
+#define FLAG_SINGLEUDP 0x00200000
+#define FLAG_CONGESTION 0x00400000
+#define FLAG_REALTIME 0x00800000
+#define FLAG_BWSET 0x01000000
 #define FLAG_ENHANCEDREPORT 0x02000000
 #define FLAG_SERVERMODETIME 0x04000000
-#define FLAG_SSM_MULTICAST  0x08000000
+#define FLAG_SSM_MULTICAST 0x08000000
 /*
  * Extended flags
  */
-#define FLAG_PEERVER        0x00000001
-#define FLAG_SEQNO64        0x00000002
-#define FLAG_REVERSE        0x00000004
-#define FLAG_ISOCHRONOUS    0x00000008
-#define FLAG_UDPUNUSED      0x00000010
-#define FLAG_HISTOGRAM      0x00000020
-#define FLAG_L2LENGTHCHECK  0x00000100
-#define FLAG_TXSTARTTIME    0x00000200
-#define FLAG_INCRDSTIP      0x00000400
-#define FLAG_VARYLOAD       0x00000800
-#define FLAG_FQPACING       0x00001000
-#define FLAG_TRIPTIME       0x00002000
-#define FLAG_TXHOLDBACK     0x00004000
-#define FLAG_UNUSED         0x00008000
-#define FLAG_MODEINFINITE   0x00010000
-#define FLAG_CONNECTONLY    0x00020000
-#define FLAG_SERVERREVERSE  0x00040000
-#define FLAG_FULLDUPLEX     0x00080000
-#define FLAG_WRITEACK       0x00100000
-#define FLAG_NOUDPFIN       0x00200000
-#define FLAG_NOCONNECTSYNC  0x00400000
-#define FLAG_SUMONLY        0x00800000
-#define FLAG_FRAMEINTERVAL  0x01000000
-#define FLAG_IPG            0x02000000
-#define FLAG_DONTROUTE      0x04000000
-#define FLAG_NEARCONGEST    0x08000000
-#define FLAG_PERMITKEY      0x10000000
-#define FLAG_SETTCPMSS      0x20000000
-#define FLAG_INCRDSTPORT    0x40000000
-#define FLAG_INCRSRCIP      0x80000000
+#define FLAG_PEERVER 0x00000001
+#define FLAG_SEQNO64 0x00000002
+#define FLAG_REVERSE 0x00000004
+#define FLAG_ISOCHRONOUS 0x00000008
+#define FLAG_UDPUNUSED 0x00000010
+#define FLAG_HISTOGRAM 0x00000020
+#define FLAG_L2LENGTHCHECK 0x00000100
+#define FLAG_TXSTARTTIME 0x00000200
+#define FLAG_INCRDSTIP 0x00000400
+#define FLAG_VARYLOAD 0x00000800
+#define FLAG_FQPACING 0x00001000
+#define FLAG_TRIPTIME 0x00002000
+#define FLAG_TXHOLDBACK 0x00004000
+#define FLAG_UNUSED 0x00008000
+#define FLAG_MODEINFINITE 0x00010000
+#define FLAG_CONNECTONLY 0x00020000
+#define FLAG_SERVERREVERSE 0x00040000
+#define FLAG_FULLDUPLEX 0x00080000
+#define FLAG_WRITEACK 0x00100000
+#define FLAG_NOUDPFIN 0x00200000
+#define FLAG_NOCONNECTSYNC 0x00400000
+#define FLAG_SUMONLY 0x00800000
+#define FLAG_FRAMEINTERVAL 0x01000000
+#define FLAG_IPG 0x02000000
+#define FLAG_DONTROUTE 0x04000000
+#define FLAG_NEARCONGEST 0x08000000
+#define FLAG_PERMITKEY 0x10000000
+#define FLAG_SETTCPMSS 0x20000000
+#define FLAG_INCRDSTPORT 0x40000000
+#define FLAG_INCRSRCIP 0x80000000
 
 /*
  * More extended flags
  */
-#define FLAG_PERIODICBURST  0x00000001
-#define FLAG_SUMDSTIP       0x00000002
-#define FLAG_SMALLTRIPTIME  0x00000004
-#define FLAG_RXCLAMP        0x00000008
-#define FLAG_WRITEPREFETCH  0x00000010
-#define FLAG_TUNDEV         0x00000020
-#define FLAG_TAPDEV         0x00000040
-#define FLAG_HIDEIPS        0x00000080
-#define FLAG_BOUNCEBACK     0x00000100
-#define FLAG_TCPWRITETIMES  0x00000200
-#define FLAG_INCRSRCPORT    0x00000400
-#define FLAG_OVERRIDETOS    0x00000800
-#define FLAG_TCPQUICKACK    0x00001000
+#define FLAG_PERIODICBURST 0x00000001
+#define FLAG_SUMDSTIP 0x00000002
+#define FLAG_SMALLTRIPTIME 0x00000004
+#define FLAG_RXCLAMP 0x00000008
+#define FLAG_WRITEPREFETCH 0x00000010
+#define FLAG_TUNDEV 0x00000020
+#define FLAG_TAPDEV 0x00000040
+#define FLAG_HIDEIPS 0x00000080
+#define FLAG_BOUNCEBACK 0x00000100
+#define FLAG_TCPWRITETIMES 0x00000200
+#define FLAG_INCRSRCPORT 0x00000400
+#define FLAG_OVERRIDETOS 0x00000800
+#define FLAG_TCPQUICKACK 0x00001000
 #define FLAG_WORKING_LOAD_DOWN 0x00002000
-#define FLAG_WORKING_LOAD_UP   0x00004000
-#define FLAG_DOMAINV4          0x00008000
-#define FLAG_JITTER_HISTOGRAM  0x00010000
-#define FLAG_UTC            0x00020000
-#define FLAG_LOAD_CCA       0x00040000
-#define FLAG_BURSTSIZE      0x00080000
-#define FLAG_SENDDELAY     0x00100000
-#define FLAG_FQPACINGSTEP   0x00200000
+#define FLAG_WORKING_LOAD_UP 0x00004000
+#define FLAG_DOMAINV4 0x00008000
+#define FLAG_JITTER_HISTOGRAM 0x00010000
+#define FLAG_UTC 0x00020000
+#define FLAG_LOAD_CCA 0x00040000
+#define FLAG_BURSTSIZE 0x00080000
+#define FLAG_SENDDELAY 0x00100000
+#define FLAG_FQPACINGSTEP 0x00200000
 #define FLAG_FQPACINGSTEPINTERVAL 0x00400000
 #define FLAG_SYNCTRANSFERID 0x00800000
-#define FLAG_IGNORESHUTDOWN  0x01000000
-#define FLAG_SETTOS          0x02000000
-#define FLAG_SKIPRXCOPY      0x04000000
-#define FLAG_UDPL4S          0x08000000
-#define FLAG_UDPL4SVIDEO     0x10000000
-#define FLAG_SETRANDSEED     0x20000000
-#define FLAG_OMIT            0x40000000
+#define FLAG_IGNORESHUTDOWN 0x01000000
+#define FLAG_SETTOS 0x02000000
+#define FLAG_SKIPRXCOPY 0x04000000
+#define FLAG_UDPL4S 0x08000000
+#define FLAG_UDPL4SVIDEO 0x10000000
+#define FLAG_SETRANDSEED 0x20000000
+#define FLAG_OMIT 0x40000000
 
-#define isBuflenSet(settings)      ((settings->flags & FLAG_BUFLENSET) != 0)
-#define isCompat(settings)         ((settings->flags & FLAG_COMPAT) != 0)
-#define isDaemon(settings)         ((settings->flags & FLAG_DAEMON) != 0)
-#define isIPV6(settings)           ((settings->flags & FLAG_DOMAINV6) != 0)
-#define isIPV4(settings)           ((settings->flags_extend2 & FLAG_DOMAINV4) != 0)
-#define isFileInput(settings)      ((settings->flags & FLAG_FILEINPUT) != 0)
-#define isNoDelay(settings)        ((settings->flags & FLAG_NODELAY) != 0)
-#define isPrintMSS(settings)       ((settings->flags & FLAG_PRINTMSS) != 0)
-#define isRemoveService(settings)  ((settings->flags & FLAG_REMOVESERVICE) != 0)
-#define isSTDIN(settings)          ((settings->flags & FLAG_STDIN) != 0)
-#define isSTDOUT(settings)         ((settings->flags & FLAG_STDOUT) != 0)
-#define isSuggestWin(settings)     ((settings->flags & FLAG_SUGGESTWIN) != 0)
-#define isUDP(settings)            ((settings->flags & FLAG_UDP) != 0)
-#define isModeTime(settings)       ((settings->flags & FLAG_MODETIME) != 0)
-#define isReport(settings)         ((settings->flags & FLAG_REPORTSETTINGS) != 0)
-#define isMulticast(settings)      ((settings->flags & FLAG_MULTICAST) != 0)
-#define isSSMMulticast(settings)   ((settings->flags & FLAG_SSM_MULTICAST) != 0)
+#define isBuflenSet(settings) ((settings->flags & FLAG_BUFLENSET) != 0)
+#define isCompat(settings) ((settings->flags & FLAG_COMPAT) != 0)
+#define isDaemon(settings) ((settings->flags & FLAG_DAEMON) != 0)
+#define isIPV6(settings) ((settings->flags & FLAG_DOMAINV6) != 0)
+#define isIPV4(settings) ((settings->flags_extend2 & FLAG_DOMAINV4) != 0)
+#define isFileInput(settings) ((settings->flags & FLAG_FILEINPUT) != 0)
+#define isNoDelay(settings) ((settings->flags & FLAG_NODELAY) != 0)
+#define isPrintMSS(settings) ((settings->flags & FLAG_PRINTMSS) != 0)
+#define isRemoveService(settings) ((settings->flags & FLAG_REMOVESERVICE) != 0)
+#define isSTDIN(settings) ((settings->flags & FLAG_STDIN) != 0)
+#define isSTDOUT(settings) ((settings->flags & FLAG_STDOUT) != 0)
+#define isSuggestWin(settings) ((settings->flags & FLAG_SUGGESTWIN) != 0)
+#define isUDP(settings) ((settings->flags & FLAG_UDP) != 0)
+#define isModeTime(settings) ((settings->flags & FLAG_MODETIME) != 0)
+#define isReport(settings) ((settings->flags & FLAG_REPORTSETTINGS) != 0)
+#define isMulticast(settings) ((settings->flags & FLAG_MULTICAST) != 0)
+#define isSSMMulticast(settings) ((settings->flags & FLAG_SSM_MULTICAST) != 0)
 // Active Low for Reports
 #define isSettingsReport(settings) ((settings->flags & FLAG_NOSETTREPORT) == 0)
-#define isConnectionReport(settings)  ((settings->flags & FLAG_NOCONNREPORT) == 0)
-#define isDataReport(settings)     ((settings->flags & FLAG_NODATAREPORT) == 0)
-#define isServerReport(settings)   ((settings->flags & FLAG_NOSERVREPORT) == 0)
+#define isConnectionReport(settings) ((settings->flags & FLAG_NOCONNREPORT) == 0)
+#define isDataReport(settings) ((settings->flags & FLAG_NODATAREPORT) == 0)
+#define isServerReport(settings) ((settings->flags & FLAG_NOSERVREPORT) == 0)
 #define isMultipleReport(settings) ((settings->flags & FLAG_NOMULTREPORT) == 0)
 // end Active Low
-#define isSingleClient(settings)   ((settings->flags & FLAG_SINGLECLIENT) != 0)
-#define isSingleUDP(settings)      ((settings->flags & FLAG_SINGLEUDP) != 0)
+#define isSingleClient(settings) ((settings->flags & FLAG_SINGLECLIENT) != 0)
+#define isSingleUDP(settings) ((settings->flags & FLAG_SINGLEUDP) != 0)
 #define isCongestionControl(settings) ((settings->flags & FLAG_CONGESTION) != 0)
-#define isRealtime(settings)       ((settings->flags & FLAG_REALTIME) != 0)
-#define isBWSet(settings)          ((settings->flags & FLAG_BWSET) != 0)
-#define isEnhanced(settings)       ((settings->flags & FLAG_ENHANCEDREPORT) != 0)
+#define isRealtime(settings) ((settings->flags & FLAG_REALTIME) != 0)
+#define isBWSet(settings) ((settings->flags & FLAG_BWSET) != 0)
+#define isEnhanced(settings) ((settings->flags & FLAG_ENHANCEDREPORT) != 0)
 #define isServerModeTime(settings) ((settings->flags & FLAG_SERVERMODETIME) != 0)
-#define isPeerVerDetect(settings)  ((settings->flags_extend & FLAG_PEERVER) != 0)
-#define isSeqNo64b(settings)       ((settings->flags_extend & FLAG_SEQNO64) != 0)
-#define isReverse(settings)        ((settings->flags_extend & FLAG_REVERSE) != 0)
-#define isFullDuplex(settings)     ((settings->flags_extend & FLAG_FULLDUPLEX) != 0)
-#define isServerReverse(settings)  ((settings->flags_extend & FLAG_SERVERREVERSE) != 0)
-#define isIsochronous(settings)    ((settings->flags_extend & FLAG_ISOCHRONOUS) != 0)
-#define isHistogram(settings)    ((settings->flags_extend & FLAG_HISTOGRAM) != 0)
-#define isL2LengthCheck(settings)  ((settings->flags_extend & FLAG_L2LENGTHCHECK) != 0)
-#define isIncrDstIP(settings)      ((settings->flags_extend & FLAG_INCRDSTIP) != 0)
-#define isIncrSrcIP(settings)      ((settings->flags_extend & FLAG_INCRSRCIP) != 0)
-#define isIncrDstPort(settings)    ((settings->flags_extend & FLAG_INCRDSTPORT) != 0)
-#define isIncrSrcPort(settings)    ((settings->flags_extend2 & FLAG_INCRSRCPORT) != 0)
-#define isTxStartTime(settings)    ((settings->flags_extend & FLAG_TXSTARTTIME) != 0)
-#define isTxHoldback(settings)     ((settings->flags_extend & FLAG_TXHOLDBACK) != 0)
-#define isVaryLoad(settings)       ((settings->flags_extend & FLAG_VARYLOAD) != 0)
-#define isFQPacing(settings)       ((settings->flags_extend & FLAG_FQPACING) != 0)
-#define isTripTime(settings)       ((settings->flags_extend & FLAG_TRIPTIME) != 0)
-#define isSmallTripTime(settings)  ((settings->flags_extend2 & FLAG_SMALLTRIPTIME) != 0)
-#define isModeInfinite(settings)   ((settings->flags_extend & FLAG_MODEINFINITE) != 0)
-#define isModeAmount(settings)     (!isModeTime(settings) && !isModeInfinite(settings))
-#define isConnectOnly(settings)    ((settings->flags_extend & FLAG_CONNECTONLY) != 0)
-#define isWriteAck(settings)       ((settings->flags_extend & FLAG_WRITEACK) != 0)
-#define isNoUDPfin(settings)       ((settings->flags_extend & FLAG_NOUDPFIN) != 0)
-#define isNoConnectSync(settings)  ((settings->flags_extend & FLAG_NOCONNECTSYNC) != 0)
-#define isSumOnly(settings)        ((settings->flags_extend & FLAG_SUMONLY) != 0)
-#define isFrameInterval(settings)  ((settings->flags_extend & FLAG_FRAMEINTERVAL) != 0)
-#define isIPG(settings)  ((settings->flags_extend & FLAG_IPG) != 0)
-#define isDontRoute(settings)      ((settings->flags_extend & FLAG_DONTROUTE) != 0)
-#define isNearCongest(settings)    ((settings->flags_extend & FLAG_NEARCONGEST) != 0)
-#define isPermitKey(settings)  ((settings->flags_extend & FLAG_PERMITKEY) != 0)
-#define isTCPMSS(settings)         ((settings->flags_extend & FLAG_SETTCPMSS) != 0)
-#define isPeriodicBurst(settings)  ((settings->flags_extend2 & FLAG_PERIODICBURST) != 0)
+#define isPeerVerDetect(settings) ((settings->flags_extend & FLAG_PEERVER) != 0)
+#define isSeqNo64b(settings) ((settings->flags_extend & FLAG_SEQNO64) != 0)
+#define isReverse(settings) ((settings->flags_extend & FLAG_REVERSE) != 0)
+#define isFullDuplex(settings) ((settings->flags_extend & FLAG_FULLDUPLEX) != 0)
+#define isServerReverse(settings) ((settings->flags_extend & FLAG_SERVERREVERSE) != 0)
+#define isIsochronous(settings) ((settings->flags_extend & FLAG_ISOCHRONOUS) != 0)
+#define isHistogram(settings) ((settings->flags_extend & FLAG_HISTOGRAM) != 0)
+#define isL2LengthCheck(settings) ((settings->flags_extend & FLAG_L2LENGTHCHECK) != 0)
+#define isIncrDstIP(settings) ((settings->flags_extend & FLAG_INCRDSTIP) != 0)
+#define isIncrSrcIP(settings) ((settings->flags_extend & FLAG_INCRSRCIP) != 0)
+#define isIncrDstPort(settings) ((settings->flags_extend & FLAG_INCRDSTPORT) != 0)
+#define isIncrSrcPort(settings) ((settings->flags_extend2 & FLAG_INCRSRCPORT) != 0)
+#define isTxStartTime(settings) ((settings->flags_extend & FLAG_TXSTARTTIME) != 0)
+#define isTxHoldback(settings) ((settings->flags_extend & FLAG_TXHOLDBACK) != 0)
+#define isVaryLoad(settings) ((settings->flags_extend & FLAG_VARYLOAD) != 0)
+#define isFQPacing(settings) ((settings->flags_extend & FLAG_FQPACING) != 0)
+#define isTripTime(settings) ((settings->flags_extend & FLAG_TRIPTIME) != 0)
+#define isSmallTripTime(settings) ((settings->flags_extend2 & FLAG_SMALLTRIPTIME) != 0)
+#define isModeInfinite(settings) ((settings->flags_extend & FLAG_MODEINFINITE) != 0)
+#define isModeAmount(settings) (!isModeTime(settings) && !isModeInfinite(settings))
+#define isConnectOnly(settings) ((settings->flags_extend & FLAG_CONNECTONLY) != 0)
+#define isWriteAck(settings) ((settings->flags_extend & FLAG_WRITEACK) != 0)
+#define isNoUDPfin(settings) ((settings->flags_extend & FLAG_NOUDPFIN) != 0)
+#define isNoConnectSync(settings) ((settings->flags_extend & FLAG_NOCONNECTSYNC) != 0)
+#define isSumOnly(settings) ((settings->flags_extend & FLAG_SUMONLY) != 0)
+#define isFrameInterval(settings) ((settings->flags_extend & FLAG_FRAMEINTERVAL) != 0)
+#define isIPG(settings) ((settings->flags_extend & FLAG_IPG) != 0)
+#define isDontRoute(settings) ((settings->flags_extend & FLAG_DONTROUTE) != 0)
+#define isNearCongest(settings) ((settings->flags_extend & FLAG_NEARCONGEST) != 0)
+#define isPermitKey(settings) ((settings->flags_extend & FLAG_PERMITKEY) != 0)
+#define isTCPMSS(settings) ((settings->flags_extend & FLAG_SETTCPMSS) != 0)
+#define isPeriodicBurst(settings) ((settings->flags_extend2 & FLAG_PERIODICBURST) != 0)
 #define isSumServerDstIP(settings) ((settings->flags_extend2 & FLAG_SUMDSTIP) != 0)
-#define isRxClamp(settings)        ((settings->flags_extend2 & FLAG_RXCLAMP) != 0)
+#define isRxClamp(settings) ((settings->flags_extend2 & FLAG_RXCLAMP) != 0)
 #define isWritePrefetch(settings) ((settings->flags_extend2 & FLAG_WRITEPREFETCH) != 0)
-#define isTapDev(settings)         ((settings->flags_extend2 & FLAG_TAPDEV) != 0)
-#define isTunDev(settings)         ((settings->flags_extend2 & FLAG_TUNDEV) != 0)
-#define isHideIPs(settings)        ((settings->flags_extend2 & FLAG_HIDEIPS) != 0)
-#define isBounceBack(settings)     ((settings->flags_extend2 & FLAG_BOUNCEBACK) != 0)
-#define isTcpWriteTimes(settings)  ((settings->flags_extend2 & FLAG_TCPWRITETIMES) != 0)
-#define isOverrideTOS(settings)    ((settings->flags_extend2 & FLAG_OVERRIDETOS) != 0)
-#define isTcpQuickAck(settings)    ((settings->flags_extend2 & FLAG_TCPQUICKACK) != 0)
-#define isWorkingLoadUp(settings)  ((settings->flags_extend2 & FLAG_WORKING_LOAD_UP) != 0)
-#define isWorkingLoadDown(settings)  ((settings->flags_extend2 & FLAG_WORKING_LOAD_DOWN) != 0)
-#define isJitterHistogram(settings)  ((settings->flags_extend2 & FLAG_JITTER_HISTOGRAM) != 0)
-#define isUTC(settings)            ((settings->flags_extend2 & FLAG_UTC) != 0)
+#define isTapDev(settings) ((settings->flags_extend2 & FLAG_TAPDEV) != 0)
+#define isTunDev(settings) ((settings->flags_extend2 & FLAG_TUNDEV) != 0)
+#define isHideIPs(settings) ((settings->flags_extend2 & FLAG_HIDEIPS) != 0)
+#define isBounceBack(settings) ((settings->flags_extend2 & FLAG_BOUNCEBACK) != 0)
+#define isTcpWriteTimes(settings) ((settings->flags_extend2 & FLAG_TCPWRITETIMES) != 0)
+#define isOverrideTOS(settings) ((settings->flags_extend2 & FLAG_OVERRIDETOS) != 0)
+#define isTcpQuickAck(settings) ((settings->flags_extend2 & FLAG_TCPQUICKACK) != 0)
+#define isWorkingLoadUp(settings) ((settings->flags_extend2 & FLAG_WORKING_LOAD_UP) != 0)
+#define isWorkingLoadDown(settings) ((settings->flags_extend2 & FLAG_WORKING_LOAD_DOWN) != 0)
+#define isJitterHistogram(settings) ((settings->flags_extend2 & FLAG_JITTER_HISTOGRAM) != 0)
+#define isUTC(settings) ((settings->flags_extend2 & FLAG_UTC) != 0)
 #define isLoadCCA(settings) ((settings->flags_extend2 & FLAG_LOAD_CCA) != 0)
-#define isBurstSize(settings)      ((settings->flags_extend2 & FLAG_BURSTSIZE) != 0)
-#define isSendDelay(settings)     ((settings->flags_extend2 & FLAG_SENDDELAY) != 0)
-#define isFQPacingStep(settings)   ((settings->flags_extend2 & FLAG_FQPACINGSTEP) != 0)
-#define isFQPacingStepInterval(settings) ((settings->flags_extend2 & FLAG_FQPACINGSTEPINTERVAL) != 0)
-#define isOmit(settings)           ((settings->flags_extend2 & FLAG_OMIT) != 0)
+#define isBurstSize(settings) ((settings->flags_extend2 & FLAG_BURSTSIZE) != 0)
+#define isSendDelay(settings) ((settings->flags_extend2 & FLAG_SENDDELAY) != 0)
+#define isFQPacingStep(settings) ((settings->flags_extend2 & FLAG_FQPACINGSTEP) != 0)
+#define isFQPacingStepInterval(settings) \
+    ((settings->flags_extend2 & FLAG_FQPACINGSTEPINTERVAL) != 0)
+#define isOmit(settings) ((settings->flags_extend2 & FLAG_OMIT) != 0)
 #define isSyncTransferID(settings) ((settings->flags_extend2 & FLAG_SYNCTRANSFERID) != 0)
 #define isIgnoreShutdown(settings) ((settings->flags_extend2 & FLAG_IGNORESHUTDOWN) != 0)
-#define isSetTOS(settings)         ((settings->flags_extend2 & FLAG_SETTOS) != 0)
-#define isSkipRxCopy(settings)         ((settings->flags_extend2 & FLAG_SKIPRXCOPY) != 0)
-#define isUDPL4S(settings)         ((settings->flags_extend2 & FLAG_UDPL4S) != 0)
-#define isUDPL4SVideo(settings)    ((settings->flags_extend2 & FLAG_UDPL4SVIDEO) != 0)
-#define isSetRandSeed(settings)    ((settings->flags_extend2 & FLAG_SETRANDSEED) != 0)
+#define isSetTOS(settings) ((settings->flags_extend2 & FLAG_SETTOS) != 0)
+#define isSkipRxCopy(settings) ((settings->flags_extend2 & FLAG_SKIPRXCOPY) != 0)
+#define isUDPL4S(settings) ((settings->flags_extend2 & FLAG_UDPL4S) != 0)
+#define isUDPL4SVideo(settings) ((settings->flags_extend2 & FLAG_UDPL4SVIDEO) != 0)
+#define isSetRandSeed(settings) ((settings->flags_extend2 & FLAG_SETRANDSEED) != 0)
 
-#define setBuflenSet(settings)     settings->flags |= FLAG_BUFLENSET
-#define setCompat(settings)        settings->flags |= FLAG_COMPAT
-#define setDaemon(settings)        settings->flags |= FLAG_DAEMON
-#define setIPV6(settings)          settings->flags |= FLAG_DOMAINV6
-#define setIPV4(settings)          settings->flags_extend2 |= FLAG_DOMAINV4
-#define setFileInput(settings)     settings->flags |= FLAG_FILEINPUT
-#define setNoDelay(settings)       settings->flags |= FLAG_NODELAY
-#define setPrintMSS(settings)      settings->flags |= FLAG_PRINTMSS
+#define setBuflenSet(settings) settings->flags |= FLAG_BUFLENSET
+#define setCompat(settings) settings->flags |= FLAG_COMPAT
+#define setDaemon(settings) settings->flags |= FLAG_DAEMON
+#define setIPV6(settings) settings->flags |= FLAG_DOMAINV6
+#define setIPV4(settings) settings->flags_extend2 |= FLAG_DOMAINV4
+#define setFileInput(settings) settings->flags |= FLAG_FILEINPUT
+#define setNoDelay(settings) settings->flags |= FLAG_NODELAY
+#define setPrintMSS(settings) settings->flags |= FLAG_PRINTMSS
 #define setRemoveService(settings) settings->flags |= FLAG_REMOVESERVICE
-#define setSTDIN(settings)         settings->flags |= FLAG_STDIN
-#define setSTDOUT(settings)        settings->flags |= FLAG_STDOUT
-#define setSuggestWin(settings)    settings->flags |= FLAG_SUGGESTWIN
-#define setUDP(settings)           settings->flags |= FLAG_UDP
-#define setModeTime(settings)      settings->flags |= FLAG_MODETIME
-#define setReport(settings)        settings->flags |= FLAG_REPORTSETTINGS
-#define setMulticast(settings)     settings->flags |= FLAG_MULTICAST
-#define setSSMMulticast(settings)  settings->flags |= FLAG_SSM_MULTICAST
-#define setNoSettReport(settings)  settings->flags |= FLAG_NOSETTREPORT
-#define setNoConnReport(settings)  settings->flags |= FLAG_NOCONNREPORT
-#define setNoDataReport(settings)  settings->flags |= FLAG_NODATAREPORT
-#define setNoServReport(settings)  settings->flags |= FLAG_NOSERVREPORT
-#define setNoMultReport(settings)  settings->flags |= FLAG_NOMULTREPORT
-#define setSingleClient(settings)  settings->flags |= FLAG_SINGLECLIENT
-#define setSingleUDP(settings)     settings->flags |= FLAG_SINGLEUDP
+#define setSTDIN(settings) settings->flags |= FLAG_STDIN
+#define setSTDOUT(settings) settings->flags |= FLAG_STDOUT
+#define setSuggestWin(settings) settings->flags |= FLAG_SUGGESTWIN
+#define setUDP(settings) settings->flags |= FLAG_UDP
+#define setModeTime(settings) settings->flags |= FLAG_MODETIME
+#define setReport(settings) settings->flags |= FLAG_REPORTSETTINGS
+#define setMulticast(settings) settings->flags |= FLAG_MULTICAST
+#define setSSMMulticast(settings) settings->flags |= FLAG_SSM_MULTICAST
+#define setNoSettReport(settings) settings->flags |= FLAG_NOSETTREPORT
+#define setNoConnReport(settings) settings->flags |= FLAG_NOCONNREPORT
+#define setNoDataReport(settings) settings->flags |= FLAG_NODATAREPORT
+#define setNoServReport(settings) settings->flags |= FLAG_NOSERVREPORT
+#define setNoMultReport(settings) settings->flags |= FLAG_NOMULTREPORT
+#define setSingleClient(settings) settings->flags |= FLAG_SINGLECLIENT
+#define setSingleUDP(settings) settings->flags |= FLAG_SINGLEUDP
 #define setCongestionControl(settings) settings->flags |= FLAG_CONGESTION
-#define setRealtime(settings)      settings->flags |= FLAG_REALTIME
-#define setBWSet(settings)         settings->flags |= FLAG_BWSET
-#define setEnhanced(settings)      settings->flags |= FLAG_ENHANCEDREPORT
-#define setServerModeTime(settings)    settings->flags |= FLAG_SERVERMODETIME
+#define setRealtime(settings) settings->flags |= FLAG_REALTIME
+#define setBWSet(settings) settings->flags |= FLAG_BWSET
+#define setEnhanced(settings) settings->flags |= FLAG_ENHANCEDREPORT
+#define setServerModeTime(settings) settings->flags |= FLAG_SERVERMODETIME
 #define setPeerVerDetect(settings) settings->flags_extend |= FLAG_PEERVER
-#define setSeqNo64b(settings)      settings->flags_extend |= FLAG_SEQNO64
-#define setReverse(settings)       settings->flags_extend |= FLAG_REVERSE
-#define setFullDuplex(settings)    settings->flags_extend |= FLAG_FULLDUPLEX
+#define setSeqNo64b(settings) settings->flags_extend |= FLAG_SEQNO64
+#define setReverse(settings) settings->flags_extend |= FLAG_REVERSE
+#define setFullDuplex(settings) settings->flags_extend |= FLAG_FULLDUPLEX
 #define setServerReverse(settings) settings->flags_extend |= FLAG_SERVERREVERSE
-#define setIsochronous(settings)   settings->flags_extend |= FLAG_ISOCHRONOUS
-#define setHistogram(settings)   settings->flags_extend |= FLAG_HISTOGRAM
+#define setIsochronous(settings) settings->flags_extend |= FLAG_ISOCHRONOUS
+#define setHistogram(settings) settings->flags_extend |= FLAG_HISTOGRAM
 #define setL2LengthCheck(settings) settings->flags_extend |= FLAG_L2LENGTHCHECK
-#define setIncrDstIP(settings)     settings->flags_extend |= FLAG_INCRDSTIP
-#define setIncrSrcIP(settings)     settings->flags_extend |= FLAG_INCRSRCIP
-#define setIncrDstPort(settings)   settings->flags_extend |= FLAG_INCRDSTPORT
-#define setIncrSrcPort(settings)   settings->flags_extend2 |= FLAG_INCRSRCPORT
-#define setTxStartTime(settings)   settings->flags_extend |= FLAG_TXSTARTTIME
-#define setTxHoldback(settings)    settings->flags_extend |= FLAG_TXHOLDBACK
-#define setVaryLoad(settings)      settings->flags_extend |= FLAG_VARYLOAD
-#define setFQPacing(settings)      settings->flags_extend |= FLAG_FQPACING
-#define setTripTime(settings)      settings->flags_extend |= FLAG_TRIPTIME
+#define setIncrDstIP(settings) settings->flags_extend |= FLAG_INCRDSTIP
+#define setIncrSrcIP(settings) settings->flags_extend |= FLAG_INCRSRCIP
+#define setIncrDstPort(settings) settings->flags_extend |= FLAG_INCRDSTPORT
+#define setIncrSrcPort(settings) settings->flags_extend2 |= FLAG_INCRSRCPORT
+#define setTxStartTime(settings) settings->flags_extend |= FLAG_TXSTARTTIME
+#define setTxHoldback(settings) settings->flags_extend |= FLAG_TXHOLDBACK
+#define setVaryLoad(settings) settings->flags_extend |= FLAG_VARYLOAD
+#define setFQPacing(settings) settings->flags_extend |= FLAG_FQPACING
+#define setTripTime(settings) settings->flags_extend |= FLAG_TRIPTIME
 #define setSmallTripTime(settings) settings->flags_extend2 |= FLAG_SMALLTRIPTIME
-#define setModeInfinite(settings)  settings->flags_extend |= FLAG_MODEINFINITE
-#define setConnectOnly(settings)   settings->flags_extend |= FLAG_CONNECTONLY
-#define setWriteAck(settings)      settings->flags_extend |= FLAG_WRITEACK
-#define setNoUDPfin(settings)      settings->flags_extend |= FLAG_NOUDPFIN
+#define setModeInfinite(settings) settings->flags_extend |= FLAG_MODEINFINITE
+#define setConnectOnly(settings) settings->flags_extend |= FLAG_CONNECTONLY
+#define setWriteAck(settings) settings->flags_extend |= FLAG_WRITEACK
+#define setNoUDPfin(settings) settings->flags_extend |= FLAG_NOUDPFIN
 #define setNoConnectSync(settings) settings->flags_extend |= FLAG_NOCONNECTSYNC
-#define setSumOnly(settings)       settings->flags_extend |= FLAG_SUMONLY
+#define setSumOnly(settings) settings->flags_extend |= FLAG_SUMONLY
 #define setFrameInterval(settings) settings->flags_extend |= FLAG_FRAMEINTERVAL
-#define setIPG(settings)           settings->flags_extend |= FLAG_IPG
-#define setDontRoute(settings)     settings->flags_extend |= FLAG_DONTROUTE
-#define setNearCongest(settings)   settings->flags_extend |= FLAG_NEARCONGEST
-#define setPermitKey(settings)     settings->flags_extend |= FLAG_PERMITKEY
-#define setTCPMSS(settings)        settings->flags_extend |= FLAG_SETTCPMSS
+#define setIPG(settings) settings->flags_extend |= FLAG_IPG
+#define setDontRoute(settings) settings->flags_extend |= FLAG_DONTROUTE
+#define setNearCongest(settings) settings->flags_extend |= FLAG_NEARCONGEST
+#define setPermitKey(settings) settings->flags_extend |= FLAG_PERMITKEY
+#define setTCPMSS(settings) settings->flags_extend |= FLAG_SETTCPMSS
 #define setPeriodicBurst(settings) settings->flags_extend2 |= FLAG_PERIODICBURST
 #define setSumServerDstIP(settings) settings->flags_extend2 |= FLAG_SUMDSTIP
-#define setRxClamp(settings)       settings->flags_extend2 |= FLAG_RXCLAMP
+#define setRxClamp(settings) settings->flags_extend2 |= FLAG_RXCLAMP
 #define setWritePrefetch(settings) settings->flags_extend2 |= FLAG_WRITEPREFETCH
-#define setTapDev(settings)        settings->flags_extend2 |= FLAG_TAPDEV
-#define setTunDev(settings)        settings->flags_extend2 |= FLAG_TUNDEV
-#define setHideIPs(settings)       settings->flags_extend2 |= FLAG_HIDEIPS
-#define setBounceBack(settings)    settings->flags_extend2 |= FLAG_BOUNCEBACK
+#define setTapDev(settings) settings->flags_extend2 |= FLAG_TAPDEV
+#define setTunDev(settings) settings->flags_extend2 |= FLAG_TUNDEV
+#define setHideIPs(settings) settings->flags_extend2 |= FLAG_HIDEIPS
+#define setBounceBack(settings) settings->flags_extend2 |= FLAG_BOUNCEBACK
 #define setTcpWriteTimes(settings) settings->flags_extend2 |= FLAG_TCPWRITETIMES
-#define setOverrideTOS(settings)   settings->flags_extend2 |= FLAG_OVERRIDETOS
-#define setTcpQuickAck(settings)   settings->flags_extend2 |= FLAG_TCPQUICKACK
-#define setWorkingLoadUp(settings)   settings->flags_extend2 |= FLAG_WORKING_LOAD_UP
+#define setOverrideTOS(settings) settings->flags_extend2 |= FLAG_OVERRIDETOS
+#define setTcpQuickAck(settings) settings->flags_extend2 |= FLAG_TCPQUICKACK
+#define setWorkingLoadUp(settings) settings->flags_extend2 |= FLAG_WORKING_LOAD_UP
 #define setWorkingLoadDown(settings) settings->flags_extend2 |= FLAG_WORKING_LOAD_DOWN
 #define setJitterHistogram(settings) settings->flags_extend2 |= FLAG_JITTER_HISTOGRAM
-#define setUTC(settings)           settings->flags_extend2 |= FLAG_UTC
-#define setLoadCCA(settings)       settings->flags_extend2 |= FLAG_LOAD_CCA
-#define setBurstSize(settings)     settings->flags_extend2 |= FLAG_BURSTSIZE
-#define setSendDelay(settings)    settings->flags_extend2 |= FLAG_SENDDELAY
-#define setFQPacingStep(settings)  settings->flags_extend2 |= FLAG_FQPACINGSTEP
+#define setUTC(settings) settings->flags_extend2 |= FLAG_UTC
+#define setLoadCCA(settings) settings->flags_extend2 |= FLAG_LOAD_CCA
+#define setBurstSize(settings) settings->flags_extend2 |= FLAG_BURSTSIZE
+#define setSendDelay(settings) settings->flags_extend2 |= FLAG_SENDDELAY
+#define setFQPacingStep(settings) settings->flags_extend2 |= FLAG_FQPACINGSTEP
 #define setFQPacingStepInterval(settings) settings->flags_extend2 |= FLAG_FQPACINGSTEPINTERVAL
-#define setOmit(settings)          settings->flags_extend2 |= FLAG_OMIT
+#define setOmit(settings) settings->flags_extend2 |= FLAG_OMIT
 #define setSyncTransferID(settings) settings->flags_extend2 |= FLAG_SYNCTRANSFERID
 #define setIgnoreShutdown(settings) settings->flags_extend2 |= FLAG_IGNORESHUTDOWN
-#define setSetTOS(settings)         settings->flags_extend2 |= FLAG_SETTOS
-#define setSkipRxCopy(settings)     settings->flags_extend2 |= FLAG_SKIPRXCOPY
-#define setUDPL4S(settings)         settings->flags_extend2 |= FLAG_UDPL4S
-#define setUDPL4SVideo(settings)    settings->flags_extend2 |= FLAG_UDPL4SVIDEO
-#define setRandSeed(settings)      settings->flags_extend2 |= FLAG_SETRANDSEED
+#define setSetTOS(settings) settings->flags_extend2 |= FLAG_SETTOS
+#define setSkipRxCopy(settings) settings->flags_extend2 |= FLAG_SKIPRXCOPY
+#define setUDPL4S(settings) settings->flags_extend2 |= FLAG_UDPL4S
+#define setUDPL4SVideo(settings) settings->flags_extend2 |= FLAG_UDPL4SVIDEO
+#define setRandSeed(settings) settings->flags_extend2 |= FLAG_SETRANDSEED
 
-#define unsetBuflenSet(settings)   settings->flags &= ~FLAG_BUFLENSET
-#define unsetCompat(settings)      settings->flags &= ~FLAG_COMPAT
-#define unsetDaemon(settings)      settings->flags &= ~FLAG_DAEMON
-#define unsetIPV6(settings)        settings->flags &= ~FLAG_DOMAINV6
-#define unsetIPV4(settings)        settings->flags_extend2 &= ~FLAG_DOMAINV4
-#define unsetFileInput(settings)   settings->flags &= ~FLAG_FILEINPUT
-#define unsetNoDelay(settings)     settings->flags &= ~FLAG_NODELAY
-#define unsetPrintMSS(settings)    settings->flags &= ~FLAG_PRINTMSS
-#define unsetRemoveService(settings)  settings->flags &= ~FLAG_REMOVESERVICE
-#define unsetSTDIN(settings)       settings->flags &= ~FLAG_STDIN
-#define unsetSTDOUT(settings)      settings->flags &= ~FLAG_STDOUT
-#define unsetSuggestWin(settings)  settings->flags &= ~FLAG_SUGGESTWIN
-#define unsetUDP(settings)         settings->flags &= ~FLAG_UDP
-#define unsetModeTime(settings)    settings->flags &= ~FLAG_MODETIME
-#define unsetReport(settings)      settings->flags &= ~FLAG_REPORTSETTINGS
-#define unsetMulticast(settings)   settings->flags &= ~FLAG_MULTICAST
-#define unsetSSMMulticast(settings)   settings->flags &= ~FLAG_SSM_MULTICAST
-#define unsetNoSettReport(settings)   settings->flags &= ~FLAG_NOSETTREPORT
-#define unsetNoConnReport(settings)   settings->flags &= ~FLAG_NOCONNREPORT
-#define unsetNoDataReport(settings)   settings->flags &= ~FLAG_NODATAREPORT
-#define unsetNoServReport(settings)   settings->flags &= ~FLAG_NOSERVREPORT
-#define unsetNoMultReport(settings)   settings->flags &= ~FLAG_NOMULTREPORT
-#define unsetSingleClient(settings)   settings->flags &= ~FLAG_SINGLECLIENT
-#define unsetSingleUDP(settings)      settings->flags &= ~FLAG_SINGLEUDP
+#define unsetBuflenSet(settings) settings->flags &= ~FLAG_BUFLENSET
+#define unsetCompat(settings) settings->flags &= ~FLAG_COMPAT
+#define unsetDaemon(settings) settings->flags &= ~FLAG_DAEMON
+#define unsetIPV6(settings) settings->flags &= ~FLAG_DOMAINV6
+#define unsetIPV4(settings) settings->flags_extend2 &= ~FLAG_DOMAINV4
+#define unsetFileInput(settings) settings->flags &= ~FLAG_FILEINPUT
+#define unsetNoDelay(settings) settings->flags &= ~FLAG_NODELAY
+#define unsetPrintMSS(settings) settings->flags &= ~FLAG_PRINTMSS
+#define unsetRemoveService(settings) settings->flags &= ~FLAG_REMOVESERVICE
+#define unsetSTDIN(settings) settings->flags &= ~FLAG_STDIN
+#define unsetSTDOUT(settings) settings->flags &= ~FLAG_STDOUT
+#define unsetSuggestWin(settings) settings->flags &= ~FLAG_SUGGESTWIN
+#define unsetUDP(settings) settings->flags &= ~FLAG_UDP
+#define unsetModeTime(settings) settings->flags &= ~FLAG_MODETIME
+#define unsetReport(settings) settings->flags &= ~FLAG_REPORTSETTINGS
+#define unsetMulticast(settings) settings->flags &= ~FLAG_MULTICAST
+#define unsetSSMMulticast(settings) settings->flags &= ~FLAG_SSM_MULTICAST
+#define unsetNoSettReport(settings) settings->flags &= ~FLAG_NOSETTREPORT
+#define unsetNoConnReport(settings) settings->flags &= ~FLAG_NOCONNREPORT
+#define unsetNoDataReport(settings) settings->flags &= ~FLAG_NODATAREPORT
+#define unsetNoServReport(settings) settings->flags &= ~FLAG_NOSERVREPORT
+#define unsetNoMultReport(settings) settings->flags &= ~FLAG_NOMULTREPORT
+#define unsetSingleClient(settings) settings->flags &= ~FLAG_SINGLECLIENT
+#define unsetSingleUDP(settings) settings->flags &= ~FLAG_SINGLEUDP
 #define unsetCongestionControl(settings) settings->flags &= ~FLAG_CONGESTION
-#define unsetRealtime(settings)    settings->flags &= ~FLAG_REALTIME
-#define unsetBWSet(settings)       settings->flags &= ~FLAG_BWSET
-#define unsetEnhanced(settings)    settings->flags &= ~FLAG_ENHANCEDREPORT
+#define unsetRealtime(settings) settings->flags &= ~FLAG_REALTIME
+#define unsetBWSet(settings) settings->flags &= ~FLAG_BWSET
+#define unsetEnhanced(settings) settings->flags &= ~FLAG_ENHANCEDREPORT
 #define unsetServerModeTime(settings) settings->flags &= ~FLAG_SERVERMODETIME
-#define unsetPeerVerDetect(settings)  settings->flags_extend &= ~FLAG_PEERVER
-#define unsetSeqNo64b(settings)    settings->flags_extend &= ~FLAG_SEQNO64
-#define unsetReverse(settings)     settings->flags_extend &= ~FLAG_REVERSE
-#define unsetFullDuplex(settings)  settings->flags_extend &= ~FLAG_FULLDUPLEX
+#define unsetPeerVerDetect(settings) settings->flags_extend &= ~FLAG_PEERVER
+#define unsetSeqNo64b(settings) settings->flags_extend &= ~FLAG_SEQNO64
+#define unsetReverse(settings) settings->flags_extend &= ~FLAG_REVERSE
+#define unsetFullDuplex(settings) settings->flags_extend &= ~FLAG_FULLDUPLEX
 #define unsetServerReverse(settings) settings->flags_extend &= ~FLAG_SERVERREVERSE
-#define unsetIsochronous(settings)  settings->flags_extend &= ~FLAG_ISOCHRONOUS
-#define unsetHistogram(settings)  settings->flags_extend &= ~FLAG_HISTOGRAM
-#define unsetL2LengthCheck(settings)  settings->flags_extend &= ~FLAG_L2LENGTHCHECK
-#define unsetIncrDstIP(settings)    settings->flags_extend &= ~FLAG_INCRDSTIP
-#define unsetIncrSrcIP(settings)    settings->flags_extend &= ~FLAG_INCRSRCIP
-#define unsetIncrDstPort(settings)  settings->flags_extend &= ~FLAG_INCRDSTPORT
-#define unsetIncrSrcPort(settings)  settings->flags_extend2 &= ~FLAG_INCRSRCPORT
-#define unsetTxStartTime(settings)  settings->flags_extend &= ~FLAG_TXSTARTTIME
-#define unsetTxHoldback(settings)   settings->flags_extend &= ~FLAG_TXHOLDBACK
-#define unsetVaryLoad(settings)     settings->flags_extend &= ~FLAG_VARYLOAD
-#define unsetFQPacing(settings)     settings->flags_extend &= ~FLAG_FQPACING
-#define unsetTripTime(settings)     settings->flags_extend &= ~FLAG_TRIPTIME
+#define unsetIsochronous(settings) settings->flags_extend &= ~FLAG_ISOCHRONOUS
+#define unsetHistogram(settings) settings->flags_extend &= ~FLAG_HISTOGRAM
+#define unsetL2LengthCheck(settings) settings->flags_extend &= ~FLAG_L2LENGTHCHECK
+#define unsetIncrDstIP(settings) settings->flags_extend &= ~FLAG_INCRDSTIP
+#define unsetIncrSrcIP(settings) settings->flags_extend &= ~FLAG_INCRSRCIP
+#define unsetIncrDstPort(settings) settings->flags_extend &= ~FLAG_INCRDSTPORT
+#define unsetIncrSrcPort(settings) settings->flags_extend2 &= ~FLAG_INCRSRCPORT
+#define unsetTxStartTime(settings) settings->flags_extend &= ~FLAG_TXSTARTTIME
+#define unsetTxHoldback(settings) settings->flags_extend &= ~FLAG_TXHOLDBACK
+#define unsetVaryLoad(settings) settings->flags_extend &= ~FLAG_VARYLOAD
+#define unsetFQPacing(settings) settings->flags_extend &= ~FLAG_FQPACING
+#define unsetTripTime(settings) settings->flags_extend &= ~FLAG_TRIPTIME
 #define unsetSmallTripTime(settings) settings->flags_extend2 &= ~FLAG_SMALLTRIPTIME
 #define unsetModeInfinite(settings) settings->flags_extend &= ~FLAG_MODEINFINITE
-#define unsetConnectOnly(settings)  settings->flags_extend &= ~FLAG_CONNECTONLY
-#define unsetWriteAck(settings)     settings->flags_extend &= ~FLAG_WRITEACK
-#define unsetNoUDPfin(settings)     settings->flags_extend &= ~FLAG_NOUDPFIN
+#define unsetConnectOnly(settings) settings->flags_extend &= ~FLAG_CONNECTONLY
+#define unsetWriteAck(settings) settings->flags_extend &= ~FLAG_WRITEACK
+#define unsetNoUDPfin(settings) settings->flags_extend &= ~FLAG_NOUDPFIN
 #define unsetNoConnectSync(settings) settings->flags_extend &= ~FLAG_NOCONNECTSYNC
-#define unsetSumOnly(settings)       settings->flags_extend &= ~FLAG_SUMONLY
+#define unsetSumOnly(settings) settings->flags_extend &= ~FLAG_SUMONLY
 #define unsetFrameInterval(settings) settings->flags_extend &= ~FLAG_FRAMEINTERVAL
-#define unsetIPG(settings)           settings->flags_extend &= ~FLAG_IPG
-#define unsetDontRoute(settings)     settings->flags_extend &= ~FLAG_DONTROUTE
-#define unsetPermitKey(settings)     settings->flags_extend &= ~FLAG_PERMITKEY
-#define unsetTCPMSS(settings)        settings->flags_extend &= ~FLAG_SETTCPMSS
+#define unsetIPG(settings) settings->flags_extend &= ~FLAG_IPG
+#define unsetDontRoute(settings) settings->flags_extend &= ~FLAG_DONTROUTE
+#define unsetPermitKey(settings) settings->flags_extend &= ~FLAG_PERMITKEY
+#define unsetTCPMSS(settings) settings->flags_extend &= ~FLAG_SETTCPMSS
 #define unsetPeriodicBurst(settings) settings->flags_extend2 &= ~FLAG_PERIODICBURST
 #define unsetSumServerDstIP(settings) settings->flags_extend2 &= ~FLAG_SUMDSTIP
-#define unsetRxClamp(settings)       settings->flags_extend2 &= ~FLAG_RXCLAMP
+#define unsetRxClamp(settings) settings->flags_extend2 &= ~FLAG_RXCLAMP
 #define unsetWritePrefetch(settings) settings->flags_extend2 &= ~FLAG_WRITEPREFETCH
-#define unsetTapDev(settings)        settings->flags_extend2 &= ~FLAG_TAPDEV
-#define unsetTunDev(settings)        settings->flags_extend2 &= ~FLAG_TUNDEV
-#define unsetHideIPs(settings)       settings->flags_extend2 &= ~FLAG_HIDEIPS
-#define unsetBounceBack(settings)    settings->flags_extend2 &= ~FLAG_BOUNCEBACK
+#define unsetTapDev(settings) settings->flags_extend2 &= ~FLAG_TAPDEV
+#define unsetTunDev(settings) settings->flags_extend2 &= ~FLAG_TUNDEV
+#define unsetHideIPs(settings) settings->flags_extend2 &= ~FLAG_HIDEIPS
+#define unsetBounceBack(settings) settings->flags_extend2 &= ~FLAG_BOUNCEBACK
 #define unsetTcpWriteTimes(settings) settings->flags_extend2 &= ~FLAG_TCPWRITETIMES
-#define unsetOverrideTOS(settings)   settings->flags_extend2 &= ~FLAG_OVERRIDETOS
-#define unsetTcpQuickAck(settings)   settings->flags_extend2 &= ~FLAG_TCPQUICKACK
-#define unsetWorkingLoadUp(settings)   settings->flags_extend2 &= ~FLAG_WORKING_LOAD_UP
+#define unsetOverrideTOS(settings) settings->flags_extend2 &= ~FLAG_OVERRIDETOS
+#define unsetTcpQuickAck(settings) settings->flags_extend2 &= ~FLAG_TCPQUICKACK
+#define unsetWorkingLoadUp(settings) settings->flags_extend2 &= ~FLAG_WORKING_LOAD_UP
 #define unsetWorkingLoadDown(settings) settings->flags_extend2 &= ~FLAG_WORKING_LOAD_DOWN
 #define unsetJitterHistogram(settings) settings->flags_extend2 &= ~FLAG_JITTER_HISTOGRAM
-#define unsetUTC(settings)           settings->flags_extend2 &= ~FLAG_UTC
-#define unsetLoadCCA(settings)       settings->flags_extend2 &= ~FLAG_LOAD_CCA
-#define unsetBurstSize(settings)     settings->flags_extend2 &= ~FLAG_BURSTSIZE
-#define unsetSendDelay(settings)    settings->flags_extend2 &= ~FLAG_SENDDELAY
-#define unsetFQPacingStep(settings)  settings->flags_extend2 &= ~FLAG_FQPACINGSTEP
+#define unsetUTC(settings) settings->flags_extend2 &= ~FLAG_UTC
+#define unsetLoadCCA(settings) settings->flags_extend2 &= ~FLAG_LOAD_CCA
+#define unsetBurstSize(settings) settings->flags_extend2 &= ~FLAG_BURSTSIZE
+#define unsetSendDelay(settings) settings->flags_extend2 &= ~FLAG_SENDDELAY
+#define unsetFQPacingStep(settings) settings->flags_extend2 &= ~FLAG_FQPACINGSTEP
 #define unsetFQPacingStepInterval(settings) settings->flags_extend2 &= ~FLAG_FQPACINGSTEPINTERVAL
-#define unsetOmit(settings)          settings->flags_extend2 &= ~FLAG_OMIT
+#define unsetOmit(settings) settings->flags_extend2 &= ~FLAG_OMIT
 #define unsetSyncTransferID(settings) settings->flags_extend2 &= ~FLAG_SYNCTRANSFERID
 #define unsetIgnoreShutdown(settings) settings->flags_extend2 &= ~FLAG_IGNORESHUTDOWN
-#define unsetSetTOS(settings)         settings->flags_extend2 &= ~FLAG_SETTOS
-#define unsetSkipRxCopy(settings)     settings->flags_extend2 &= ~FLAG_SKIPRXCOPY
-#define unsetUDPL4S(settings)         settings->flags_extend2 &= ~FLAG_UDPL4S
-#define unsetUDPL4SVideo(settings)    settings->flags_extend2 &= ~FLAG_UDPL4SVIDEO
-#define unsetRandSeed(settings)       settings->flags_extend2 &= ~FLAG_SETRANDSEED
+#define unsetSetTOS(settings) settings->flags_extend2 &= ~FLAG_SETTOS
+#define unsetSkipRxCopy(settings) settings->flags_extend2 &= ~FLAG_SKIPRXCOPY
+#define unsetUDPL4S(settings) settings->flags_extend2 &= ~FLAG_UDPL4S
+#define unsetUDPL4SVideo(settings) settings->flags_extend2 &= ~FLAG_UDPL4SVIDEO
+#define unsetRandSeed(settings) settings->flags_extend2 &= ~FLAG_SETRANDSEED
 
 // set to defaults
 void Settings_Initialize(struct thread_Settings* main);
@@ -719,36 +705,38 @@ void Settings_Initialize(struct thread_Settings* main);
 void Settings_Copy(struct thread_Settings* from, struct thread_Settings** into, int copyall);
 
 // grow mBuf
-void Settings_Resize_mBuf(struct thread_Settings *mSettings, int newsize);
+void Settings_Resize_mBuf(struct thread_Settings* mSettings, int newsize);
 
 // free associated memory
-void Settings_Destroy(struct thread_Settings *mSettings);
+void Settings_Destroy(struct thread_Settings* mSettings);
 
 // parse settings from user's environment variables
-void Settings_ParseEnvironment(struct thread_Settings *mSettings);
+void Settings_ParseEnvironment(struct thread_Settings* mSettings);
 
 // parse settings from app's command line
-void Settings_ParseCommandLine(int argc, char **argv, struct thread_Settings *mSettings);
+void Settings_ParseCommandLine(int argc, char** argv, struct thread_Settings* mSettings);
 
 // convert to lower case for [KMG]bits/sec
-void Settings_GetLowerCaseArg(const char *,char *);
+void Settings_GetLowerCaseArg(const char*, char*);
 
 // convert to upper case for [KMG]bytes/sec
-void Settings_GetUpperCaseArg(const char *,char *);
+void Settings_GetUpperCaseArg(const char*, char*);
 
 // generate settings for listener instance
-void Settings_GenerateListenerSettings(struct thread_Settings *client, struct thread_Settings **listener);
+void Settings_GenerateListenerSettings(struct thread_Settings* client,
+                                       struct thread_Settings** listener);
 
 // generate settings for speaker instance
-void Settings_GenerateClientSettings(struct thread_Settings *server, struct thread_Settings **client, void * mBuf);
+void Settings_GenerateClientSettings(struct thread_Settings* server,
+                                     struct thread_Settings** client, void* mBuf);
 
 // generate client header for server
-int Settings_GenerateClientHdr(struct thread_Settings *client, void * hdr, struct timeval startTime);
+int Settings_GenerateClientHdr(struct thread_Settings* client, void* hdr, struct timeval startTime);
 
-int Settings_ClientTestHdrLen(uint32_t flags, struct thread_Settings *inSettings);
+int Settings_ClientTestHdrLen(uint32_t flags, struct thread_Settings* inSettings);
 
 #ifdef __cplusplus
 } /* end extern "C" */
 #endif
 
-#endif // SETTINGS_H
+#endif  // SETTINGS_H

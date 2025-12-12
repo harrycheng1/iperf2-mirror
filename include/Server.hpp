@@ -54,14 +54,13 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-
 #include "Settings.hpp"
 #include "util.h"
 #include "Timestamp.hpp"
 
 /* ------------------------------------------------------------------- */
 class Server {
-public:
+   public:
     // stores server socket, port and TCP/UDP mode
     Server(thread_Settings *inSettings);
 
@@ -77,7 +76,7 @@ public:
     void RunBounceBackTCP(void);
     static void Sig_Int(int inSigno);
 
-private:
+   private:
     thread_Settings *mSettings;
     Timestamp mEndTime;
     Timestamp now;
@@ -88,7 +87,7 @@ private:
     bool InitTrafficLoop(void);
     inline void SetFullDuplexReportStartTime(void);
     inline void SetReportStartTime();
-    bool ReadBBWithRXTimestamp ();
+    bool ReadBBWithRXTimestamp();
     int ReadWithRxTimestamp(void);
     bool ReadPacketID(int);
     void L2_processing(void);
@@ -118,8 +117,8 @@ private:
     struct sockaddr_storage srcaddr;
     struct iovec iov[1];
     struct msghdr message;
-    char ctrl[(CMSG_SPACE(sizeof(struct timeval)) \
-	       + CMSG_SPACE(sizeof(u_char)))]; // add space for rcvtos
+    char ctrl[(CMSG_SPACE(sizeof(struct timeval)) +
+               CMSG_SPACE(sizeof(u_char)))];  // add space for rcvtos
     struct cmsghdr *cmsg;
 #if HAVE_DECL_MSG_CTRUNC
     bool ctrunc_warn_enable;
@@ -130,6 +129,6 @@ private:
     struct iphdr *ip_hdr;
     struct udphdr *udp_hdr;
 #endif
-}; // end class Server
+};  // end class Server
 
-#endif // SERVER_H
+#endif  // SERVER_H

@@ -52,7 +52,6 @@
  *   Incorporates class declarations for fetching data from files
  * ------------------------------------------------------------------- */
 
-
 #ifndef PERFSOCKET_H
 #define PERFSOCKET_H
 
@@ -66,19 +65,19 @@ extern "C" {
 void SetSocketOptions(struct thread_Settings *inSettings);
 void SetSocketOptionsSendTimeout(struct thread_Settings *mSettings, int timer);
 void SetSocketOptionsReceiveTimeout(struct thread_Settings *mSettings, int timer);
-void SetSocketOptionsIPTos (struct thread_Settings *mSettings, int tos);
-void SetSocketTcpTxDelay (struct thread_Settings *mSettings, int delay);
-void SetSocketTxTime (struct thread_Settings *mSettings);
-void SetSocketBindToDeviceIfNeeded (struct thread_Settings *inSettings);
-void SetSocketOptionsIPRCVTos (struct thread_Settings *mSettings);
+void SetSocketOptionsIPTos(struct thread_Settings *mSettings, int tos);
+void SetSocketTcpTxDelay(struct thread_Settings *mSettings, int delay);
+void SetSocketTxTime(struct thread_Settings *mSettings);
+void SetSocketBindToDeviceIfNeeded(struct thread_Settings *inSettings);
+void SetSocketOptionsIPRCVTos(struct thread_Settings *mSettings);
 void setsock_tcp_mss(int inSock, int inMSS);
-int  getsock_tcp_mss(int inSock);
+int getsock_tcp_mss(int inSock);
 #ifdef DEFAULT_PAYLOAD_LEN_PER_MTU_DISCOVERY
-void checksock_max_udp_payload (struct thread_Settings *inSettings);
+void checksock_max_udp_payload(struct thread_Settings *inSettings);
 #endif
 
 #ifdef __cplusplus
 } /* end extern "C" */
 #endif
 
-#endif // PERFSOCKET_H
+#endif  // PERFSOCKET_H

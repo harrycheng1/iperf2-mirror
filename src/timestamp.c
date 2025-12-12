@@ -26,26 +26,26 @@ static void sigalrm();
 static void posttimestamp(void);
 static int postcount = 0;
 
-int main (int argc, char **argv) {
+int main(int argc, char **argv) {
     char *delayvalue = NULL;
-    int c, count=10;
-    double delay=1.0;
+    int c, count = 10;
+    double delay = 1.0;
     int err;
     struct itimerval it;
 
     while ((c = getopt(argc, argv, "c:d:")) != -1) {
         switch (c) {
-        case 'c':
-            count = atoi(optarg);
-            break;
-        case 'd':
-            delayvalue = optarg;
-            break;
-        case '?':
-            fprintf (stderr, "usage: -c <count> -d <delay seconds> \n", optopt);
-            return 1;
-        default:
-            abort ();
+            case 'c':
+                count = atoi(optarg);
+                break;
+            case 'd':
+                delayvalue = optarg;
+                break;
+            case '?':
+                fprintf(stderr, "usage: -c <count> -d <delay seconds> \n", optopt);
+                return 1;
+            default:
+                abort();
         }
     }
     if (delayvalue != NULL) {
@@ -54,24 +54,24 @@ int main (int argc, char **argv) {
     postcount = count;
     // Should probably use sigaction()
     signal(SIGALRM, sigalrm);
-    memset (&it, 0, sizeof (it));
-    it.it_value.tv_sec = (int) (delay);
-    it.it_value.tv_usec = (int) (1000000 * (delay - it.it_value.tv_sec ));
+    memset(&it, 0, sizeof(it));
+    it.it_value.tv_sec = (int)(delay);
+    it.it_value.tv_usec = (int)(1000000 * (delay - it.it_value.tv_sec));
     it.it_interval.tv_sec = it.it_value.tv_sec;
     it.it_interval.tv_usec = it.it_value.tv_usec;
-    err = setitimer( ITIMER_REAL, &it, NULL );
+    err = setitimer(ITIMER_REAL, &it, NULL);
     if (err < 0) {
         perror("itimer");
         exit(1);
     }
-    fprintf(stdout,"Timestamping %d times with %f second delay\n", count, delay);
+    fprintf(stdout, "Timestamping %d times with %f second delay\n", count, delay);
     fflush(stdout);
     while (postcount > 0) {
         pause();
     }
 }
 
-void posttimestamp (void) {
+void posttimestamp(void) {
     struct timespec t1;
     double timestamp;
     int err;
@@ -81,12 +81,12 @@ void posttimestamp (void) {
         perror("clock_getttime");
     } else {
         timestamp = t1.tv_sec + (t1.tv_nsec / 1000000000.0);
-        fprintf(stdout,"%f counter(%d)\n", timestamp, postcount);
+        fprintf(stdout, "%f counter(%d)\n", timestamp, postcount);
     }
     fflush(stdout);
 }
 
-void sigalrm (void) {
+void sigalrm(void) {
     posttimestamp();
     postcount--;
 }

@@ -64,9 +64,9 @@
 #endif
 /* ------------------------------------------------------------------- */
 class Client {
-public:
+   public:
     // stores server hostname, port, UDP/TCP mode, and UDP rate
-    Client( thread_Settings *inSettings );
+    Client(thread_Settings *inSettings);
 
     // destroy the client object
     ~Client();
@@ -74,7 +74,7 @@ public:
     // Set up the traffic thread and invokes
     // appropriate traffic loop per the protocol
     // and type of traffic
-    void Run( void );
+    void Run(void);
 
     // For things like dual tests a server needs to be started by the client,
     // The code in src/launch.cpp will invoke this
@@ -89,7 +89,7 @@ public:
     void RunBounceBackTCP(void);
     struct ReportHeader *myJob;
 
-private:
+   private:
     inline void WritePacketID(intmax_t);
     inline void WriteTcpTxHdr(struct ReportStruct *, int, int);
     inline void WriteTcpTxBBHdr(struct ReportStruct *, uint32_t, int);
@@ -134,7 +134,7 @@ private:
     void RunUDPBurst(void);
 #if HAVE_UDP_L4S
     void RunUDPL4S(void);
-    int ack_poll (time_tp ack_timeout);
+    int ack_poll(time_tp ack_timeout);
     struct udp_l4s_ack UDPAckBuf;
 #endif
     // client connect
@@ -149,7 +149,7 @@ private:
     Timestamp mEndTime;
     Timestamp lastPacketTime;
     Timestamp now;
-    char* readAt;
+    char *readAt;
     Timestamp connect_done, connect_start;
     Isochronous::FrameCounter *framecounter;
     bool isburst;
@@ -161,6 +161,6 @@ private:
 #if HAVE_DECL_SO_MAX_PACING_RATE
     Timestamp PacingStepTime;
 #endif
-}; // end class Client
+};  // end class Client
 
-#endif // CLIENT_H
+#endif  // CLIENT_H

@@ -54,20 +54,12 @@
 extern "C" {
 #endif
 
-enum TimeFormatType {
-    YearThruSec = 0,
-    YearThruSecTZ,
-    CSV,
-    CSVTZ
-};
+enum TimeFormatType { YearThruSec = 0, YearThruSecTZ, CSV, CSVTZ };
 
-enum TimeFormatPrecision {
-    Seconds = 0,
-    Milliseconds,
-    Microseconds
-};
+enum TimeFormatPrecision { Seconds = 0, Milliseconds, Microseconds };
 
-void iperf_formattime (char *timestr, int buflen, struct timeval timestamp, enum TimeFormatPrecision prec, bool utc_time, enum TimeFormatType ftype);
+void iperf_formattime(char *timestr, int buflen, struct timeval timestamp,
+                      enum TimeFormatPrecision prec, bool utc_time, enum TimeFormatType ftype);
 
 #ifdef __cplusplus
 } /* end extern "C" */

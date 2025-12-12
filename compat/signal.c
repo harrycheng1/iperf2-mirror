@@ -61,7 +61,7 @@ extern "C" {
 
 /* list of signal handlers. _NSIG is number of signals defined. */
 
-static SigfuncPtr handlers[ _NSIG ] = { 0};
+static SigfuncPtr handlers[_NSIG] = {0};
 
 /* -------------------------------------------------------------------
  * sig_dispatcher
@@ -71,30 +71,30 @@ static SigfuncPtr handlers[ _NSIG ] = { 0};
  *
  * ------------------------------------------------------------------- */
 
-BOOL WINAPI sig_dispatcher( DWORD type ) {
+BOOL WINAPI sig_dispatcher(DWORD type) {
     SigfuncPtr h = NULL;
     int signo;
 
-    switch ( type ) {
+    switch (type) {
         case CTRL_C_EVENT:
             signo = SIGINT;
-            h = handlers[ SIGINT ];
+            h = handlers[SIGINT];
             break;
 
         case CTRL_CLOSE_EVENT:
         case CTRL_LOGOFF_EVENT:
         case CTRL_SHUTDOWN_EVENT:
             signo = SIGTERM;
-            h = handlers[ SIGTERM ];
+            h = handlers[SIGTERM];
             break;
 
         default:
             break;
     }
 
-    if ( h != NULL ) {
+    if (h != NULL) {
         // call the signal handler
-        h( signo );
+        h(signo);
         return 1;
     } else {
         return 0;
@@ -109,12 +109,12 @@ BOOL WINAPI sig_dispatcher( DWORD type ) {
  * sig_dispatcher above.
  * ------------------------------------------------------------------- */
 
-SigfuncPtr my_signal( int inSigno, SigfuncPtr inFunc ) {
+SigfuncPtr my_signal(int inSigno, SigfuncPtr inFunc) {
     SigfuncPtr old = NULL;
 
-    if ( inSigno >= 0  &&  inSigno < _NSIG ) {
-        old = handlers[ inSigno ];
-        handlers[ inSigno ] = inFunc;
+    if (inSigno >= 0 && inSigno < _NSIG) {
+        old = handlers[inSigno];
+        handlers[inSigno] = inFunc;
     }
 
     return old;
@@ -132,26 +132,26 @@ SigfuncPtr my_signal( int inSigno, SigfuncPtr inFunc ) {
  * from Stevens, 1998, section 5.8
  * ------------------------------------------------------------------- */
 
-SigfuncPtr my_signal( int inSigno, SigfuncPtr inFunc ) {
+SigfuncPtr my_signal(int inSigno, SigfuncPtr inFunc) {
     struct sigaction theNewAction, theOldAction;
 
-    assert( inFunc != NULL );
+    assert(inFunc != NULL);
 
     theNewAction.sa_handler = inFunc;
-    sigemptyset( &theNewAction.sa_mask );
+    sigemptyset(&theNewAction.sa_mask);
     theNewAction.sa_flags = 0;
 
-    if ( inSigno == SIGALRM ) {
+    if (inSigno == SIGALRM) {
 #ifdef SA_INTERRUPT
-        theNewAction.sa_flags |= SA_INTERRUPT;  /* SunOS 4.x */
+        theNewAction.sa_flags |= SA_INTERRUPT; /* SunOS 4.x */
 #endif
     } else {
 #ifdef SA_RESTART
-        theNewAction.sa_flags |= SA_RESTART;    /* SVR4, 4.4BSD */
+        theNewAction.sa_flags |= SA_RESTART; /* SVR4, 4.4BSD */
 #endif
     }
 
-    if ( sigaction( inSigno, &theNewAction, &theOldAction ) < 0 ) {
+    if (sigaction(inSigno, &theNewAction, &theOldAction) < 0) {
         return SIG_ERR;
     } else {
         return theOldAction.sa_handler;
@@ -167,18 +167,18 @@ SigfuncPtr my_signal( int inSigno, SigfuncPtr inFunc ) {
  * times. (TODO: should use a mutex to ensure (num++ == 0) is atomic.)
  * ------------------------------------------------------------------- */
 
-void sig_exit( int inSigno ) {
+void sig_exit(int inSigno) {
     static int num = 0;
-    if ( num++ == 0 ) {
-        fflush( 0 );
-	_exit(0);
+    if (num++ == 0) {
+        fflush(0);
+        _exit(0);
     }
 } /* end sig_exit */
 
 void disarm_itimer(void) {
 #ifdef HAVE_SETITIMER
     struct itimerval it;
-    memset (&it, 0, sizeof (it));
+    memset(&it, 0, sizeof(it));
     setitimer(ITIMER_REAL, &it, NULL);
 #endif
 }
@@ -187,13 +187,13 @@ int set_itimer(uintmax_t usecs) {
     int err = 0;
 #ifdef HAVE_SETITIMER
     if (usecs < 0) {
-	WARN(1, "set_itimer value invalid");
+        WARN(1, "set_itimer value invalid");
     } else {
-	struct itimerval it;
-	memset (&it, 0, sizeof (it));
-	it.it_value.tv_sec = (int)(usecs / 1000000);
-	it.it_value.tv_usec = (int)(usecs % 1000000);
-	err = setitimer(ITIMER_REAL, &it, NULL);
+        struct itimerval it;
+        memset(&it, 0, sizeof(it));
+        it.it_value.tv_sec = (int)(usecs / 1000000);
+        it.it_value.tv_usec = (int)(usecs % 1000000);
+        err = setitimer(ITIMER_REAL, &it, NULL);
     }
 #endif
     return err;

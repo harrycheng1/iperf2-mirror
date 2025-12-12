@@ -67,8 +67,7 @@
 extern "C" {
 #endif
 
-
-#if   defined(HAVE_POSIX_THREAD)
+#if defined(HAVE_POSIX_THREAD)
 
 /* Definitions for Posix Threads (pthreads) */
 #include <pthread.h>
@@ -101,8 +100,8 @@ struct thread_Settings;
 
 #if HAVE_THREAD_DEBUG
 struct ReportHeader;
-void reporttype_text(struct ReportHeader *reporthdr, char *rs);
-void thread_debug(const char *format, ...);
+void reporttype_text(struct ReportHeader* reporthdr, char* rs);
+void thread_debug(const char* format, ...);
 extern Mutex thread_debug_mutex;
 extern Mutex packetringdebug_mutex;
 #endif
@@ -132,7 +131,7 @@ int thread_release_nonterm(int interrupt);
 /* -------------------------------------------------------------------
  * Return the current thread's ID.
  * ------------------------------------------------------------------- */
-#if   defined(HAVE_POSIX_THREAD)
+#if defined(HAVE_POSIX_THREAD)
 #define thread_getid() pthread_self()
 #elif defined(HAVE_WIN32_THREAD)
 #define thread_getid() GetCurrentThreadId()
@@ -144,17 +143,17 @@ int thread_equalid(nthread_t inLeft, nthread_t inRight);
 
 nthread_t thread_zeroid(void);
 
-#if   defined(HAVE_WIN32_THREAD)
+#if defined(HAVE_WIN32_THREAD)
 DWORD WINAPI thread_run_wrapper(void* paramPtr);
 #else
-void*thread_run_wrapper(void* paramPtr);
+void* thread_run_wrapper(void* paramPtr);
 #endif
 
 #if HAVE_SCHED_SETSCHEDULER
-void thread_setscheduler(struct thread_Settings *thread);
+void thread_setscheduler(struct thread_Settings* thread);
 #endif
 
-void thread_rest (void);
+void thread_rest(void);
 
 // defined in launch.cpp
 void server_spawn(struct thread_Settings* thread);
@@ -164,8 +163,8 @@ void listener_spawn(struct thread_Settings* thread);
 void listeners_init(struct thread_Settings* listeners);
 void writeack_server_spawn(struct thread_Settings* thread);
 void writeack_client_spawn(struct thread_Settings* thread);
-int fullduplex_start_barrier(struct BarrierMutex *barrier);
-int fullduplex_stop_barrier(struct BarrierMutex *barrier);
+int fullduplex_start_barrier(struct BarrierMutex* barrier);
+int fullduplex_stop_barrier(struct BarrierMutex* barrier);
 
 // defined in reporter.c
 void reporter_spawn(struct thread_Settings* thread);
@@ -173,4 +172,4 @@ void reporter_spawn(struct thread_Settings* thread);
 #ifdef __cplusplus
 } /* end extern "C" */
 #endif
-#endif // THREAD_H
+#endif  // THREAD_H

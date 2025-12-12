@@ -54,7 +54,7 @@
 #define UTIL_H
 
 #ifdef HAVE_CONFIG_H
-    #include "config.h"
+#include "config.h"
 #endif
 
 #ifdef __cplusplus
@@ -74,12 +74,12 @@ int getsock_tcp_windowsize(int inSock, int inSend);
 
 bool setsock_blocking(int fd, bool blocking);
 #if HAVE_DECL_TCP_WINDOW_CLAMP
-int  getsock_tcp_windowclamp(int inSock);
-int  setsock_tcp_windowclamp(int inSock, int clampsize);
+int getsock_tcp_windowclamp(int inSock);
+int setsock_tcp_windowclamp(int inSock, int clampsize);
 #endif
 #if HAVE_DECL_TCP_NOTSENT_LOWAT
-int  getsock_tcp_notsent_low_watermark(int inSock);
-int  setsock_tcp_notsent_low_watermark(int inSock, int clampsize);
+int getsock_tcp_notsent_low_watermark(int inSock);
+int setsock_tcp_notsent_low_watermark(int inSock, int clampsize);
 #endif
 int recvn(int inSock, char *outBuf, int inLen, int flags);
 int writen(int inSock, const void *inBuf, int inLen, int *count);
@@ -103,15 +103,10 @@ SigfuncPtr my_signal(int inSigno, SigfuncPtr inFunc);
 #ifdef WIN32
 
 #ifdef HAVE_SIGNAL_H
-  #define _NSIG NSIG
+#define _NSIG NSIG
 #else
 /* under windows, emulate unix signals */
-enum {
-    SIGINT,
-    SIGTERM,
-    SIGPIPE,
-    _NSIG
-};
+enum { SIGINT, SIGTERM, SIGPIPE, _NSIG };
 #endif
 
 BOOL WINAPI sig_dispatcher(DWORD type);
@@ -122,67 +117,67 @@ BOOL WINAPI sig_dispatcher(DWORD type);
  * error handlers
  * error.c
  * ------------------------------------------------------------------- */
-void warn      (const char *inMessage, const char *inFile, int inLine);
+void warn(const char *inMessage, const char *inFile, int inLine);
 void warn_errno(const char *inMessage, const char *inFile, int inLine);
-int errno_decode (char *decoded_text, size_t len);
+int errno_decode(char *decoded_text, size_t len);
 
-#define FAIL_exit(cond, msg)       \
-  do {                                          \
-    if (cond) {                               \
-      warn(msg, __FILE__, __LINE__);          \
-      exit(1);                                \
-    }                                           \
-  } while(0)
-
-#if defined(HAVE_POSIX_THREAD) || defined(HAVE_WIN32_THREAD)
-#define FAIL(cond, msg, settings)             \
-  do {                                          \
-    if (cond) {                               \
-      warn(msg, __FILE__, __LINE__);          \
-      thread_stop(settings);                    \
-    }                                           \
-  } while(0)
-#else
-#define FAIL(cond, msg, settings)             \
-  do {                                          \
-    if (cond) {                               \
-      warn(msg, __FILE__, __LINE__);          \
-      exit(1);                                \
-    }                                           \
-  } while(0)
-#endif
-
-#define WARN(cond, msg)                       \
-  do {                                          \
-    if (cond) {                               \
-      warn(msg, __FILE__, __LINE__);          \
-    }                                           \
-  } while(0)
+#define FAIL_exit(cond, msg)               \
+    do {                                   \
+        if (cond) {                        \
+            warn(msg, __FILE__, __LINE__); \
+            exit(1);                       \
+        }                                  \
+    } while (0)
 
 #if defined(HAVE_POSIX_THREAD) || defined(HAVE_WIN32_THREAD)
-#define FAIL_errno(cond, msg, settings)       \
-  do {                                          \
-    if (cond) {                               \
-      warn_errno(msg, __FILE__, __LINE__);    \
-      thread_stop(settings);                    \
-    }                                           \
-  } while(0)
+#define FAIL(cond, msg, settings)          \
+    do {                                   \
+        if (cond) {                        \
+            warn(msg, __FILE__, __LINE__); \
+            thread_stop(settings);         \
+        }                                  \
+    } while (0)
 #else
-#define FAIL_errno(cond, msg, settings)       \
-  do {                                          \
-    if (cond) {                               \
-      warn_errno(msg, __FILE__, __LINE__);    \
-      exit(1);                                \
-    }                                           \
-  } while(0)
+#define FAIL(cond, msg, settings)          \
+    do {                                   \
+        if (cond) {                        \
+            warn(msg, __FILE__, __LINE__); \
+            exit(1);                       \
+        }                                  \
+    } while (0)
 #endif
 
-#define WARN_errno(cond, msg)                 \
-  do {                                          \
-    if (cond) {                               \
-      warn_errno(msg, __FILE__, __LINE__);    \
-    }                                           \
-  } while(0)
+#define WARN(cond, msg)                    \
+    do {                                   \
+        if (cond) {                        \
+            warn(msg, __FILE__, __LINE__); \
+        }                                  \
+    } while (0)
+
+#if defined(HAVE_POSIX_THREAD) || defined(HAVE_WIN32_THREAD)
+#define FAIL_errno(cond, msg, settings)          \
+    do {                                         \
+        if (cond) {                              \
+            warn_errno(msg, __FILE__, __LINE__); \
+            thread_stop(settings);               \
+        }                                        \
+    } while (0)
+#else
+#define FAIL_errno(cond, msg, settings)          \
+    do {                                         \
+        if (cond) {                              \
+            warn_errno(msg, __FILE__, __LINE__); \
+            exit(1);                             \
+        }                                        \
+    } while (0)
+#endif
+
+#define WARN_errno(cond, msg)                    \
+    do {                                         \
+        if (cond) {                              \
+            warn_errno(msg, __FILE__, __LINE__); \
+        }                                        \
+    } while (0)
 
 /* -------------------------------------------------------------------
  * initialize buffer to a pattern
@@ -195,58 +190,59 @@ void pattern(char *outBuf, int inBytes);
  * ------------------------------------------------------------------- */
 double byte_atof(const char *inString);
 double bitorbyte_atof(const char *inString);
-intmax_t byte_atoi(const char  *inString);
+intmax_t byte_atoi(const char *inString);
 uintmax_t bitorbyte_atoi(const char *inString);
-void byte_snprintf(char* outString, int inLen, double inNum, char inFormat);
+void byte_snprintf(char *outString, int inLen, double inNum, char inFormat);
 void make_lower(char *s);
 /*
  * Time macros for C-code (not the include Timestamp.hpp)
  */
 #define rMillion 1000000
 
-
 #ifdef HAVE_CLOCK_GETTIME
-#define TimeGetNow(timeval) do { \
-    struct timespec t1;			\
-    clock_gettime(CLOCK_REALTIME, &t1); \
-    timeval.tv_sec  = t1.tv_sec; \
-    timeval.tv_usec = t1.tv_nsec / 1000; \
-} while (0)
+#define TimeGetNow(timeval)                  \
+    do {                                     \
+        struct timespec t1;                  \
+        clock_gettime(CLOCK_REALTIME, &t1);  \
+        timeval.tv_sec = t1.tv_sec;          \
+        timeval.tv_usec = t1.tv_nsec / 1000; \
+    } while (0)
 #else
-#define TimeGetNow(timeval) do { \
-    gettimeofday(&timeval, NULL); \
-} while (0)
+#define TimeGetNow(timeval)           \
+    do {                              \
+        gettimeofday(&timeval, NULL); \
+    } while (0)
 #endif
-
 
 #define TimeZero(timeval) ((timeval.tv_sec == 0) && (timeval.tv_usec == 0))
 
-#define TimeDifference(left, right) ((left.tv_sec  - right.tv_sec) +	\
-				     (left.tv_usec - right.tv_usec) / ((double) rMillion))
+#define TimeDifference(left, right) \
+    ((left.tv_sec - right.tv_sec) + (left.tv_usec - right.tv_usec) / ((double)rMillion))
 
-#define TimeDifferenceUsec(left, right)  ((1e6 * (left.tv_sec  - right.tv_sec)) + \
-					  (double) (left.tv_usec - right.tv_usec))
+#define TimeDifferenceUsec(left, right) \
+    ((1e6 * (left.tv_sec - right.tv_sec)) + (double)(left.tv_usec - right.tv_usec))
 
-#define TimeDouble(timeval) (timeval.tv_sec + timeval.tv_usec / ((double) rMillion))
+#define TimeDouble(timeval) (timeval.tv_sec + timeval.tv_usec / ((double)rMillion))
 
-#define TimeAdd(left, right)  do {                                    \
-                                    left.tv_usec += right.tv_usec;      \
-                                    if (left.tv_usec > rMillion) {    \
-                                        left.tv_usec -= rMillion;       \
-                                        left.tv_sec++;                  \
-                                    }                                   \
-                                    left.tv_sec += right.tv_sec;        \
-                                } while (0)
+#define TimeAdd(left, right)           \
+    do {                               \
+        left.tv_usec += right.tv_usec; \
+        if (left.tv_usec > rMillion) { \
+            left.tv_usec -= rMillion;  \
+            left.tv_sec++;             \
+        }                              \
+        left.tv_sec += right.tv_sec;   \
+    } while (0)
 
-#define TimeAddIntUsec(left, right)  do {                                    \
-                                    left.tv_usec += right % 1000000;  \
-                                    if (left.tv_usec > rMillion) {    \
-                                        left.tv_usec -= rMillion;       \
-                                        left.tv_sec++;                  \
-                                    }                                   \
-                                    left.tv_sec += right / 1000000;  \
-                                } while (0)
-
+#define TimeAddIntUsec(left, right)      \
+    do {                                 \
+        left.tv_usec += right % 1000000; \
+        if (left.tv_usec > rMillion) {   \
+            left.tv_usec -= rMillion;    \
+            left.tv_sec++;               \
+        }                                \
+        left.tv_sec += right / 1000000;  \
+    } while (0)
 
 /* -------------------------------------------------------------------
  * redirect the stdout to a specified file
@@ -257,55 +253,55 @@ void redirect(const char *inOutputFileName);
 /* -------------------------------------------------------------------
  * delete macro
  * ------------------------------------------------------------------- */
-#define DELETE_PTR(ptr)                       \
-  do {                                          \
-    if (ptr != NULL) {                        \
-      delete ptr;                               \
-      ptr = NULL;                               \
-    }                                           \
-  } while(false)
+#define DELETE_PTR(ptr)    \
+    do {                   \
+        if (ptr != NULL) { \
+            delete ptr;    \
+            ptr = NULL;    \
+        }                  \
+    } while (false)
 
-#define DELETE_ARRAY(ptr)                     \
-  do {                                          \
-    if (ptr != NULL) {                        \
-      delete [] ptr;                            \
-      ptr = NULL;                               \
-    }                                           \
-  } while(false)
+#define DELETE_ARRAY(ptr)  \
+    do {                   \
+        if (ptr != NULL) { \
+            delete[] ptr;  \
+            ptr = NULL;    \
+        }                  \
+    } while (false)
 
-#define FREE_ARRAY(ptr)                     \
-  do {                                          \
-    if (ptr != NULL) {                        \
-      free(ptr); \
-      ptr = NULL;                               \
-    }                                           \
-  } while(false)
-
+#define FREE_ARRAY(ptr)    \
+    do {                   \
+        if (ptr != NULL) { \
+            free(ptr);     \
+            ptr = NULL;    \
+        }                  \
+    } while (false)
 
 // Readn and write error macros
 // Define fatal and nonfatal write errors
 #ifdef WIN32
 #define FATALTCPREADERR(errno) (WSAGetLastError() != WSAEWOULDBLOCK)
-#define FATALUDPREADERR(errno)  (((errno = WSAGetLastError()) != WSAEWOULDBLOCK))
-#define FATALTCPWRITERR(errno)  ((errno = WSAGetLastError()) != WSAETIMEDOUT)
+#define FATALUDPREADERR(errno) (((errno = WSAGetLastError()) != WSAEWOULDBLOCK))
+#define FATALTCPWRITERR(errno) ((errno = WSAGetLastError()) != WSAETIMEDOUT)
 #define NONFATALTCPWRITERR(errno) ((errno = WSAGetLastError()) == WSAETIMEDOUT)
-#define FATALUDPWRITERR(errno)  (((errno = WSAGetLastError()) != WSAETIMEDOUT) \
-				 && (errno != WSAECONNREFUSED))
-#define FATALTCPCONNECTERR(errno)  (((errno = WSAGetLastError()) != WSAETIMEDOUT) && \
-				    (errno != WSAECONNREFUSED) && (errno != WSAEWOULDBLOCK))
+#define FATALUDPWRITERR(errno) \
+    (((errno = WSAGetLastError()) != WSAETIMEDOUT) && (errno != WSAECONNREFUSED))
+#define FATALTCPCONNECTERR(errno)                                                   \
+    (((errno = WSAGetLastError()) != WSAETIMEDOUT) && (errno != WSAECONNREFUSED) && \
+     (errno != WSAEWOULDBLOCK))
 #else
 #define FATALTCPREADERR(errno) ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR))
-#define FATALUDPREADERR(errno) ((errno != EAGAIN) && (errno != EWOULDBLOCK) && \
-				(errno != EINTR))
-#define FATALTCPWRITERR(errno)  (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR)
-#define NONFATALTCPWRITERR(errno)  (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
-#define FATALUDPWRITERR(errno) 	((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR) \
-				 && (errno != ECONNREFUSED) && (errno != ENOBUFS))
-#define FATALTCPCONNECTERR(errno)  ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR) \
-				   && (errno != ECONNREFUSED))
+#define FATALUDPREADERR(errno) ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR))
+#define FATALTCPWRITERR(errno) (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR)
+#define NONFATALTCPWRITERR(errno) (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
+#define FATALUDPWRITERR(errno)                                                                     \
+    ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR) && (errno != ECONNREFUSED) && \
+     (errno != ENOBUFS))
+#define FATALTCPCONNECTERR(errno) \
+    ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR) && (errno != ECONNREFUSED))
 #endif
 
-#define IPERF_SOCKET_ERROR_NONFATAL   -2
+#define IPERF_SOCKET_ERROR_NONFATAL -2
 
 #ifdef __cplusplus
 } /* end extern "C" */

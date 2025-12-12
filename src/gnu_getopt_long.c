@@ -31,8 +31,6 @@
  * $Id: gnu_getopt_long.c,v 1.1.1.1 2004/05/18 01:50:44 kgibbs Exp $
  */
 
-
-
 #include "gnu_getopt.h"
 
 #include <stdio.h>
@@ -42,13 +40,9 @@
 extern "C" {
 #endif
 
-int
-gnu_getopt_long( int argc,
-                 char *const *argv,
-                 const char *options,
-                 const struct option *long_options,
-                 int *opt_index ) {
-    return _gnu_getopt_internal (argc, argv, options, long_options, opt_index, 0);
+int gnu_getopt_long(int argc, char *const *argv, const char *options,
+                    const struct option *long_options, int *opt_index) {
+    return _gnu_getopt_internal(argc, argv, options, long_options, opt_index, 0);
 }
 
 /* Like gnu_getopt_long, but '-' as well as '--' can indicate a long option.
@@ -56,107 +50,90 @@ gnu_getopt_long( int argc,
    but does match a short option, it is parsed as a short option
    instead.  */
 
-int
-gnu_getopt_long_only( int argc,
-                      char *const *argv,
-                      const char *options,
-                      const struct option *long_options,
-                      int *opt_index ) {
-    return _gnu_getopt_internal (argc, argv, options, long_options, opt_index, 1);
+int gnu_getopt_long_only(int argc, char *const *argv, const char *options,
+                         const struct option *long_options, int *opt_index) {
+    return _gnu_getopt_internal(argc, argv, options, long_options, opt_index, 1);
 }
 
 #ifdef __cplusplus
 } /* end extern "C" */
 #endif
 
-
 #ifdef TEST
 
-    #include <stdio.h>
+#include <stdio.h>
 
-int
-main (argc, argv)
+int main(argc, argv)
 int argc;
 char **argv;
 {
-int c;
-int digit_optind = 0;
+    int c;
+    int digit_optind = 0;
 
-while ( 1 ) {
-    int this_option_optind = gnu_optind ? gnu_optind : 1;
-    int option_index = 0;
-    static struct option long_options[] =
-    {
-        {"add", 1, 0, 0},
-        {"append", 0, 0, 0},
-        {"delete", 1, 0, 0},
-        {"verbose", 0, 0, 0},
-        {"create", 0, 0, 0},
-        {"file", 1, 0, 0},
-        {0, 0, 0, 0}
-    };
+    while (1) {
+        int this_option_optind = gnu_optind ? gnu_optind : 1;
+        int option_index = 0;
+        static struct option long_options[] = {
+            {"add", 1, 0, 0},    {"append", 0, 0, 0}, {"delete", 1, 0, 0}, {"verbose", 0, 0, 0},
+            {"create", 0, 0, 0}, {"file", 1, 0, 0},   {0, 0, 0, 0}};
 
-    c = gnu_getopt_long (argc, argv, "abc:d:0123456789",
-                         long_options, &option_index);
-    if ( c == -1 )
-        break;
+        c = gnu_getopt_long(argc, argv, "abc:d:0123456789", long_options, &option_index);
+        if (c == -1) break;
 
-    switch ( c ) {
-        case 0:
-            fprintf ( stderr, "option %s", long_options[option_index].name);
-            if ( gnu_optarg )
-                fprintf ( stderr, " with arg %s", gnu_optarg);
-            fprintf ( stderr, "\n");
-            break;
+        switch (c) {
+            case 0:
+                fprintf(stderr, "option %s", long_options[option_index].name);
+                if (gnu_optarg) fprintf(stderr, " with arg %s", gnu_optarg);
+                fprintf(stderr, "\n");
+                break;
 
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            if ( digit_optind != 0 && digit_optind != this_option_optind )
-                fprintf ( stderr, "digits occur in two different argv-elements.\n");
-            digit_optind = this_option_optind;
-            fprintf ( stderr, "option %c\n", c);
-            break;
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                if (digit_optind != 0 && digit_optind != this_option_optind)
+                    fprintf(stderr, "digits occur in two different argv-elements.\n");
+                digit_optind = this_option_optind;
+                fprintf(stderr, "option %c\n", c);
+                break;
 
-        case 'a':
-            fprintf ( stderr, "option a\n");
-            break;
+            case 'a':
+                fprintf(stderr, "option a\n");
+                break;
 
-        case 'b':
-            fprintf ( stderr, "option b\n");
-            break;
+            case 'b':
+                fprintf(stderr, "option b\n");
+                break;
 
-        case 'c':
-            fprintf ( stderr, "option c with value `%s'\n", gnu_optarg);
-            break;
+            case 'c':
+                fprintf(stderr, "option c with value `%s'\n", gnu_optarg);
+                break;
 
-        case 'd':
-            fprintf ( stderr, "option d with value `%s'\n", gnu_optarg);
-            break;
+            case 'd':
+                fprintf(stderr, "option d with value `%s'\n", gnu_optarg);
+                break;
 
-        case '?':
-            break;
+            case '?':
+                break;
 
-        default:
-            fprintf ( stderr, "?? gnu_getopt returned character code 0%o ??\n", c);
+            default:
+                fprintf(stderr, "?? gnu_getopt returned character code 0%o ??\n", c);
+        }
     }
-}
 
-if ( gnu_optind < argc ) {
-    fprintf ( stderr, "non-option ARGV-elements: ");
-    while ( gnu_optind < argc )
-        fprintf ( stderr, "%s ", argv[gnu_optind++]);
-    fprintf ( stderr, "\n");
-}
+    if (gnu_optind < argc) {
+        fprintf(stderr, "non-option ARGV-elements: ");
+        while (gnu_optind < argc) fprintf(stderr, "%s ", argv[gnu_optind++]);
+        fprintf(stderr, "\n");
+    }
 
-exit (0);
+    exit(0);
 }
 
 #endif /* TEST */

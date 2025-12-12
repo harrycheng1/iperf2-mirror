@@ -70,7 +70,7 @@ extern "C" {
  * returns -1 on error, 0 on no error.
  * ------------------------------------------------------------------- */
 
-int setsock_tcp_windowsize (int inSock, int inTCPWin, int inSend) {
+int setsock_tcp_windowsize(int inSock, int inTCPWin, int inSend) {
 #ifdef SO_SNDBUF
     int rc;
     int newTCPWin;
@@ -88,8 +88,7 @@ int setsock_tcp_windowsize (int inSock, int inTCPWin, int inSend) {
             }
 
             /* set TCP window shift */
-            rc = setsockopt(inSock, IPPROTO_TCP, TCP_WINSHIFT,
-                             (char*) &winShift, sizeof(winShift));
+            rc = setsockopt(inSock, IPPROTO_TCP, TCP_WINSHIFT, (char*)&winShift, sizeof(winShift));
             if (rc < 0) {
                 return rc;
             }
@@ -106,8 +105,7 @@ int setsock_tcp_windowsize (int inSock, int inTCPWin, int inSend) {
         if (inTCPWin > 65535) {
             /* enable RFC 1323 */
             int on = 1;
-            rc = setsockopt(inSock, IPPROTO_TCP, TCP_RFC1323,
-                             (char*) &on, sizeof(on));
+            rc = setsockopt(inSock, IPPROTO_TCP, TCP_RFC1323, (char*)&on, sizeof(on));
             if (rc < 0) {
                 return rc;
             }
@@ -119,15 +117,13 @@ int setsock_tcp_windowsize (int inSock, int inTCPWin, int inSend) {
              * note: results are verified after connect() or listen(),
              * since some OS's don't show the corrected value until then. */
             newTCPWin = inTCPWin;
-            rc = setsockopt(inSock, SOL_SOCKET, SO_RCVBUF,
-                             (char*) &newTCPWin, sizeof(newTCPWin));
+            rc = setsockopt(inSock, SOL_SOCKET, SO_RCVBUF, (char*)&newTCPWin, sizeof(newTCPWin));
         } else {
             /* send buffer -- set
              * note: results are verified after connect() or listen(),
              * since some OS's don't show the corrected value until then. */
             newTCPWin = inTCPWin;
-            rc = setsockopt(inSock, SOL_SOCKET, SO_SNDBUF,
-                             (char*) &newTCPWin, sizeof(newTCPWin));
+            rc = setsockopt(inSock, SOL_SOCKET, SO_SNDBUF, (char*)&newTCPWin, sizeof(newTCPWin));
         }
         if (rc < 0) {
             return rc;
@@ -142,7 +138,7 @@ int setsock_tcp_windowsize (int inSock, int inTCPWin, int inSend) {
  * or -1 on error.
  * ------------------------------------------------------------------- */
 
-int getsock_tcp_windowsize (int inSock, int inSend) {
+int getsock_tcp_windowsize(int inSock, int inSend) {
     int rc = -1;
 #ifdef SO_SNDBUF
     Socklen_t len;
@@ -150,11 +146,9 @@ int getsock_tcp_windowsize (int inSock, int inSend) {
     /* send buffer -- query for buffer size */
     len = sizeof(theTCPWin);
     if (inSend) {
-        rc = getsockopt(inSock, SOL_SOCKET, SO_SNDBUF,
-                         (char*) &theTCPWin, &len);
+        rc = getsockopt(inSock, SOL_SOCKET, SO_SNDBUF, (char*)&theTCPWin, &len);
     } else {
-        rc = getsockopt(inSock, SOL_SOCKET, SO_RCVBUF,
-                         (char*) &theTCPWin, &len);
+        rc = getsockopt(inSock, SOL_SOCKET, SO_RCVBUF, (char*)&theTCPWin, &len);
     }
     if (rc == 0) {
         rc = theTCPWin;
@@ -164,7 +158,7 @@ int getsock_tcp_windowsize (int inSock, int inSend) {
 } /* end getsock_tcp_windowsize */
 
 #if HAVE_DECL_TCP_WINDOW_CLAMP
-int setsock_tcp_windowclamp (int inSock, int clampsize) {
+int setsock_tcp_windowclamp(int inSock, int clampsize) {
     assert(inSock >= 0);
     assert(clampsize > 0);
     int rc;
@@ -176,7 +170,7 @@ int setsock_tcp_windowclamp (int inSock, int clampsize) {
     return rc;
 }
 
-int getsock_tcp_windowclamp (int inSock) {
+int getsock_tcp_windowclamp(int inSock) {
     assert(inSock >= 0);
     int clamp = 0;
     int rc;
@@ -187,14 +181,14 @@ int getsock_tcp_windowclamp (int inSock) {
     rc = getsockopt(inSock, IPPROTO_TCP, TCP_WINDOW_CLAMP, (char*)(&clamp), &len);
     WARN_errno(rc == SOCKET_ERROR, "getsockopt TCP_WINDOW_CLAMP");
     if (rc < 0) {
-	return rc;
+        return rc;
     }
     return clamp;
 }
 #endif
 
 #if HAVE_DECL_TCP_NOTSENT_LOWAT
-int setsock_tcp_notsent_low_watermark (int inSock, int watermark) {
+int setsock_tcp_notsent_low_watermark(int inSock, int watermark) {
     assert(inSock >= 0);
     assert(watermark > 0);
     int rc;
@@ -206,7 +200,7 @@ int setsock_tcp_notsent_low_watermark (int inSock, int watermark) {
     return rc;
 }
 
-int getsock_tcp_notsent_low_watermark (int inSock) {
+int getsock_tcp_notsent_low_watermark(int inSock) {
     assert(inSock >= 0);
     int watermark = 0;
     int rc;
@@ -217,7 +211,7 @@ int getsock_tcp_notsent_low_watermark (int inSock) {
     rc = getsockopt(inSock, IPPROTO_TCP, TCP_NOTSENT_LOWAT, (char*)(&watermark), &len);
     WARN_errno(rc == SOCKET_ERROR, "getsockopt TCP_NOTSENT_LOWAT");
     if (rc < 0) {
-	return rc;
+        return rc;
     }
     return watermark;
 }

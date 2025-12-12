@@ -50,9 +50,9 @@
 
 #include "headers.h"
 
-#define HAVE_TCP_INFLIGHT (HAVE_TCP_STATS && HAVE_STRUCT_TCP_INFO_TCPI_DSACK_DUPS && \
-			   HAVE_STRUCT_TCP_INFO_TCPI_LOST && HAVE_STRUCT_TCP_INFO_TCPI_SACKED \
-			   && HAVE_STRUCT_TCP_INFO_TCPI_UNACKED)
+#define HAVE_TCP_INFLIGHT                                                                        \
+    (HAVE_TCP_STATS && HAVE_STRUCT_TCP_INFO_TCPI_DSACK_DUPS && HAVE_STRUCT_TCP_INFO_TCPI_LOST && \
+     HAVE_STRUCT_TCP_INFO_TCPI_SACKED && HAVE_STRUCT_TCP_INFO_TCPI_UNACKED)
 
 #ifdef __cplusplus
 extern "C" {
@@ -81,7 +81,7 @@ void gettcpinfo(SOCKET sock, struct iperf_tcpstats *sample);
 #else
 void gettcpinfo(int sock, struct iperf_tcpstats *sample);
 #endif
-void tcpstats_copy (struct iperf_tcpstats *stats_dst, struct iperf_tcpstats *stats_src);
+void tcpstats_copy(struct iperf_tcpstats *stats_dst, struct iperf_tcpstats *stats_src);
 
 #ifdef __cplusplus
 } /* end extern "C" */

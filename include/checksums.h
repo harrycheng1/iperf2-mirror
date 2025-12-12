@@ -42,7 +42,7 @@
  *
  * UDP checksums v4 and v6
  *
- * The checksum calculation is defined in RFC 768 
+ * The checksum calculation is defined in RFC 768
  * hints as to how to calculate it efficiently are in RFC 1071
  *
  * by Robert J. McMahon (rjmcmahon@rjmcmahon.com, bob.mcmahon@broadcom.com)

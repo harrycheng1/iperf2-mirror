@@ -58,16 +58,15 @@
 extern "C" {
 #endif
 
-
-#define HEADING_FLAG(HEADING) __ ## HEADING ## _print_done
-#define HEADING_HDR(HEADING) HEADING ## _header
-#define HEADING_PRINT_COND(HEADING)	        \
-  do {                                          \
-      if (!HEADING_FLAG(HEADING)) {		\
-	  printf("%s", HEADING_HDR(HEADING));	\
-	  HEADING_FLAG(HEADING) = 1;		\
-      }					        \
-  } while(0)
+#define HEADING_FLAG(HEADING) __##HEADING##_print_done
+#define HEADING_HDR(HEADING) HEADING##_header
+#define HEADING_PRINT_COND(HEADING)             \
+    do {                                        \
+        if (!HEADING_FLAG(HEADING)) {           \
+            printf("%s", HEADING_HDR(HEADING)); \
+            HEADING_FLAG(HEADING) = 1;          \
+        }                                       \
+    } while (0)
 
 /* -------------------------------------------------------------------
  * usage
@@ -479,9 +478,9 @@ extern const char error_delaytime_exceeds[];
 
 extern const char report_client_bb_triptime_clocksync_error[];
 
-extern const char report_omitted[] ;
+extern const char report_omitted[];
 
 #ifdef __cplusplus
 } /* end extern "C" */
 #endif
-#endif // LOCALE_H
+#endif  // LOCALE_H

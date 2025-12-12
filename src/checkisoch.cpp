@@ -63,57 +63,58 @@
 
 static void posttimestamp(int, int);
 
-int main (int argc, char **argv) {
-    int c, count=100, frequency=100;
-    float mean=1e8;
-    float variance=3e7;
+int main(int argc, char **argv) {
+    int c, count = 100, frequency = 100;
+    float mean = 1e8;
+    float variance = 3e7;
     bool forceslip = false;
 
     Isochronous::FrameCounter *fc = NULL;
 
     while ((c = getopt(argc, argv, "c:f:m:sv:")) != -1) {
         switch (c) {
-        case 'c':
-            count = atoi(optarg);
-            break;
-        case 'f':
-	    frequency = atoi(optarg);
-            break;
-	case 'm':
-	    mean=byte_atof(optarg);
-	    break;
-	case 's':
-	    forceslip = true;
-	    break;
-	case 'v':
-	    variance=byte_atof(optarg);
-	    break;
-        case '?':
-            fprintf (stderr, "usage: -c <count> -f <frames per second> -m <mean> -v <variance>\n");
-            return 1;
-        default:
-            abort ();
+            case 'c':
+                count = atoi(optarg);
+                break;
+            case 'f':
+                frequency = atoi(optarg);
+                break;
+            case 'm':
+                mean = byte_atof(optarg);
+                break;
+            case 's':
+                forceslip = true;
+                break;
+            case 'v':
+                variance = byte_atof(optarg);
+                break;
+            case '?':
+                fprintf(stderr,
+                        "usage: -c <count> -f <frames per second> -m <mean> -v <variance>\n");
+                return 1;
+            default:
+                abort();
         }
     }
     fc = new Isochronous::FrameCounter(frequency);
 
-    fprintf(stdout,"Timestamping %d times at %d fps\n", count, frequency);
+    fprintf(stdout, "Timestamping %d times at %d fps\n", count, frequency);
     fflush(stdout);
     while (count-- > 0) {
-	if (forceslip && count == 8) {
-	    delay_loop (1000000/frequency + 10);
-	}
-	fc->wait_tick();
-	posttimestamp(count, (round(lognormal(mean,variance)) / (frequency * 8)));
-	if (fc->slip) {
-	    fprintf(stdout,"Slip occurred\n");
-	    fc->slip = 0;
-	}
+        if (forceslip && count == 8) {
+            delay_loop(1000000 / frequency + 10);
+        }
+        fc->wait_tick();
+        posttimestamp(count, (round(lognormal(mean, variance)) / (frequency * 8)));
+        if (fc->slip) {
+            fprintf(stdout, "Slip occurred\n");
+            fc->slip = 0;
+        }
     }
     DELETE_PTR(fc);
 }
 
-void posttimestamp (int count, int bytes) {
+void posttimestamp(int count, int bytes) {
     struct timespec t1;
     double timestamp;
     int err;
@@ -123,7 +124,7 @@ void posttimestamp (int count, int bytes) {
         perror("clock_getttime");
     } else {
         timestamp = t1.tv_sec + (t1.tv_nsec / 1000000000.0);
-        fprintf(stdout,"%f counter(%d), sending %d bytes\n", timestamp, count, bytes);
+        fprintf(stdout, "%f counter(%d), sending %d bytes\n", timestamp, count, bytes);
     }
     fflush(stdout);
 }

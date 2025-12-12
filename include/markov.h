@@ -55,7 +55,7 @@ extern "C" {
 #define FloatEqualZero(val) (fabs(val) < FLOATTOLERANCE)
 #define FloatLessThanZero(val) (val < 0.0)
 #define FloatEqualOne(val) (fabs(val - 1.0) < FLOATTOLERANCE))
-#define FloatLessThanOne(val) ((1.0 - val) >  FLOATTOLERANCE)
+#define FloatLessThanOne(val) ((1.0 - val) > FLOATTOLERANCE)
 #define FloatGreaterThanOne(val) ((val - 1.0) > FLOATTOLERANCE)
 
 struct markov_entry {
@@ -78,14 +78,14 @@ struct markov_graph {
     struct markov_entry **entrys;
 };
 
-extern struct markov_graph *markov_graph_init (char *braket_option);
-extern void markov_graph_free (struct markov_graph *graph);
-extern int markov_graph_next (struct markov_graph *graph);
-extern void markov_graph_set_seed (struct markov_graph *graph, int seed);
+extern struct markov_graph *markov_graph_init(char *braket_option);
+extern void markov_graph_free(struct markov_graph *graph);
+extern int markov_graph_next(struct markov_graph *graph);
+extern void markov_graph_set_seed(struct markov_graph *graph, int seed);
 extern void markov_graph_print(struct markov_graph *graph, char *prepend);
-extern bool markov_graph_count_edge_transition (struct markov_graph *graph, int node_len);
+extern bool markov_graph_count_edge_transition(struct markov_graph *graph, int node_len);
 
 #ifdef __cplusplus
 }
 #endif
-#endif // MARKOV_H
+#endif  // MARKOV_H

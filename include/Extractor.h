@@ -72,52 +72,49 @@
 extern "C" {
 #endif
 
-    /**
-     * Constructor
-     * @arg fileName   Name of the file
-     * @arg size       Block size for reading
-     */
-    void Extractor_Initialize( char *fileName, int size, struct thread_Settings *mSettings );
+/**
+ * Constructor
+ * @arg fileName   Name of the file
+ * @arg size       Block size for reading
+ */
+void Extractor_Initialize(char *fileName, int size, struct thread_Settings *mSettings);
 
-    /**
-     * Constructor
-     * @arg fp         File Pointer
-     * @arg size       Block size for reading
-     */
-    void Extractor_InitializeFile( FILE *fp, int size, struct thread_Settings *mSettings );
+/**
+ * Constructor
+ * @arg fp         File Pointer
+ * @arg size       Block size for reading
+ */
+void Extractor_InitializeFile(FILE *fp, int size, struct thread_Settings *mSettings);
 
+/*
+ * Fetches the next data block from
+ * the file
+ * @arg block     Pointer to the data read
+ * @return        Number of bytes read
+ */
+int Extractor_getNextDataBlock(char *data, struct thread_Settings *mSettings);
 
-    /*
-     * Fetches the next data block from
-     * the file
-     * @arg block     Pointer to the data read
-     * @return        Number of bytes read
-     */
-    int Extractor_getNextDataBlock( char *data, struct thread_Settings *mSettings );
+/**
+ * Function which determines whether
+ * the file stream is still readable
+ * @return true, if readable; false, if not
+ */
+int Extractor_canRead(struct thread_Settings *mSettings);
 
+/**
+ * This is used to reduce the read size
+ * Used in UDP transfer to accomodate the
+ * the header (timestamp)
+ * @arg delta         Size to reduce
+ */
+void Extractor_reduceReadSize(int delta, struct thread_Settings *mSettings);
 
-    /**
-     * Function which determines whether
-     * the file stream is still readable
-     * @return true, if readable; false, if not
-     */
-    int Extractor_canRead( struct thread_Settings *mSettings );
-
-    /**
-     * This is used to reduce the read size
-     * Used in UDP transfer to accomodate the
-     * the header (timestamp)
-     * @arg delta         Size to reduce
-     */
-    void Extractor_reduceReadSize( int delta, struct thread_Settings *mSettings );
-
-    /**
-     * Destructor
-     */
-    void Extractor_Destroy( struct thread_Settings *mSettings );
+/**
+ * Destructor
+ */
+void Extractor_Destroy(struct thread_Settings *mSettings);
 #ifdef __cplusplus
 } /* end extern "C" */
 #endif
 
 #endif
-

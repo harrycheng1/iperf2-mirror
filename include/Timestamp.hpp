@@ -64,13 +64,11 @@
 
 /* ------------------------------------------------------------------- */
 class Timestamp {
-public:
+   public:
     /* -------------------------------------------------------------------
      * Create a timestamp, with the current time in it.
      * ------------------------------------------------------------------- */
-    Timestamp(void) {
-        setnow();
-    }
+    Timestamp(void) { setnow(); }
 
     /* -------------------------------------------------------------------
      * Copy construcutor
@@ -83,28 +81,24 @@ public:
     /* -------------------------------------------------------------------
      * Create a timestamp, with the given seconds/microseconds
      * ------------------------------------------------------------------- */
-    Timestamp(time_t sec, long usec) {
-        set(sec, usec);
-    }
+    Timestamp(time_t sec, long usec) { set(sec, usec); }
 
     /* -------------------------------------------------------------------
      * Create a timestamp, with the given seconds
      * ------------------------------------------------------------------- */
-    Timestamp(double sec) {
-        set(sec);
-    }
+    Timestamp(double sec) { set(sec); }
 
     /* -------------------------------------------------------------------
      * Set timestamp to current time.
      * ------------------------------------------------------------------- */
     void inline setnow(void) {
 #ifdef HAVE_CLOCK_GETTIME
-	struct timespec t1;
-	clock_gettime(CLOCK_REALTIME, &t1);
-	mTime.tv_sec  = t1.tv_sec;
+        struct timespec t1;
+        clock_gettime(CLOCK_REALTIME, &t1);
+        mTime.tv_sec = t1.tv_sec;
         mTime.tv_usec = t1.tv_nsec / 1000;
 #else
-	gettimeofday(&mTime, NULL);
+        gettimeofday(&mTime, NULL);
 #endif
     }
 
@@ -112,10 +106,10 @@ public:
      * Set timestamp to the given seconds/microseconds
      * ------------------------------------------------------------------- */
     void set(time_t sec, long usec) {
-        assert(sec  >= 0);
-        assert(usec >= 0  &&  usec < kMillion);
+        assert(sec >= 0);
+        assert(usec >= 0 && usec < kMillion);
 
-        mTime.tv_sec  = sec;
+        mTime.tv_sec = sec;
         mTime.tv_usec = usec;
     }
 
@@ -123,38 +117,32 @@ public:
      * Set timestamp to the given seconds
      * ------------------------------------------------------------------- */
     void set(double sec) {
-        mTime.tv_sec  = (time_t) sec;
-        mTime.tv_usec = (long) ((sec - mTime.tv_sec) * kMillion);
+        mTime.tv_sec = (time_t)sec;
+        mTime.tv_usec = (long)((sec - mTime.tv_sec) * kMillion);
     }
 
     /* -------------------------------------------------------------------
      * return seconds portion of timestamp
      * ------------------------------------------------------------------- */
-    time_t inline getSecs(void) {
-        return mTime.tv_sec;
-    }
+    time_t inline getSecs(void) { return mTime.tv_sec; }
 
     /* -------------------------------------------------------------------
      * return microseconds portion of timestamp
      * ------------------------------------------------------------------- */
-    long inline getUsecs(void) {
-        return mTime.tv_usec;
-    }
+    long inline getUsecs(void) { return mTime.tv_usec; }
 
     /* -------------------------------------------------------------------
      * return timestamp as a floating point seconds
      * ------------------------------------------------------------------- */
-    double get(void) {
-        return mTime.tv_sec + mTime.tv_usec / ((double) kMillion);
-    }
+    double get(void) { return mTime.tv_sec + mTime.tv_usec / ((double)kMillion); }
 
     /* -------------------------------------------------------------------
      * subtract the right timestamp from my timestamp.
      * return the difference in microseconds.
      * ------------------------------------------------------------------- */
     long subUsec(Timestamp right) {
-        return(mTime.tv_sec  - right.mTime.tv_sec) * kMillion +
-        (mTime.tv_usec - right.mTime.tv_usec);
+        return (mTime.tv_sec - right.mTime.tv_sec) * kMillion +
+               (mTime.tv_usec - right.mTime.tv_usec);
     }
 
     /* -------------------------------------------------------------------
@@ -162,8 +150,7 @@ public:
      * return the difference in microseconds.
      * ------------------------------------------------------------------- */
     long subUsec(timeval right) {
-        return(mTime.tv_sec  - right.tv_sec) * kMillion +
-        (mTime.tv_usec - right.tv_usec);
+        return (mTime.tv_sec - right.tv_sec) * kMillion + (mTime.tv_usec - right.tv_usec);
     }
 
     /* -------------------------------------------------------------------
@@ -180,15 +167,15 @@ public:
      * return the difference in seconds as a floating point.
      * ------------------------------------------------------------------- */
     double subSec(Timestamp right) {
-        return(mTime.tv_sec  - right.mTime.tv_sec) +
-        (mTime.tv_usec - right.mTime.tv_usec) / ((double) kMillion);
+        return (mTime.tv_sec - right.mTime.tv_sec) +
+               (mTime.tv_usec - right.mTime.tv_usec) / ((double)kMillion);
     }
 
     /* -------------------------------------------------------------------
      * add the right timestamp to my timestamp.
      * ------------------------------------------------------------------- */
     void add(Timestamp right) {
-        mTime.tv_sec  += right.mTime.tv_sec;
+        mTime.tv_sec += right.mTime.tv_sec;
         mTime.tv_usec += right.mTime.tv_usec;
 
         // watch for under- and overflow
@@ -201,15 +188,14 @@ public:
             mTime.tv_sec++;
         }
 
-        assert(mTime.tv_usec >= 0  &&
-                mTime.tv_usec <  kMillion);
+        assert(mTime.tv_usec >= 0 && mTime.tv_usec < kMillion);
     }
 
     /* -------------------------------------------------------------------
      * add the right timestamp to my timestamp.
      * ------------------------------------------------------------------- */
-    void add (struct timeval *right) {
-        mTime.tv_sec  += right->tv_sec;
+    void add(struct timeval *right) {
+        mTime.tv_sec += right->tv_sec;
         mTime.tv_usec += right->tv_usec;
 
         // watch for under- and overflow
@@ -222,8 +208,7 @@ public:
             mTime.tv_sec++;
         }
 
-        assert(mTime.tv_usec >= 0  &&
-                mTime.tv_usec <  kMillion);
+        assert(mTime.tv_usec >= 0 && mTime.tv_usec < kMillion);
     }
 
     /* -------------------------------------------------------------------
@@ -231,8 +216,8 @@ public:
      * TODO optimize?
      * ------------------------------------------------------------------- */
     void add(double sec) {
-        mTime.tv_sec  += (time_t) sec;
-        mTime.tv_usec += (long) ((sec - ((time_t) sec)) * kMillion);
+        mTime.tv_sec += (time_t)sec;
+        mTime.tv_usec += (long)((sec - ((time_t)sec)) * kMillion);
 
         // watch for overflow
         if (mTime.tv_usec >= kMillion) {
@@ -240,8 +225,7 @@ public:
             mTime.tv_sec++;
         }
 
-        assert(mTime.tv_usec >= 0  &&
-                mTime.tv_usec <  kMillion);
+        assert(mTime.tv_usec >= 0 && mTime.tv_usec < kMillion);
     }
 
     /* -------------------------------------------------------------------
@@ -249,18 +233,17 @@ public:
      * ------------------------------------------------------------------- */
     void add(unsigned int usec) {
         mTime.tv_usec += usec;
-	mTime.tv_sec += mTime.tv_usec / kMillion;
-	mTime.tv_usec = mTime.tv_usec % kMillion;
-	// assert((mTime.tv_usec >= 0) && (mTime.tv_usec < kMillion));
+        mTime.tv_sec += mTime.tv_usec / kMillion;
+        mTime.tv_usec = mTime.tv_usec % kMillion;
+        // assert((mTime.tv_usec >= 0) && (mTime.tv_usec < kMillion));
     }
 
     /* -------------------------------------------------------------------
      * return true if my timestamp is before the right timestamp.
      * ------------------------------------------------------------------- */
     bool before(timeval right) {
-        return mTime.tv_sec < right.tv_sec  ||
-        (mTime.tv_sec == right.tv_sec &&
-         mTime.tv_usec < right.tv_usec);
+        return mTime.tv_sec < right.tv_sec ||
+               (mTime.tv_sec == right.tv_sec && mTime.tv_usec < right.tv_usec);
     }
     bool before(Timestamp right) { return before(right.mTime); }
 
@@ -268,9 +251,8 @@ public:
      * return true if my timestamp is after the right timestamp.
      * ------------------------------------------------------------------- */
     bool after(timeval right) {
-        return mTime.tv_sec > right.tv_sec  ||
-        (mTime.tv_sec == right.tv_sec &&
-         mTime.tv_usec > right.tv_usec);
+        return mTime.tv_sec > right.tv_sec ||
+               (mTime.tv_sec == right.tv_sec && mTime.tv_usec > right.tv_usec);
     }
     bool after(Timestamp right) { return after(right.mTime); }
 
@@ -280,20 +262,17 @@ public:
      */
     double fraction(Timestamp currentTime, Timestamp endTime) {
         if ((currentTime.after(*this)) && (endTime.after(currentTime))) {
-            return(((double)currentTime.subUsec(*this)) /
-                   ((double)endTime.subUsec(*this)));
+            return (((double)currentTime.subUsec(*this)) / ((double)endTime.subUsec(*this)));
         } else {
             return -1.0;
         }
     }
 
-protected:
-    enum {
-        kMillion = 1000000
-    };
+   protected:
+    enum { kMillion = 1000000 };
 
     struct timeval mTime;
 
-}; // end class Timestamp
+};  // end class Timestamp
 
-#endif // TIMESTAMP_H
+#endif  // TIMESTAMP_H

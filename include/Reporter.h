@@ -71,17 +71,17 @@ struct server_hdr;
 #define NETPOWERCONSTANT 1e-6
 #define REPORTTXTMAX 80
 #define MINBARRIERTIMEOUT 3
-#define PARTIALPERCENT 0.25 // used to decide if a final partial report should be displayed
+#define PARTIALPERCENT 0.25  // used to decide if a final partial report should be displayed
 // If the minimum latency exceeds the boundaries below
 // assume the clocks are not synched and suppress the
 // latency output. Units are seconds
-#define UNREALISTIC_LATENCYMINMIN -0.01*1e6
-#define UNREALISTIC_LATENCYMINMAX 60*1e6
-#define JITTER_BINCNT 1000000 // 1 million
-#define JITTER_BINWIDTH 100 // 100 usecs
-#define JITTER_UNITS 1e6 // usecs
-#define JITTER_LCI 5 // 5%
-#define JITTER_UCI 95 // 95%
+#define UNREALISTIC_LATENCYMINMIN -0.01 * 1e6
+#define UNREALISTIC_LATENCYMINMAX 60 * 1e6
+#define JITTER_BINCNT 1000000  // 1 million
+#define JITTER_BINWIDTH 100    // 100 usecs
+#define JITTER_UNITS 1e6       // usecs
+#define JITTER_LCI 5           // 5%
+#define JITTER_UCI 95          // 95%
 
 #ifdef __cplusplus
 extern "C" {
@@ -146,9 +146,9 @@ struct WriteStats {
  * This struct contains all important information from the sending or
  * recieving thread.
  */
-#define L2UNKNOWN  0x01
-#define L2LENERR   0x02
-#define L2CSUMERR  0x04
+#define L2UNKNOWN 0x01
+#define L2LENERR 0x02
+#define L2CSUMERR 0x04
 
 struct L2Stats {
     intmax_t cnt;
@@ -179,16 +179,9 @@ enum ReportType {
     ERROR_REPORT
 };
 
-enum ReportSubType {
-    FULLDUPLEXSUM_REPORT = 1,
-    HOSTSUM_REPORT,
-    TOTALSUM_REPORT
-};
+enum ReportSubType { FULLDUPLEXSUM_REPORT = 1, HOSTSUM_REPORT, TOTALSUM_REPORT };
 
-enum TansferIDType {
-    REVERSED = 1,
-    NORMAL
-};
+enum TansferIDType { REVERSED = 1, NORMAL };
 
 union SendReadStats {
     struct ReadStats read;
@@ -212,7 +205,7 @@ struct ReportCommon {
     unsigned short PortLast;
     unsigned short BindPort;
     unsigned short ListenPort;
-    intmax_t AppRate;            // -b or -u
+    intmax_t AppRate;  // -b or -u
     uint32_t BurstSize;
     int AppRateUnits;
     char Format;
@@ -241,17 +234,17 @@ struct ReportCommon {
     Socklen_t size_local;
     iperf_sockaddr multicast_group;
     Socklen_t size_multicast_group;
-    char* Host;                   // -c
-    char* HideHost;
-    char* Localhost;              // -B
-    char* Ifrname;
-    char* Ifrnametx;
-    char* SSMMulticastStr;
-    char* Congestion;
-    char* LoadCCA;
-    char* transferIDStr;
-    char* BraKetGraph;
-    char* PermitKey;
+    char *Host;  // -c
+    char *HideHost;
+    char *Localhost;  // -B
+    char *Ifrname;
+    char *Ifrnametx;
+    char *SSMMulticastStr;
+    char *Congestion;
+    char *LoadCCA;
+    char *transferIDStr;
+    char *BraKetGraph;
+    char *PermitKey;
     int transferID;
     int peertransferID;
     double rtt_weight;
@@ -300,10 +293,10 @@ struct ShiftCounters {
 };
 
 struct IsochStats {
-    double mFPS; //frames per second
-    double mMean; //variable bit rate mean
-    double mVariance; //vbr variance
-    int mJitterBufSize; //Server jitter buffer size, units is frames
+    double mFPS;         // frames per second
+    double mMean;        // variable bit rate mean
+    double mVariance;    // vbr variance
+    int mJitterBufSize;  // Server jitter buffer size, units is frames
     uintmax_t cntFrames;
     uintmax_t cntFramesMissed;
     uintmax_t cntSlips;
@@ -311,7 +304,7 @@ struct IsochStats {
     struct ShiftUintCounter framecnt;
     struct ShiftUintCounter framelostcnt;
     unsigned int mBurstInterval;
-    unsigned int mBurstIPG; //IPG of packets within the burst
+    unsigned int mBurstIPG;  // IPG of packets within the burst
     uint32_t frameID;
     struct RunningMMMStats transit;
     int newburst;
@@ -326,16 +319,11 @@ struct ReportSettings {
     int pid;
     int sockmaxseg;
     struct IsochStats isochstats;
-    void (*output_handler) (struct ReportSettings *settings);
+    void (*output_handler)(struct ReportSettings *settings);
 };
 
 // Timestamps
-enum TimeStampType {
-    INTERVAL  = 0,
-    FINALPARTIAL,
-    TOTAL,
-    INTERVALPARTIAL
-};
+enum TimeStampType { INTERVAL = 0, FINALPARTIAL, TOTAL, INTERVALPARTIAL };
 
 struct ReportTimeStamps {
     double iStart;
@@ -355,14 +343,14 @@ struct ReportTimeStamps {
 struct TransferInfo {
     struct ReportCommon *common;
     struct ReportTimeStamps ts;
-    void (*output_handler) (struct TransferInfo *stats);
+    void (*output_handler)(struct TransferInfo *stats);
     struct SumReport *sumreport;
     enum ReportType type;
     enum edgeLevel uplevel;
     enum edgeLevel downlevel;
     int groupID;
-    int slot_thread_upcount;  // increments on a thread's first sample into a report interval
-    int slot_thread_downcount; // increments on a thread's interval sum output
+    int slot_thread_upcount;    // increments on a thread's first sample into a report interval
+    int slot_thread_downcount;  // increments on a thread's interval sum output
     bool isMaskOutput;
     uintmax_t cntBytes;
     uintmax_t cntOmitBytes;
@@ -377,15 +365,16 @@ struct TransferInfo {
     double jitter;
     double IPGsum;
     double IPGsumcarry;
-    struct ShiftCounters total; // Shift counters used to calculate interval reports and hold totals
+    struct ShiftCounters
+        total;  // Shift counters used to calculate interval reports and hold totals
     union SendReadStats sock_callstats;
     struct IsochStats isochstats;
     struct histogram *latency_histogram;
     struct histogram *jitter_histogram;
     struct RunningMMMStats transit;
-    struct RunningMMMStats inline_jitter; // per RTP inline calc
+    struct RunningMMMStats inline_jitter;  // per RTP inline calc
     struct histogram *framelatency_histogram;
-    struct RunningMMMStats frame; // isochronous frame or msg burst
+    struct RunningMMMStats frame;  // isochronous frame or msg burst
     struct histogram *bbrtt_histogram;
     struct histogram *bbowdto_histogram;
     struct histogram *bbowdfro_histogram;
@@ -421,7 +410,7 @@ struct SumReport {
     int threads;
     int final_thread_upcount;
     struct TransferInfo info;
-    void (*transfer_protocol_sum_handler) (struct TransferInfo *stats, bool final);
+    void (*transfer_protocol_sum_handler)(struct TransferInfo *stats, bool final);
     struct BarrierMutex fullduplex_barrier;
     bool sum_fd_set;
     bool sum_reverse_set;
@@ -429,13 +418,13 @@ struct SumReport {
 
 struct ReporterData {
     // function pointer for per packet processing
-    void (*packet_handler_pre_report) (struct ReporterData *data, struct ReportStruct *packet);
-    void (*packet_handler_post_report) (struct ReporterData *data, struct ReportStruct *packet);
-    void (*transfer_protocol_handler) (struct ReporterData *data, bool final);
-    bool (*transfer_interval_handler) (struct ReporterData *data, struct ReportStruct *packet);
+    void (*packet_handler_pre_report)(struct ReporterData *data, struct ReportStruct *packet);
+    void (*packet_handler_post_report)(struct ReporterData *data, struct ReportStruct *packet);
+    void (*transfer_protocol_handler)(struct ReporterData *data, bool final);
+    bool (*transfer_interval_handler)(struct ReporterData *data, struct ReportStruct *packet);
 
     struct PacketRing *packetring;
-    int reporter_thread_suspends; // used to detect CPU bound systems
+    int reporter_thread_suspends;  // used to detect CPU bound systems
 
     // group sum and full duplext reports
     struct SumReport *GroupSumReport;
@@ -458,28 +447,29 @@ struct ReportHeader {
     struct ReportHeader *next;
 };
 
-typedef void* (* report_connection)( struct ConnectionInfo*, int );
-typedef void (* report_settings)( struct ReporterData* );
-typedef void (* report_statistics)( struct TransferInfo* );
-typedef void (* report_serverstatistics)( struct ConnectionInfo *, struct TransferInfo* );
+typedef void *(*report_connection)(struct ConnectionInfo *, int);
+typedef void (*report_settings)(struct ReporterData *);
+typedef void (*report_statistics)(struct TransferInfo *);
+typedef void (*report_serverstatistics)(struct ConnectionInfo *, struct TransferInfo *);
 
-void SetSumHandlers (struct thread_Settings *inSettings, struct SumReport* sumreport);
-struct SumReport* InitSumReport(struct thread_Settings *inSettings, int inID, bool fullduplex);
-struct ReportHeader* InitIndividualReport(struct thread_Settings *inSettings);
-struct ReportHeader* InitConnectionReport(struct thread_Settings *inSettings);
-struct ConnectionInfo* InitConnectOnlyReport(struct thread_Settings *thread);
+void SetSumHandlers(struct thread_Settings *inSettings, struct SumReport *sumreport);
+struct SumReport *InitSumReport(struct thread_Settings *inSettings, int inID, bool fullduplex);
+struct ReportHeader *InitIndividualReport(struct thread_Settings *inSettings);
+struct ReportHeader *InitConnectionReport(struct thread_Settings *inSettings);
+struct ConnectionInfo *InitConnectOnlyReport(struct thread_Settings *thread);
 struct ReportHeader *InitSettingsReport(struct thread_Settings *inSettings);
-struct ReportHeader* InitServerRelayUDPReport(struct thread_Settings *inSettings, struct server_hdr *server);
-struct ReportHeader* InitStringReport (char *textoutput);
-struct ReportHeader* InitErrorReport (char *textoutput);
+struct ReportHeader *InitServerRelayUDPReport(struct thread_Settings *inSettings,
+                                              struct server_hdr *server);
+struct ReportHeader *InitStringReport(char *textoutput);
+struct ReportHeader *InitErrorReport(char *textoutput);
 void PostReport(struct ReportHeader *reporthdr);
-void ReportPacket (struct ReporterData* data, struct ReportStruct *packet);
-bool EndJob(struct ReportHeader *reporthdr,  struct ReportStruct *packet);
+void ReportPacket(struct ReporterData *data, struct ReportStruct *packet);
+bool EndJob(struct ReportHeader *reporthdr, struct ReportStruct *packet);
 void FreeReport(struct ReportHeader *reporthdr);
-void FreeSumReport (struct SumReport *sumreport);
+void FreeSumReport(struct SumReport *sumreport);
 void FreeConnectionReport(struct ConnectionInfo *reporthdr);
 void ReportServerUDP(struct thread_Settings *inSettings, struct server_hdr *server);
-void ReportConnections(struct thread_Settings *inSettings );
+void ReportConnections(struct thread_Settings *inSettings);
 void reporter_dump_job_queue(void);
 void IncrSumReportRefCounter(struct SumReport *sumreport);
 int DecrSumReportRefCounter(struct SumReport *sumreport);
@@ -492,7 +482,6 @@ extern report_settings settings_reports[];
 extern report_statistics statistics_reports[];
 extern report_serverstatistics serverstatistics_reports[];
 extern report_statistics multiple_reports[];
-
 
 // The packet or read/write accounting routines used by the reporter thread
 // They're function vectors called from the reporter loop via
@@ -509,15 +498,24 @@ void reporter_handle_packet_bb_client(struct ReporterData *data, struct ReportSt
 // Invoked from the Reporter thread per function vector this_ireport->transfer_interval_handler
 // This is set during Report instantiation (found in Reports.c)
 // These conditionally, e.g per a sample interval, invoke the transfer protocol handlers
-bool reporter_condprint_time_interval_report(struct ReporterData *data, struct ReportStruct *packet);
-bool reporter_condprint_frame_interval_report_client_udp(struct ReporterData *data, struct ReportStruct *packet);
-bool reporter_condprint_frame_interval_report_server_udp(struct ReporterData *data, struct ReportStruct *packet);
-bool reporter_condprint_frame_interval_report_server_tcp(struct ReporterData *data, struct ReportStruct *packet);
-bool reporter_condprint_frame_interval_report_client_tcp(struct ReporterData *data, struct ReportStruct *packet);
-bool reporter_condprint_burst_interval_report_client_udp(struct ReporterData *data, struct ReportStruct *packet);
-bool reporter_condprint_burst_interval_report_server_udp(struct ReporterData *data, struct ReportStruct *packet);
-bool reporter_condprint_burst_interval_report_server_tcp(struct ReporterData *data, struct ReportStruct *packet);
-bool reporter_condprint_burst_interval_report_client_tcp(struct ReporterData *data, struct ReportStruct *packet);
+bool reporter_condprint_time_interval_report(struct ReporterData *data,
+                                             struct ReportStruct *packet);
+bool reporter_condprint_frame_interval_report_client_udp(struct ReporterData *data,
+                                                         struct ReportStruct *packet);
+bool reporter_condprint_frame_interval_report_server_udp(struct ReporterData *data,
+                                                         struct ReportStruct *packet);
+bool reporter_condprint_frame_interval_report_server_tcp(struct ReporterData *data,
+                                                         struct ReportStruct *packet);
+bool reporter_condprint_frame_interval_report_client_tcp(struct ReporterData *data,
+                                                         struct ReportStruct *packet);
+bool reporter_condprint_burst_interval_report_client_udp(struct ReporterData *data,
+                                                         struct ReportStruct *packet);
+bool reporter_condprint_burst_interval_report_server_udp(struct ReporterData *data,
+                                                         struct ReportStruct *packet);
+bool reporter_condprint_burst_interval_report_server_tcp(struct ReporterData *data,
+                                                         struct ReportStruct *packet);
+bool reporter_condprint_burst_interval_report_client_tcp(struct ReporterData *data,
+                                                         struct ReportStruct *packet);
 
 // Each report type needs specialized updating prior to printing its report
 // These functions realize that updating. They are called by the transfer protocol handler,
@@ -547,8 +545,8 @@ void tcp_output_read_triptime(struct TransferInfo *stats);
 void tcp_output_sum_read(struct TransferInfo *stats);
 void tcp_output_sum_read_enhanced(struct TransferInfo *stats);
 void tcp_output_sumcnt_read(struct TransferInfo *stats);
-void tcp_output_sumcnt_read_enhanced (struct TransferInfo *stats);
-void tcp_output_sumcnt_read_triptime (struct TransferInfo *stats);
+void tcp_output_sumcnt_read_enhanced(struct TransferInfo *stats);
+void tcp_output_sumcnt_read_triptime(struct TransferInfo *stats);
 void tcp_output_frame_read(struct TransferInfo *stats);
 void tcp_output_frame_read_triptime(struct TransferInfo *stats);
 void tcp_output_burst_read(struct TransferInfo *stats);
@@ -558,34 +556,34 @@ void tcp_output_write(struct TransferInfo *stats);
 void tcp_output_burst_write(struct TransferInfo *stats);
 void tcp_output_sum_write(struct TransferInfo *stats);
 void tcp_output_sumcnt_write(struct TransferInfo *stats);
-void tcp_output_write_enhanced (struct TransferInfo *stats);
-void tcp_output_write_enhanced_fq (struct TransferInfo *stats);
-void tcp_output_write_enhanced_isoch (struct TransferInfo *stats);
-void tcp_output_sum_write_enhanced (struct TransferInfo *stats);
-void tcp_output_sumcnt_write_enhanced (struct TransferInfo *stats);
-void tcp_output_write_enhanced_write (struct TransferInfo *stats);
+void tcp_output_write_enhanced(struct TransferInfo *stats);
+void tcp_output_write_enhanced_fq(struct TransferInfo *stats);
+void tcp_output_write_enhanced_isoch(struct TransferInfo *stats);
+void tcp_output_sum_write_enhanced(struct TransferInfo *stats);
+void tcp_output_sumcnt_write_enhanced(struct TransferInfo *stats);
+void tcp_output_write_enhanced_write(struct TransferInfo *stats);
 void tcp_output_write_bb(struct TransferInfo *stats);
 // TCP fullduplex
 void tcp_output_fullduplex(struct TransferInfo *stats);
 void tcp_output_fullduplex_enhanced(struct TransferInfo *stats);
-void tcp_output_fullduplex_sum (struct TransferInfo *stats);
+void tcp_output_fullduplex_sum(struct TransferInfo *stats);
 // UDP server
 void udp_output_read(struct TransferInfo *stats);
 void udp_output_read_enhanced(struct TransferInfo *stats);
 void udp_output_read_triptime(struct TransferInfo *stats);
 void udp_output_read_triptime_isoch(struct TransferInfo *stats);
 void udp_output_sum_read(struct TransferInfo *stats);
-void udp_output_sum_read_enhanced (struct TransferInfo *stats);
+void udp_output_sum_read_enhanced(struct TransferInfo *stats);
 void udp_output_sumcnt(struct TransferInfo *stats);
-void udp_output_sumcnt_read_enhanced (struct TransferInfo *stats);
-//UDP client
+void udp_output_sumcnt_read_enhanced(struct TransferInfo *stats);
+// UDP client
 void udp_output_write(struct TransferInfo *stats);
 void udp_output_sum_write(struct TransferInfo *stats);
 void udp_output_write_enhanced(struct TransferInfo *stats);
 void udp_output_write_enhanced_isoch(struct TransferInfo *stats);
-void udp_output_sum_write_enhanced (struct TransferInfo *stats);
+void udp_output_sum_write_enhanced(struct TransferInfo *stats);
 void udp_output_sumcnt_write(struct TransferInfo *stats);
-void udp_output_sumcnt_write_enhanced (struct TransferInfo *stats);
+void udp_output_sumcnt_write_enhanced(struct TransferInfo *stats);
 void udp_output_sumcnt_enhanced(struct TransferInfo *stats);
 void udp_output_sumcnt_read_triptime(struct TransferInfo *stats);
 // UDP full duplex
@@ -608,31 +606,31 @@ void tcp_output_read_triptime_sum_csv(struct TransferInfo *stats);
 void tcp_output_read_isochronous_csv(struct TransferInfo *stats);
 void tcp_output_read_isochronous_sum_csv(struct TransferInfo *stats);
 void tcp_output_write_enhanced_csv(struct TransferInfo *stats);
-void tcp_output_write_bb_csv (struct TransferInfo *stats);
-void tcp_output_write_bb_sum_csv (struct TransferInfo *stats);
+void tcp_output_write_bb_csv(struct TransferInfo *stats);
+void tcp_output_write_bb_sum_csv(struct TransferInfo *stats);
 
 // The report output routines that are simpler and aren't related to stats
 void reporter_print_connection_report(struct ConnectionInfo *report);
 void reporter_print_settings_report(struct ReportSettings *report);
 void reporter_print_server_relay_report(struct ServerRelay *report);
-void reporter_peerversion (struct ConnectionInfo *report, uint32_t upper, uint32_t lower);
+void reporter_peerversion(struct ConnectionInfo *report, uint32_t upper, uint32_t lower);
 void PrintMSS(struct ReporterData *data);
 void reporter_default_heading_flags(int);
 void reporter_connect_printf_tcp_final(struct ConnectionInfo *report);
 
 void write_UDP_AckFIN(struct TransferInfo *stats, int len);
 
-bool reporter_process_transfer_report (struct ReporterData *this_ireport);
-bool reporter_process_report (struct ReportHeader *reporthdr);
+bool reporter_process_transfer_report(struct ReporterData *this_ireport);
+bool reporter_process_report(struct ReportHeader *reporthdr);
 
 void setTransferID(struct thread_Settings *inSettings, enum TansferIDType traffic_direction);
 void updateTransferIDPeer(struct thread_Settings *inSettings);
-void format_ips_port_string (struct TransferInfo *stats, bool sum);
-int post_connection_error (struct thread_Settings *inSettings, struct timeval t);
-void post_connect_timer_expired (struct thread_Settings *inSettings, struct timeval t);
+void format_ips_port_string(struct TransferInfo *stats, bool sum);
+int post_connection_error(struct thread_Settings *inSettings, struct timeval t);
+void post_connect_timer_expired(struct thread_Settings *inSettings, struct timeval t);
 
 #ifdef __cplusplus
 } /* end extern "C" */
 #endif
 
-#endif // REPORTER_H
+#endif  // REPORTER_H

@@ -92,8 +92,8 @@ struct Iperf_Table {
 /*
  * Functions to modify or search the list
  */
-void Iperf_initialize_active_table (void);
-void Iperf_destroy_active_table (void);
-bool Iperf_push_host (struct thread_Settings *agent);
-void Iperf_remove_host (struct thread_Settings *agent);
+void Iperf_initialize_active_table(void);
+void Iperf_destroy_active_table(void);
+bool Iperf_push_host(struct thread_Settings *agent);
+void Iperf_remove_host(struct thread_Settings *agent);
 #endif

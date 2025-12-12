@@ -59,97 +59,91 @@ extern "C" {
 #define TCP_CCA_NAME_MAX 32
 
 /* key for permit */
-#define HEADER_KEYCHECK     0x10000000
-#define HEADER_KEYL1        0x01000000
-#define HEADER_KEYL2        0x02000000
-#define HEADER_KEYLEN_MASK  0x0000FFFE // Lower bit used by V1 hdr
+#define HEADER_KEYCHECK 0x10000000
+#define HEADER_KEYL1 0x01000000
+#define HEADER_KEYL2 0x02000000
+#define HEADER_KEYLEN_MASK 0x0000FFFE  // Lower bit used by V1 hdr
 #define DEFAULT_PERMITKEY_LEN 16
-#define MIN_PERMITKEY_LEN      4
-#define MAX_PERMITKEY_LEN    128
+#define MIN_PERMITKEY_LEN 4
+#define MAX_PERMITKEY_LEN 128
 
 /*
  * base flags, keep compatible with older versions
  */
-#define HEADER_VERSION1      0x80000000
-#define HEADER_EXTEND        0x40000000
-#define HEADER_UDPTESTS      0x20000000
+#define HEADER_VERSION1 0x80000000
+#define HEADER_EXTEND 0x40000000
+#define HEADER_UDPTESTS 0x20000000
 // reserved for keycheck flag    0x10000000
-#define HEADER_SEQNO64B      0x08000000
-#define HEADER_VERSION2      0x04000000
-#define HEADER_V2PEERDETECT  0x02000000
-#define HEADER_UDPAVOID2     0x02000000
-#define HEADER_UDPAVOID1     0x01000000
-#define HEADER_BOUNCEBACK    0x00800000
+#define HEADER_SEQNO64B 0x08000000
+#define HEADER_VERSION2 0x04000000
+#define HEADER_V2PEERDETECT 0x02000000
+#define HEADER_UDPAVOID2 0x02000000
+#define HEADER_UDPAVOID1 0x01000000
+#define HEADER_BOUNCEBACK 0x00800000
 
 #define HEADER32_SMALL_TRIPTIMES 0x00020000
-#define HEADER_LEN_BIT       0x00010000
-#define HEADER_LEN_MASK      0x000001FE
-#define MAX_HEADER_LEN       256
+#define HEADER_LEN_BIT 0x00010000
+#define HEADER_LEN_MASK 0x000001FE
+#define MAX_HEADER_LEN 256
 #define SERVER_HEADER_EXTEND 0x40000000
-#define RUN_NOW              0x00000001
-#define HEADER16_SMALL_TRIPTIMES 0x0002 // use is 16 bits and not 32 bits
+#define RUN_NOW 0x00000001
+#define HEADER16_SMALL_TRIPTIMES 0x0002  // use is 16 bits and not 32 bits
 
 // Num threads highest bit indicates sync id
-#define HEADER_HASTRANSFERID   0x80000000
-#define HEADER_TRANSFERIDMASK  0xFFF00000
+#define HEADER_HASTRANSFERID 0x80000000
+#define HEADER_TRANSFERIDMASK 0xFFF00000
 #define HEADER_TRANSFERIDSHIFT 20
 
 // Bounceback flag
-#define HEADER_BBQUICKACK    0x8000
-#define HEADER_BBCLOCKSYNCED 0x4000 // used in the bb header only
-#define HEADER_BBTOS         0x2000
-#define HEADER_BBSTOP        0x1000
-#define HEADER_BBREPLYSIZE   0x0800
+#define HEADER_BBQUICKACK 0x8000
+#define HEADER_BBCLOCKSYNCED 0x4000  // used in the bb header only
+#define HEADER_BBTOS 0x2000
+#define HEADER_BBSTOP 0x1000
+#define HEADER_BBREPLYSIZE 0x0800
 
 // newer flags available per HEADER_EXTEND
 // Below flags are used to pass test settings in *every* UDP packet
 // and not just during the header exchange
 // upper flags (16 bit)
-#define HEADER_ISOCH          0x0001
-#define HEADER_L2ETHPIPV6     0x0002
-#define HEADER_L2LENCHECK     0x0004
-#define HEADER_NOUDPFIN       0x0008
-#define HEADER_TRIPTIME       0x0010
-#define HEADER_UNUSED2        0x0020
+#define HEADER_ISOCH 0x0001
+#define HEADER_L2ETHPIPV6 0x0002
+#define HEADER_L2LENCHECK 0x0004
+#define HEADER_NOUDPFIN 0x0008
+#define HEADER_TRIPTIME 0x0010
+#define HEADER_UNUSED2 0x0020
 #define HEADER_ISOCH_SETTINGS 0x0040
-#define HEADER_UNITS_PPS      0x0080
-#define HEADER_BWSET          0x0100
-#define HEADER_FQRATESET      0x0200
-#define HEADER_REVERSE        0x0400
-#define HEADER_FULLDUPLEX     0x0800
-#define HEADER_EPOCH_START    0x1000
-#define HEADER_PERIODICBURST  0x2000
-#define HEADER_WRITEPREFETCH  0x4000
-#define HEADER_TCPQUICKACK    0x8000
+#define HEADER_UNITS_PPS 0x0080
+#define HEADER_BWSET 0x0100
+#define HEADER_FQRATESET 0x0200
+#define HEADER_REVERSE 0x0400
+#define HEADER_FULLDUPLEX 0x0800
+#define HEADER_EPOCH_START 0x1000
+#define HEADER_PERIODICBURST 0x2000
+#define HEADER_WRITEPREFETCH 0x4000
+#define HEADER_TCPQUICKACK 0x8000
 
 // lower flags (16 bit)
-#define HEADER_CCA          0x8000
+#define HEADER_CCA 0x8000
 #define HEADER_BARRIER_TIME 0x4000
-#define HEADER_UDPL4S       0x2000
+#define HEADER_UDPL4S 0x2000
 
 // later features
-#define HDRXACKMAX 2500000 // default 2.5 seconds, units microseconds
-#define HDRXACKMIN   10000 // default 10 ms, units microsecond
+#define HDRXACKMAX 2500000  // default 2.5 seconds, units microseconds
+#define HDRXACKMIN 10000    // default 10 ms, units microsecond
 
 // L4S ACK Flags
 #define L4S_ECN_ERR 0x0001
 #define L4S_PKT_FIN 0x0002
 
 enum L4SDataType {
-  L4SPKTDATA = 0x1,
+    L4SPKTDATA = 0x1,
 };
 
 /*
  * Structures used for test messages which
  * are exchanged between the client and the Server/Listener
  */
-enum MsgType {
-    CLIENTHDR = 0x1,
-    CLIENTHDRACK,
-    CLIENTTCPHDR,
-    SERVERHDR,
-    SERVERHDRACK
-};
+enum MsgType { CLIENTHDR = 0x1, CLIENTHDRACK, CLIENTTCPHDR, SERVERHDR, SERVERHDRACK };
 
 #define MINIPERFPAYLOAD 18
 // Minimum IPv4 frame size = 18 (Ethernet) + 20 (IPv4) + 8 (UDP) + 18 (payload) = 64 bytes
@@ -161,10 +155,10 @@ enum MsgType {
  * and must be packed by the compilers
  * Align on 32 bits (4 bytes)
  */
-#pragma pack(push,4)
+#pragma pack(push, 4)
 struct UDP_datagram {
-// used to reference the 4 byte ID number we place in UDP datagrams
-// Support 64 bit seqno on machines that support them
+    // used to reference the 4 byte ID number we place in UDP datagrams
+    // Support 64 bit seqno on machines that support them
     uint32_t id;
     uint32_t tv_sec;
     uint32_t tv_usec;
@@ -177,7 +171,7 @@ struct hdr_typelen {
 };
 
 struct TCP_datagram {
-// used to reference write ids and timestamps in TCP payloads
+    // used to reference write ids and timestamps in TCP payloads
     struct hdr_typelen typelen;
     uint32_t id;
     uint32_t id2;
@@ -223,9 +217,9 @@ struct client_hdr_v1 {
 //    o) burst size is the payload size and size of bounce back write
 //    o) burst id is a running seq no
 //    o) send is the write timestamp
-//    o) bb_r2w_hold is an optional delay value between the read and bb write, typically expected as zero
-//    o) triptimes will support OWD measurements in each direction (useful for asymmetry testing)
-//    o) min payload
+//    o) bb_r2w_hold is an optional delay value between the read and bb write, typically expected as
+//    zero o) triptimes will support OWD measurements in each direction (useful for asymmetry
+//    testing) o) min payload
 //         - seven 32b or 28 bytes with round trip only,
 //	   - eleven 32b or 44 bytes when including trip-times support
 //    o) no need for a bb read timestamp to be passed in the payload
@@ -245,11 +239,11 @@ struct bounceback_hdr {
     uint32_t bbid;
     uint16_t bbflags;
     uint16_t tos;
-    uint32_t bbRunTime; //units 10 ms
+    uint32_t bbRunTime;  // units 10 ms
     struct bb_ts bbclientTx_ts;
     struct bb_ts bbserverRx_ts;
     struct bb_ts bbserverTx_ts;
-    uint32_t bbhold; // up to here is mandatory
+    uint32_t bbhold;  // up to here is mandatory
     uint32_t bbrtt;
     struct bb_ts bbread_ts;
     uint32_t bbreplysize;
@@ -453,7 +447,7 @@ struct TCP_burst_payload {
  *
  */
 struct isoch_payload {
-    uint32_t burstperiod; //period units microseconds
+    uint32_t burstperiod;  // period units microseconds
     uint32_t start_tv_sec;
     uint32_t start_tv_usec;
     uint32_t prevframeid;
@@ -543,13 +537,14 @@ struct client_udp_l4s_fwd {
  *                +--------+--------+--------+--------+
  */
 struct udp_l4s_ack {
-    uint16_t flags; // L4S_ECN_ERR bit, receiver found a bleached/error ECN; stop using L4S_id on the sending packets!
+    uint16_t flags;  // L4S_ECN_ERR bit, receiver found a bleached/error ECN; stop using L4S_id on
+                     // the sending packets!
     uint16_t l4sreserved;
-    int32_t rx_ts; // timestamp from peer, freeze and keep this time
-    int32_t echoed_ts; // echoed_timestamp can be used to calculate the RTT
-    int32_t rx_cnt; // echoed_packet counter
-    int32_t CE_cnt; // echoed CE counter
-    int32_t lost_cnt; // echoed lost counter
+    int32_t rx_ts;      // timestamp from peer, freeze and keep this time
+    int32_t echoed_ts;  // echoed_timestamp can be used to calculate the RTT
+    int32_t rx_cnt;     // echoed_packet counter
+    int32_t CE_cnt;     // echoed CE counter
+    int32_t lost_cnt;   // echoed lost counter
     int32_t reserved1;
 };
 
@@ -736,10 +731,11 @@ struct server_hdr {
 #define SIZEOF_UDPHDRMSG_EXT (sizeof(struct client_udp_testhdr))
 #define SIZEOF_TCPHDRMSG_V1 (sizeof(struct client_hdr_v1))
 #define SIZEOF_TCPHDRMSG_EXT (sizeof(struct client_tcp_testhdr))
-#define MINMBUFALLOCSIZE (int) (sizeof(struct client_tcp_testhdr)) + TAPBYTESSLOP
-#define MINTRIPTIMEPAYLOAD (int) (sizeof(struct client_udp_testhdr) - sizeof(struct client_hdrext_isoch_settings))
+#define MINMBUFALLOCSIZE (int)(sizeof(struct client_tcp_testhdr)) + TAPBYTESSLOP
+#define MINTRIPTIMEPAYLOAD \
+    (int)(sizeof(struct client_udp_testhdr) - sizeof(struct client_hdrext_isoch_settings))
 #ifdef __cplusplus
 } /* end extern "C" */
 #endif
 
-#endif // PAYLOADS
+#endif  // PAYLOADS

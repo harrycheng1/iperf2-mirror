@@ -35,13 +35,13 @@
  * but it is 8 bytes, and we leave HAVE_INT32_T undefined. */
 #define SIZEOF_INT 4
 #define HAVE_U_INT16_T 1
-#define HAVE_INT32_T   1
-#define HAVE_INT64_T   1
+#define HAVE_INT32_T 1
+#define HAVE_INT64_T 1
 #define HAVE_U_INT32_T 1
 
-#define int32_t     LONG32
-#define u_int16_t   UINT16
-#define u_int32_t   ULONG32
+#define int32_t LONG32
+#define u_int16_t UINT16
+#define u_int32_t ULONG32
 /* #undef  size_t */
 #define ssize_t int
 
@@ -61,8 +61,8 @@
 
 /* standard C++, which isn't always... */
 /* #undef bool */
-#define true   1
-#define false  0
+#define true 1
+#define false 0
 
 /* Define if the host is Big Endian (network byte order) */
 /* #undef WORDS_BIGENDIAN */

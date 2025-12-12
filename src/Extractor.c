@@ -63,23 +63,20 @@
 
 #include "Extractor.h"
 
-
 /**
  * Constructor
  * @arg fileName   Name of the file
  * @arg size       Block size for reading
  * Open the file and set the block size
  */
-void Extractor_Initialize ( char *fileName, int inSize, struct thread_Settings *mSettings ) {
-
-    if ( (mSettings->Extractor_file = fopen (fileName, "rb")) == NULL ) {
-        fprintf( stderr, "Unable to open the file stream\n");
-        fprintf( stderr, "Will use the default data stream\n");
+void Extractor_Initialize(char *fileName, int inSize, struct thread_Settings *mSettings) {
+    if ((mSettings->Extractor_file = fopen(fileName, "rb")) == NULL) {
+        fprintf(stderr, "Unable to open the file stream\n");
+        fprintf(stderr, "Will use the default data stream\n");
         return;
     }
-    mSettings->Extractor_size =  inSize;
+    mSettings->Extractor_size = inSize;
 }
-
 
 /**
  * Constructor
@@ -87,20 +84,17 @@ void Extractor_Initialize ( char *fileName, int inSize, struct thread_Settings *
  * @arg size       Block size for reading
  * Set the block size,file pointer
  */
-void Extractor_InitializeFile ( FILE *fp, int inSize, struct thread_Settings *mSettings ) {
+void Extractor_InitializeFile(FILE *fp, int inSize, struct thread_Settings *mSettings) {
     mSettings->Extractor_file = fp;
-    mSettings->Extractor_size =  inSize;
+    mSettings->Extractor_size = inSize;
 }
-
 
 /**
  * Destructor - Close the file
  */
-void Extractor_Destroy ( struct thread_Settings *mSettings ) {
-    if ( mSettings->Extractor_file != NULL )
-        fclose( mSettings->Extractor_file );
+void Extractor_Destroy(struct thread_Settings *mSettings) {
+    if (mSettings->Extractor_file != NULL) fclose(mSettings->Extractor_file);
 }
-
 
 /*
  * Fetches the next data block from
@@ -108,10 +102,9 @@ void Extractor_Destroy ( struct thread_Settings *mSettings ) {
  * @arg block     Pointer to the data read
  * @return        Number of bytes read
  */
-int Extractor_getNextDataBlock ( char *data, struct thread_Settings *mSettings ) {
-    if ( Extractor_canRead( mSettings ) ) {
-        return(fread( data, 1, mSettings->Extractor_size,
-                      mSettings->Extractor_file ));
+int Extractor_getNextDataBlock(char *data, struct thread_Settings *mSettings) {
+    if (Extractor_canRead(mSettings)) {
+        return (fread(data, 1, mSettings->Extractor_size, mSettings->Extractor_file));
     }
     return 0;
 }
@@ -121,9 +114,8 @@ int Extractor_getNextDataBlock ( char *data, struct thread_Settings *mSettings )
  * the file stream is still readable
  * @return boolean    true, if readable; false, if not
  */
-int Extractor_canRead ( struct thread_Settings *mSettings ) {
-    return(( mSettings->Extractor_file != NULL )
-           && !(feof( mSettings->Extractor_file )));
+int Extractor_canRead(struct thread_Settings *mSettings) {
+    return ((mSettings->Extractor_file != NULL) && !(feof(mSettings->Extractor_file)));
 }
 
 /**
@@ -132,57 +124,6 @@ int Extractor_canRead ( struct thread_Settings *mSettings ) {
  * the header (timestamp)
  * @arg delta         Size to reduce
  */
-void Extractor_reduceReadSize ( int delta, struct thread_Settings *mSettings ) {
+void Extractor_reduceReadSize(int delta, struct thread_Settings *mSettings) {
     mSettings->Extractor_size -= delta;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

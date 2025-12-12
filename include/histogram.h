@@ -73,11 +73,12 @@ struct histogram {
     struct histogram *prev;
 };
 
-extern struct histogram *histogram_init(unsigned int bincount, unsigned int binwidth, float offset,\
-					float units, double ci_lower, double ci_upper, unsigned int id, char *name, bool omit);
+extern struct histogram *histogram_init(unsigned int bincount, unsigned int binwidth, float offset,
+                                        float units, double ci_lower, double ci_upper,
+                                        unsigned int id, char *name, bool omit);
 extern void histogram_delete(struct histogram *h);
 extern int histogram_insert(struct histogram *h, float value, struct timeval *ts);
 extern void histogram_clear(struct histogram *h);
 extern void histogram_add(struct histogram *to, struct histogram *from);
 extern void histogram_print(struct histogram *h, double, double);
-#endif // HISTOGRAMC_H
+#endif  // HISTOGRAMC_H

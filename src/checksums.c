@@ -165,10 +165,10 @@
  */
 
 #define IPV4SRCOFFSET 12  // the ipv4 source address offset from the l3 pdu
-#define IPV6SRCOFFSET 8 // the ipv6 source address offset
-#define IPV6SIZE 8 // units is number of 16 bits, i.e. 128 bits is eight 16 bits
-#define IPV4SIZE 2 // v4 is two 16 bits (32 bits)
-#define UDPPROTO 17 // UDP protocol value for psuedo header
+#define IPV6SRCOFFSET 8   // the ipv6 source address offset
+#define IPV6SIZE 8        // units is number of 16 bits, i.e. 128 bits is eight 16 bits
+#define IPV4SIZE 2        // v4 is two 16 bits (32 bits)
+#define UDPPROTO 17       // UDP protocol value for psuedo header
 uint32_t udpchecksum(const void *l3pdu, const void *l4pdu, int udplen, int v6) {
     register uint32_t sum = 0;
     const uint16_t *data;
@@ -176,12 +176,12 @@ uint32_t udpchecksum(const void *l3pdu, const void *l4pdu, int udplen, int v6) {
 
     const struct udphdr *udp_hdr = (const struct udphdr *)l4pdu;
     if (!udp_hdr->check) {
-	if (v6)
-	    // v6 requires checksums
-	    return -1;
-	else
-	    // v4 checksums are optional
-	    return 0;
+        if (v6)
+            // v6 requires checksums
+            return -1;
+        else
+            // v4 checksums are optional
+            return 0;
     }
 
     /*
@@ -192,39 +192,37 @@ uint32_t udpchecksum(const void *l3pdu, const void *l4pdu, int udplen, int v6) {
      *  per each loop to cover both addrs
      */
     if (v6) {
-	// skip to the ip header v6 src field, offset 8 (see ipv6 header)
-	data = (const uint16_t *)((char *)l3pdu + IPV6SRCOFFSET);
-	for (i = 0; i < (2 * IPV6SIZE); i++) {
-	    sum += *data++;
-	}
+        // skip to the ip header v6 src field, offset 8 (see ipv6 header)
+        data = (const uint16_t *)((char *)l3pdu + IPV6SRCOFFSET);
+        for (i = 0; i < (2 * IPV6SIZE); i++) {
+            sum += *data++;
+        }
     } else {
-	// skip to the ip header v4 src field, offset 12 (see ipv4 header)
-	data = (const uint16_t *)((char *)l3pdu + IPV4SRCOFFSET);
-	for (i = 0; i < (2 * IPV4SIZE); i++) {
-	    sum += *data++;
-	}
+        // skip to the ip header v4 src field, offset 12 (see ipv4 header)
+        data = (const uint16_t *)((char *)l3pdu + IPV4SRCOFFSET);
+        for (i = 0; i < (2 * IPV4SIZE); i++) {
+            sum += *data++;
+        }
     }
     //  These should work for both v4 and v6 even though
     //  v6 psuedo header uses 32 bit values because the
     //  uppers in v6 will be zero
-    sum += htons(UDPPROTO); // proto of UDP is 17
-    sum += htons(udplen); // For UDP, the pseudo hdr len equals udp len
+    sum += htons(UDPPROTO);  // proto of UDP is 17
+    sum += htons(udplen);    // For UDP, the pseudo hdr len equals udp len
 
     /*
      * UDP hdr + payload
      */
-    data = (const uint16_t *) l4pdu;
-    while( udplen > 1 )  {
-	sum += *data++;
-	udplen -= 2;
+    data = (const uint16_t *)l4pdu;
+    while (udplen > 1) {
+        sum += *data++;
+        udplen -= 2;
     }
     /*  Add left-over byte, if any */
-    if( udplen > 0 )
-	sum += * (uint8_t *) data;
+    if (udplen > 0) sum += *(uint8_t *)data;
 
     /*  Fold 32-bit sum to 16 bits */
-    while (sum>>16)
-	sum = (sum & 0xffff) + (sum >> 16);
+    while (sum >> 16) sum = (sum & 0xffff) + (sum >> 16);
 
     /* return ones complement */
     sum = (sum ^ 0xffff);
