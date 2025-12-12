@@ -1312,7 +1312,7 @@ void Client::RunBounceBackTCP () {
 double Client::get_delay_target () {
     double delay_target;
     if (isIPG(mSettings)) {
-        delay_target = mSettings->mBurstIPG * 1000000;  // convert from milliseconds to nanoseconds
+        delay_target = mSettings->mBurstIPG * 1000;  // convert from microseconds to nanoseconds
     } else {
         // compute delay target in units of nanoseconds
         if (mSettings->mAppRateUnits == kRate_BW) {
@@ -1464,7 +1464,7 @@ void Client::RunUDPIsochronous () {
     // skip over the UDP datagram (seq no, timestamp) to reach the isoch fields
     struct client_udp_testhdr *udp_payload = reinterpret_cast<client_udp_testhdr *>(mSettings->mBuf);
 
-    double delay_target = mSettings->mBurstIPG * 1000000;  // convert from milliseconds to nanoseconds
+    double delay_target = get_delay_target() // returns units nanoseconds
     double delay = 0;
     double adjust = 0;
     int currLen = 1;
