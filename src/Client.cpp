@@ -1464,7 +1464,9 @@ void Client::RunUDPIsochronous () {
     // skip over the UDP datagram (seq no, timestamp) to reach the isoch fields
     struct client_udp_testhdr *udp_payload = reinterpret_cast<client_udp_testhdr *>(mSettings->mBuf);
 
-    double delay_target = get_delay_target() // returns units nanoseconds
+    // returns units nanoseconds, zero if --ipg not set
+    double delay_target = get_delay_target();
+
     double delay = 0;
     double adjust = 0;
     int currLen = 1;
