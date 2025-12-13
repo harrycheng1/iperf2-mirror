@@ -27,7 +27,6 @@
 #
 # Author Robert J. McMahon, Umber Networks
 # Date December 2025
-# Refactored for Modern Python 3.10+ and Asyncio
 
 import asyncio
 import logging
@@ -50,6 +49,7 @@ async def main():
     parser.add_argument('--ssid', type=str, help='SSID to associate Wi-Fi nodes to')
     parser.add_argument('--password', type=str, help='Wi-Fi Password (PSK)')
     parser.add_argument('--band', type=str, choices=['2.4G', '5G', '6G'], help='Wi-Fi Band Lock')
+    parser.add_argument('--set-hostname', action='store_true', help='Update the system hostname of each node to match its Node Name')
     args = parser.parse_args()
 
     # 1. Setup Asyncio Loop for ssh_nodes
@@ -77,14 +77,17 @@ async def main():
         # 4. Run Discovery
         await rig.discover(target_ssid=args.ssid)
 
+        # 5. Set Hostnames (Optional)
+        if args.set_hostname:
+            await rig.set_hostnames()
+
     except KeyboardInterrupt:
         print("\nDiscovery cancelled by user.")
     except Exception as e:
         print(f"\nDiscovery failed: {e}")
     finally:
-        # 5. Cleanup
+        # 6. Cleanup
         print("\nClosing connections...")
-        # FIX: Await the async close method
         await rig.close()
 
     print("Done.")

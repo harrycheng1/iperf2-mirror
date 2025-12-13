@@ -3,35 +3,12 @@
 # * Umber Networks
 # * All Rights Reserved.
 # *---------------------------------------------------------------
-# Redistribution and use in source and binary forms, with or without modification, are permitted
-# provided that the following conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright notice, this list of conditions
-#    and the following disclaimer.
-#
-# 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions
-#    and the following disclaimer in the documentation and/or other materials provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or
-#    promote products derived from this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
-# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-# FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-# IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-# OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# Author Robert J. McMahon, Umber Networks
-# Date December 2025
-# Refactored for Modern Python 3.10+ and Asyncio
+# ... [License Header] ...
 
 import asyncio
 from ssh_nodes import ssh_node, WiFiDut
 
-# Robust Model Command: Replaced TR with RyzenTR
+# Robust Model Command with Shortening Logic (RyzenTR, RPi)
 CMD_GET_MODEL = (
     r"if [ -f /proc/device-tree/model ]; then "
     r"cat /proc/device-tree/model | tr -d '\0' | sed 's/Raspberry Pi/RPi/g'; "
@@ -42,17 +19,19 @@ USER = 'rjmcmahon'
 
 class TestRig:
     def __init__(self):
-        self.wired_no_gps = ssh_node(name='Wired_NoGPS', ipaddr='192.168.1.101', user=USER, device='eth0', devip='192.168.1.101', ssh_speedups=True)
-        self.wired_no_gps.device_type = "Unknown"
-        self.wired_gps = ssh_node(name='Wired_GPS', ipaddr='192.168.1.50', user=USER, device='eth0', devip='192.168.1.50', ssh_speedups=True)
-        self.wired_gps.device_type = "Unknown"
+        # Nodes defined with underscores (internal use)
+        self.wired_101 = ssh_node(name='Wired_101', ipaddr='192.168.1.101', user=USER, device='eth0', devip='192.168.1.101', ssh_speedups=True)
+        self.wired_101.device_type = "Unknown"
+
+        self.wired_50 = ssh_node(name='Wired_50', ipaddr='192.168.1.50', user=USER, device='eth0', devip='192.168.1.50', ssh_speedups=True)
+        self.wired_50.device_type = "Unknown"
 
         self.wifi_1 = WiFiDut(name='WiFi_41', ipaddr='192.168.1.41', user=USER, device='wlan0', devip='192.168.1.41', ssh_speedups=True)
         self.wifi_2 = WiFiDut(name='WiFi_42', ipaddr='192.168.1.42', user=USER, device='wlan0', devip='192.168.1.42', ssh_speedups=True)
         self.wifi_3 = WiFiDut(name='WiFi_44', ipaddr='192.168.1.44', user=USER, device='wlan0', devip='192.168.1.44', ssh_speedups=True)
 
     def get_all_nodes(self):
-        return [self.wired_no_gps, self.wired_gps, self.wifi_1, self.wifi_2, self.wifi_3]
+        return [self.wired_101, self.wired_50, self.wifi_1, self.wifi_2, self.wifi_3]
 
     def _format_speed(self, raw_speed):
         if not raw_speed or "Unknown" in raw_speed or raw_speed == "-" or raw_speed == "": return "-"
@@ -145,6 +124,47 @@ class TestRig:
 
         if mismatch_found:
             print(f"\n* Indicates SSID mismatch (Expected: {target_ssid})")
+
+    async def set_hostnames(self):
+        """Sets the system hostname. Handles underscore sanitization automatically."""
+        print("\n[*] Setting System Hostnames (via sudo hostnamectl)...")
+        await ssh_node.open_consoles_async(silent_mode=True)
+
+        tasks = []
+        for node in self.get_all_nodes():
+            async def _update_host(n):
+                # Sanitize: Convert underscores to hyphens (Wired_50 -> Wired-50)
+                safe_hostname = n.name.replace('_', '-')
+
+                try:
+                    # 1. Set Hostname
+                    cmd_set = f"sudo hostnamectl set-hostname {safe_hostname}"
+                    res_set = await n.rexec_async(cmd_set, timeout=10)
+
+                    # Check for sudo password errors in output
+                    output_str = res_set.decode('utf-8', errors='ignore')
+                    if "terminal is required" in output_str or "password is required" in output_str:
+                        print(f"    {n.ipaddr:<14} -> {safe_hostname:<12}: FAIL (Passwordless Sudo Required)")
+                        return
+
+                    # 2. Verify
+                    cmd_check = "hostname"
+                    res = await n.rexec_async(cmd_check, timeout=5)
+                    current_hostname = res.decode('utf-8', errors='ignore').strip()
+
+                    if current_hostname == safe_hostname:
+                        status = "OK"
+                    else:
+                        status = f"FAIL (Got: {current_hostname})"
+
+                    print(f"    {n.ipaddr:<14} -> {safe_hostname:<12}: {status}")
+                except Exception as e:
+                    print(f"    {n.ipaddr:<14} -> {safe_hostname:<12}: ERROR ({e})")
+
+            tasks.append(_update_host(node))
+
+        await asyncio.gather(*tasks)
+        print("")
 
     async def close(self):
         await ssh_node.close_consoles_async()
