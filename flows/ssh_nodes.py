@@ -39,7 +39,7 @@ from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
-# Standard SSH Options for Automation
+# Standard SSH Options
 SSH_OPTS = [
     '-o', 'StrictHostKeyChecking=no',
     '-o', 'UserKnownHostsFile=/dev/null',
@@ -168,7 +168,7 @@ class ssh_node:
         self.link_speed = "-"
         self.kernel = "-"
         self.wifi_stats = {}
-        self.clock_source = "Unknown" # GPS, GPS/PPS, NTP, Unknown
+        self.clock_source = "Unknown"
 
         self.base_cmd = ['/usr/bin/ssh'] + SSH_OPTS
         if relay: self.base_cmd.extend(['-J', f'root@{relay}'])
@@ -189,7 +189,6 @@ class ssh_node:
     def on_console_output(self, line: str): pass
 
     async def check_time_source(self):
-        """Checks chronyc sources for GPS or PPS presence."""
         try:
             cmd = "chronyc sources"
             raw = await self.rexec_async(cmd, timeout=5)
@@ -200,27 +199,15 @@ class ssh_node:
             has_ntp = False
 
             for line in output.split('\n'):
-                # Look for source types
-                # Chronyc output lines start with #* (selected), #+ (candidate), etc.
-                if "PPS" in line:
-                    has_pps = True
-                if "GPS" in line or "NMEA" in line or "GPZ" in line:
-                    has_gps = True
-                # Heuristic: If we see other IPs/Hostnames, it's NTP
-                if "." in line and "GPS" not in line and "PPS" not in line and "NMEA" not in line:
-                    has_ntp = True
+                if "PPS" in line: has_pps = True
+                if "GPS" in line or "NMEA" in line or "GPZ" in line: has_gps = True
+                if "." in line and "GPS" not in line and "PPS" not in line and "NMEA" not in line: has_ntp = True
 
-            if has_pps and has_gps:
-                self.clock_source = "GPS/PPS"
-            elif has_gps:
-                self.clock_source = "GPS"
-            elif has_ntp:
-                self.clock_source = "NTP"
-            else:
-                self.clock_source = "Unknown"
-
-        except Exception as e:
-            self.clock_source = "Unknown"
+            if has_pps and has_gps: self.clock_source = "GPS/PPS"
+            elif has_gps: self.clock_source = "GPS"
+            elif has_ntp: self.clock_source = "NTP"
+            else: self.clock_source = "Unknown"
+        except Exception as e: self.clock_source = "Unknown"
 
     async def clean_multiplex_socket(self):
         if os.path.exists(self.control_socket):
@@ -275,19 +262,13 @@ class ssh_node:
                 cleanup_tasks.append(node.clean_multiplex_socket())
 
         if cleanup_tasks:
-            try:
-                await asyncio.wait_for(asyncio.gather(*cleanup_tasks), timeout=5)
-            except asyncio.TimeoutError:
-                logging.warning("Timeout cleaning up SSH sockets.")
+            try: await asyncio.wait_for(asyncio.gather(*cleanup_tasks), timeout=5)
+            except asyncio.TimeoutError: logging.warning("Timeout cleaning up SSH sockets.")
 
         tasks = []
         for node in nodes:
-            if node.master_session:
-                tasks.append(node.master_session.close())
-
-        if tasks:
-            await asyncio.gather(*tasks)
-
+            if node.master_session: tasks.append(node.master_session.close())
+        if tasks: await asyncio.gather(*tasks)
         logging.info("Consoles closed.")
 
 class WiFiDut(ssh_node):
@@ -330,13 +311,18 @@ class WiFiDut(ssh_node):
 
     async def update_stats(self):
         await asyncio.sleep(2)
-        cmd_model = r"if [ -f /proc/device-tree/model ]; then cat /proc/device-tree/model | tr -d '\0'; else grep -m1 'model name' /proc/cpuinfo | sed 's/model name\s*: //'; fi"
+        # Tightened Sed: "AMD Ryzen Threadripper PRO" -> "RyzenTR", remove " 16-Cores"
+        cmd_model = (
+            r"if [ -f /proc/device-tree/model ]; then "
+            r"cat /proc/device-tree/model | tr -d '\0' | sed 's/Raspberry Pi/RPi/g'; "
+            r"else grep -m1 'model name' /proc/cpuinfo | sed 's/model name\s*: //; s/AMD Ryzen Threadripper PRO/RyzenTR/g; s/ 16-Cores//g; s/Raspberry Pi/RPi/g'; fi"
+        )
 
         cmd_chip = (
             f"bus=$(sudo ethtool -i {self.device} 2>/dev/null | grep bus-info | awk '{{print $2}}'); "
             f"drv=$(sudo ethtool -i {self.device} 2>/dev/null | grep driver | awk '{{print $2}}'); "
             f"[ -z \"$drv\" ] && drv=$(basename $(readlink /sys/class/net/{self.device}/device/driver) 2>/dev/null); "
-            f"chip=$(lspci -s $bus 2>/dev/null | cut -d: -f3- | sed 's/Network controller: //g' | sed 's/^ *//'); "
+            f"chip=$(lspci -s $bus 2>/dev/null | sed 's/^.*: //' | sed 's/Intel Corporation/INTC/g'); "
             f"if [ -z \"$chip\" ]; then echo \"$drv\"; else echo \"$chip ($drv)\"; fi"
         )
 
