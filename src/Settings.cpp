@@ -1922,10 +1922,6 @@ void Settings_ModalOptions(struct thread_Settings *mExtSettings) {
             if (!isPeriodicBurst(mExtSettings)) {
                 mExtSettings->mFPS = 1.0;
                 setPeriodicBurst(mExtSettings);
-                if (mExtSettings->mIntervalMode == kInterval_None) {
-                    mExtSettings->mIntervalMode = kInterval_Time;
-                    mExtSettings->mInterval = 1000000;  // units is us
-                }
             } else if (mExtSettings->mFPS <= 1e-5) {
                 unsetPeriodicBurst(mExtSettings);
             }
