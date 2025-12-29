@@ -74,6 +74,7 @@
 #include "PerfSocket.hpp"
 #include "dscp.h"
 #include "iperf_formattime.h"
+#include "Extractor.h"
 #include <math.h>
 
 static int reversetest = 0;
@@ -514,7 +515,7 @@ void Settings_Resize_mBuf(struct thread_Settings *mSettings, int newsize) {
 }
 
 /* -------------------------------------------------------------------
- * Delete memory: Does not clean up open file pointers or ptr_parents
+ * Delete memory: Now properly cleans up all allocated resources
  * ------------------------------------------------------------------- */
 
 void Settings_Destroy(struct thread_Settings *mSettings) {
@@ -522,6 +523,22 @@ void Settings_Destroy(struct thread_Settings *mSettings) {
     thread_debug("Free thread settings=%p", mSettings);
 #endif
     if (mSettings->tuntapdev) close(mSettings->tuntapdev);
+
+    // FIX 1: Close Extractor file if it was opened
+    Extractor_Destroy(mSettings);
+
+    // FIX 2: Free report header if it exists
+    if (mSettings->reporthdr) {
+        FreeReport(mSettings->reporthdr);
+        mSettings->reporthdr = NULL;
+    }
+
+    // FIX 3: Free ack ring if it exists
+    if (mSettings->ackring) {
+        free_ackring(mSettings->ackring);
+        mSettings->ackring = NULL;
+    }
+
     Condition_Destroy(&mSettings->awake_me);
     DELETE_ARRAY(mSettings->mHost);
     DELETE_ARRAY(mSettings->mHideHost);
