@@ -65,7 +65,17 @@ AM_CONDITIONAL([SUMMING_DEBUG], [test "x$enable_summing_debug" = "xyes"])
 AC_ARG_ENABLE(summing_debug, AS_HELP_STRING([--enable-summing-debug],[enable support for interval summing debugging (default is disable)]))
 AM_CONDITIONAL([SUMMING_DEBUG], [test "x$enable_summing_debug" = "xyes"])
 
-AC_ARG_ENABLE(udp_l4s, AS_HELP_STRING([--enable-udp-l4s],[enable udp-l4s support (default is disable)]))
+dnl Check if we're on the udp-l4s branch to set default
+udp_l4s_default=no
+if test -d .git; then
+  git_branch=`git rev-parse --abbrev-ref HEAD 2>/dev/null || echo ""`
+  if test "x$git_branch" = "xudp-l4s"; then
+    udp_l4s_default=yes
+  fi
+fi
+AC_ARG_ENABLE(udp_l4s, AS_HELP_STRING([--enable-udp-l4s],[enable udp-l4s support (default is $udp_l4s_default)]),
+  [enable_udp_l4s=$enableval],
+  [enable_udp_l4s=$udp_l4s_default])
 
 AC_ARG_ENABLE(checkprograms, AS_HELP_STRING([--enable-checkprograms],[enable support for building support programs such as checkdelay, checkpdfs, etc. (default is disable)]))
 AM_CONDITIONAL([CHECKPROGRAMS], [test "x$enable_checkprograms" = "xyes"])
