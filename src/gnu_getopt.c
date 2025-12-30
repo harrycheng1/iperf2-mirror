@@ -278,8 +278,8 @@ static const char *_gnu_getopt_initialize(int argc, char *const *argv, const cha
    from each of the option elements.
 
    If `gnu_getopt' finds another option character, it returns that character,
-   updating `gnu_optind' and `nextchar' so that the next call to `gnu_getopt' can
-   resume the scan with the following option character or ARGV-element.
+   updating `gnu_optind' and `nextchar' so that the next call to `gnu_getopt'
+   can resume the scan with the following option character or ARGV-element.
 
    If there are no more option characters, `gnu_getopt' returns -1.
    Then `gnu_optind' is the index in ARGV of the first ARGV-element
@@ -350,8 +350,8 @@ int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring,
         if (first_nonopt > gnu_optind) first_nonopt = gnu_optind;
 
         if (ordering == PERMUTE) {
-            /* If we have just processed some options following some non-options,
-               exchange them so that the options come first.  */
+            /* If we have just processed some options following some
+               non-options, exchange them so that the options come first.  */
 
             if (first_nonopt != last_nonopt && last_nonopt != gnu_optind)
                 exchange((char **)argv);
@@ -433,7 +433,8 @@ int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring,
         int indfound = -1;
         int option_index;
 
-        for (nameend = nextchar; *nameend && *nameend != '='; nameend++) /* Do nothing.  */;
+        for (nameend = nextchar; *nameend && *nameend != '='; nameend++) /* Do nothing.  */
+            ;
 
         /* Test all long options for either exact match
        or abbreviated matches.  */
@@ -475,11 +476,15 @@ int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring,
                     if (gnu_opterr) {
                         if (argv[gnu_optind - 1][1] == '-') {
                             /* --option */
-                            fprintf(stderr, _("%s: option `--%s' doesn't allow an argument\n"),
+                            fprintf(stderr,
+                                    _("%s: option `--%s' doesn't allow an "
+                                      "argument\n"),
                                     argv[0], pfound->name);
                         } else {
                             /* +option or -option */
-                            fprintf(stderr, _("%s: option `%c%s' doesn't allow an argument\n"),
+                            fprintf(stderr,
+                                    _("%s: option `%c%s' doesn't allow an "
+                                      "argument\n"),
                                     argv[0], argv[gnu_optind - 1][0], pfound->name);
                         }
                     }
@@ -536,12 +541,14 @@ int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring,
         char c = *nextchar++;
         char *temp = my_index(optstring, c);
 
-        /* Increment `gnu_optind' when we start to process its last character.  */
+        /* Increment `gnu_optind' when we start to process its last character.
+         */
         if (*nextchar == '\0') ++gnu_optind;
 
         if (temp == NULL || c == ':') {
             if (gnu_opterr) {
-                if (posixly_correct) /* 1003.2 specifies the format of this message.  */
+                if (posixly_correct) /* 1003.2 specifies the format of this
+                                        message.  */
                     fprintf(stderr, _("%s: illegal option -- %c\n"), argv[0], c);
                 else
                     fprintf(stderr, _("%s: invalid option -- %c\n"), argv[0], c);
@@ -584,8 +591,9 @@ int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring,
             /* gnu_optarg is now the argument, see if it's in the
                table of longopts.  */
 
-            for (nextchar = nameend = gnu_optarg; *nameend && *nameend != '='; nameend++)
-                /* Do nothing.  */;
+            for (nextchar = nameend = gnu_optarg; *nameend && *nameend != '=';
+                 nameend++) /* Do nothing.  */
+                ;
 
             /* Test all long options for either exact match
                or abbreviated matches.  */

@@ -170,10 +170,11 @@ struct markov_graph *markov_graph_init(char *braket_option) {
                 tmp[kx][cx].prob_cummulative =
                     FloatEqualZero(tmp[kx][cx].prob) ? prevtot : (tmp[kx][cx].prob + prevtot);
                 if (FloatGreaterThanOne(tmp[kx][cx].prob_cummulative)) {
-                    fprintf(
-                        stderr,
-                        "Cummulative probability for row %d can't be greater than 1 but is %f\n",
-                        kx, tmp[kx][cx].prob_cummulative);
+                    fprintf(stderr,
+                            "Cummulative probability for row %d can't be "
+                            "greater than 1 "
+                            "but is %f\n",
+                            kx, tmp[kx][cx].prob_cummulative);
                     markov_graph_free(graph);
                     free(ket_prob_list);
                     graph = NULL;
@@ -184,12 +185,16 @@ struct markov_graph *markov_graph_init(char *braket_option) {
                 found = strtok(NULL, ",");
             }
             if (cx != bracnt) {
-                fprintf(stderr, "malformed: row column expected %dx%d with '%s' row of %d\n",
+                fprintf(stderr,
+                        "malformed: row column expected %dx%d with '%s' row of "
+                        "%d\n",
                         bracnt, bracnt, pos, cx);
             }
             if (FloatLessThanOne(tmp[kx][bracnt - 1].prob_cummulative)) {
-                fprintf(stderr, "Cummulative probability for row %d less than 1 and is %f\n", kx,
-                        tmp[kx][bracnt - 1].prob_cummulative);
+                fprintf(stderr,
+                        "Cummulative probability for row %d less than 1 and is "
+                        "%f\n",
+                        kx, tmp[kx][bracnt - 1].prob_cummulative);
                 markov_graph_free(graph);
                 free(ket_prob_list);
                 graph = NULL;

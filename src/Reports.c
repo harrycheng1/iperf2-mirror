@@ -407,7 +407,8 @@ struct SumReport *InitSumReport(struct thread_Settings *inSettings, int inID,
     sumreport->reference.maxcount = 0;
     Mutex_Initialize(&sumreport->reference.lock);
     common_copy(&sumreport->info.common, inSettings);
-    // sumreport->info.common->transferID = inID; // this is now set in the active code
+    // sumreport->info.common->transferID = inID; // this is now set in the
+    // active code
     sumreport->info.isMaskOutput = false;
     sumreport->info.sumreport = sumreport;
     sumreport->info.type = SUM_REPORT;
@@ -430,8 +431,8 @@ struct SumReport *InitSumReport(struct thread_Settings *inSettings, int inID,
         sumreport->info.ts.significant_partial =
             ((double)inSettings->mInterval * PARTIALPERCENT / rMillion);
     }
-    // Note that for UDP the client flag settings have not been read (and set) so only use server
-    // side flags in tests
+    // Note that for UDP the client flag settings have not been read (and set)
+    // so only use server side flags in tests
     if (isEnhanced(inSettings) && (inSettings->mThreadMode == kMode_Server) && !fullduplex_report) {
         if (isHistogram(inSettings)) {
             if (isUDP(inSettings)) {
@@ -530,7 +531,8 @@ static void Free_iReport(struct ReporterData *ireport) {
 
 #ifdef HAVE_THREAD_DEBUG
     thread_debug(
-        "Free report hdr=%p reporter thread suspend count=%d packetring=%p histo=%p frame histo=%p",
+        "Free report hdr=%p reporter thread suspend count=%d packetring=%p "
+        "histo=%p frame histo=%p",
         (void *)ireport, ireport->reporter_thread_suspends, (void *)ireport->packetring,
         (void *)ireport->info.latency_histogram, (void *)ireport->info.framelatency_histogram);
 #endif
@@ -538,7 +540,8 @@ static void Free_iReport(struct ReporterData *ireport) {
         !(isSingleUDP(ireport->info.common)) && !TimeZero(ireport->info.ts.intervalTime) &&
         (ireport->reporter_thread_suspends < 3)) {
         fprintf(stdout,
-                "WARN: this test may have been CPU bound (%d) (or may not be detecting the "
+                "WARN: this test may have been CPU bound (%d) (or may not be "
+                "detecting the "
                 "underlying network devices)\n",
                 ireport->reporter_thread_suspends);
     }
@@ -716,8 +719,8 @@ struct ReportHeader *InitIndividualReport(struct thread_Settings *inSettings) {
 
     // Set up the function vectors, there are three
     // 1) packet_handler: does packet accounting per the test and protocol
-    // 2) transfer_protocol_handler: performs output, e.g. interval reports, per the test and
-    // protocol
+    // 2) transfer_protocol_handler: performs output, e.g. interval reports, per
+    // the test and protocol
 
     if (inSettings->mIntervalMode == kInterval_Time) {
         ireport->info.ts.intervalTime.tv_sec = (long)(inSettings->mInterval / rMillion);
@@ -1243,8 +1246,9 @@ void write_UDP_AckFIN(struct TransferInfo *stats, int len) {
             hdr->extend2.outorder_cnt2 = htonl((long)(stats->cntOutofOrder >> 32));
             hdr->extend2.datagrams2 = htonl((long)(stats->cntDatagrams >> 32));
         }
-        //	printf("****** Server final estimator %f calculated average %f\n", stats->jitter,
-        //(stats->inline_jitter.total.sum / stats->inline_jitter.total.cnt));
+        //	printf("****** Server final estimator %f calculated average
+        //%f\n", stats->jitter, (stats->inline_jitter.total.sum /
+        // stats->inline_jitter.total.cnt));
         if (stats->inline_jitter.total.cnt > 0)
             stats->jitter =
                 (stats->inline_jitter.total.sum /
@@ -1304,7 +1308,9 @@ void write_UDP_AckFIN(struct TransferInfo *stats, int len) {
             if (rc == 0) {
 #ifdef HAVE_THREAD_DEBUG
                 thread_debug(
-                    "UDP server detected silence - server stats assumed received by client");
+                    "UDP server detected silence - server stats assumed "
+                    "received by "
+                    "client");
 #endif
                 success = true;
                 break;
@@ -1317,7 +1323,9 @@ void write_UDP_AckFIN(struct TransferInfo *stats, int len) {
 #ifdef HAVE_THREAD_DEBUG
             if (rc > 0) {
                 thread_debug(
-                    "UDP server thinks server stats packet maybe lost, will retransmit and try "
+                    "UDP server thinks server stats packet maybe lost, will "
+                    "retransmit "
+                    "and try "
                     "again",
                     rc);
             }

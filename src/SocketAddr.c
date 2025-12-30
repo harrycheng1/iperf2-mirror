@@ -538,8 +538,9 @@ int SockAddr_Ifrname(struct thread_Settings *inSettings) {
         getsockname(inSettings->mSock, (struct sockaddr *)&myaddr, &addr_len);
         getifaddrs(&ifaddr);
 
-        // look which interface contains the desired IP per getsockname() which sets myaddr
-        // When found, ifa->ifa_name contains the name of the interface (eth0, eth1, ppp0...)
+        // look which interface contains the desired IP per getsockname() which
+        // sets myaddr When found, ifa->ifa_name contains the name of the
+        // interface (eth0, eth1, ppp0...)
         if (myaddr.ss_family == AF_INET) {
             // v4 socket family (supports v4 only)
             struct sockaddr_in *addr = (struct sockaddr_in *)&myaddr;
@@ -547,7 +548,8 @@ int SockAddr_Ifrname(struct thread_Settings *inSettings) {
                 if ((ifa->ifa_addr) && (ifa->ifa_addr->sa_family == AF_INET)) {
                     struct sockaddr_in *inaddr = (struct sockaddr_in *)ifa->ifa_addr;
                     if ((inaddr->sin_addr.s_addr == addr->sin_addr.s_addr) && (ifa->ifa_name)) {
-                        // Found v4 address in v4 addr family, copy it to thread settings structure
+                        // Found v4 address in v4 addr family, copy it to thread
+                        // settings structure
                         inSettings->mIfrname = calloc(strlen(ifa->ifa_name) + 1, sizeof(char));
                         strcpy(inSettings->mIfrname, ifa->ifa_name);
                         break;
@@ -578,8 +580,8 @@ int SockAddr_Ifrname(struct thread_Settings *inSettings) {
                         uint32_t v4;
                         memcpy(&v4, &addr->sin6_addr.s6_addr[12], 4);
                         if ((ifa->ifa_name) && (inaddr->sin_addr.s_addr == v4)) {
-                            // Found v4 address in v4 addr family, copy it to thread settings
-                            // structure
+                            // Found v4 address in v4 addr family, copy it to
+                            // thread settings structure
                             inSettings->mIfrname = calloc(strlen(ifa->ifa_name) + 1, sizeof(char));
                             strcpy(inSettings->mIfrname, ifa->ifa_name);
                             break;
@@ -593,8 +595,8 @@ int SockAddr_Ifrname(struct thread_Settings *inSettings) {
                         struct sockaddr_in6 *inaddr = (struct sockaddr_in6 *)ifa->ifa_addr;
                         if ((ifa->ifa_name) &&
                             (IN6_ARE_ADDR_EQUAL(&addr->sin6_addr, &inaddr->sin6_addr))) {
-                            // Found v6 address in v6 addr family, copy it to thread settings
-                            // structure
+                            // Found v6 address in v6 addr family, copy it to
+                            // thread settings structure
                             inSettings->mIfrname = calloc(strlen(ifa->ifa_name) + 1, sizeof(char));
                             strcpy(inSettings->mIfrname, ifa->ifa_name);
                             break;

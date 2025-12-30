@@ -153,19 +153,24 @@ unsigned int FrameCounter::wait_tick(long* sched_err, bool sync_strict) {
         *sched_err = actual.subUsec(nextslotTime);
         //	printf("**** sched err %ld\n", *sched_err);
         if (*sched_err < 0) {
-            *sched_err = -(*sched_err);  // err is an absolute value
-                                         // Per windows docs, this timer can go off early per:
-                                         // APIs that deal with timers use various different
-                                         // hardware clocks. These clocks may have resolutions
-            // significantly different from what you expect: some may be measured in milliseconds
-            // (for those that use an RTC-based timer chip), to those measured in nanoseconds (for
-            // those that use ACPI or TSC counters). You can change the resolution of your API with
-            // a call to the timeBeginPeriod and timeEndPeriod functions. How precise you can change
-            // the resolution depends on which hardware clock the particular API uses. For more
-            // information, check your hardware documentation.
-            //
-            // I noticed the timer going off up to 8 ms early on a Windows 11 cross compile - yikes.
-            // Do a WAR hack here to add delay if & when that occurs
+            *sched_err =
+                -(*sched_err);  // err is an absolute value
+                                // Per windows docs, this timer can go off early
+                                // per: APIs that deal with timers use various
+                                // different hardware clocks. These clocks may
+                                // have resolutions
+                                // significantly different from what you expect: some may be
+                                // measured in milliseconds (for those that use an RTC-based timer
+                                // chip), to those measured in nanoseconds (for those that use ACPI
+                                // or TSC counters). You can change the resolution of your API with
+                                // a call to the timeBeginPeriod and timeEndPeriod functions. How
+                                // precise you can change the resolution depends on which hardware
+                                // clock the particular API uses. For more information, check your
+                                // hardware documentation.
+                                //
+                                // I noticed the timer going off up to 8 ms early on a Windows 11
+                                // cross compile - yikes. Do a WAR hack here to add delay if & when
+                                // that occurs
 #ifdef WIN32
             if (*sched_err > 1000) {
                 delay_loop(*sched_err);
@@ -175,8 +180,8 @@ unsigned int FrameCounter::wait_tick(long* sched_err, bool sync_strict) {
     }
     WARN_errno((rc != 0), "wait_tick failed");
 #ifdef HAVE_THREAD_DEBUG
-    // thread_debug("Client tick occurred per %ld.%06ld", txtime_ts.tv_sec, txtime_ts.tv_nsec /
-    // 1000);
+    // thread_debug("Client tick occurred per %ld.%06ld", txtime_ts.tv_sec,
+    // txtime_ts.tv_nsec / 1000);
 #endif
     lastcounter = slot_counter;
     return (slot_counter);
@@ -196,8 +201,9 @@ unsigned int FrameCounter::wait_tick(long* sched_err, bool sync_strict) {
             nextslotTime.add(period);
             slot_counter++;
         }
-        //	printf("**** sync strict %d now %ld.%06ld next %ld.%06ld\n", sync_strict, now.getSecs(),
-        //now.getUsecs(), nextslotTime.getSecs(), nextslotTime.getUsecs());
+        //	printf("**** sync strict %d now %ld.%06ld next %ld.%06ld\n",
+        // sync_strict, now.getSecs(), now.getUsecs(), nextslotTime.getSecs(),
+        // nextslotTime.getUsecs());
         if (now.before(nextslotTime)) {
             struct timespec tv0 = {0, 0}, tv1;
             get(&remaining);
@@ -208,14 +214,15 @@ unsigned int FrameCounter::wait_tick(long* sched_err, bool sync_strict) {
                 tv0.tv_sec++;
                 tv0.tv_nsec -= BILLION;
             }
-            //	    printf("**** wait: nanos %ld remain %ld.%06ld\n", remaining, tv0.tv_sec,
-            //tv0.tv_nsec);
+            //	    printf("**** wait: nanos %ld remain %ld.%06ld\n", remaining,
+            // tv0.tv_sec, tv0.tv_nsec);
             int rc = nanosleep(&tv0, &tv1);
             if (sched_err) {
                 Timestamp actual;
                 *sched_err = actual.subUsec(nextslotTime);
-                //	printf("**** slot %ld.%06ld actual %ld.%06ld %ld\n", slotstart.getSecs(),
-                //slotstart.getUsecs(), actual.getSecs(), actual.getUsecs(), *sched_err);
+                //	printf("**** slot %ld.%06ld actual %ld.%06ld %ld\n",
+                // slotstart.getSecs(), slotstart.getUsecs(), actual.getSecs(),
+                // actual.getUsecs(), *sched_err);
             }
             WARN_errno((rc != 0), "nanosleep wait_tick");
         }

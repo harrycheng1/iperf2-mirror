@@ -201,7 +201,8 @@ void SetSocketOptions(struct thread_Settings *inSettings) {
                 FAIL(1, "Multicast requires -u option ", inSettings);
                 exit(1);
             }
-            // check for default TTL, multicast is 1 and unicast is the system default
+            // check for default TTL, multicast is 1 and unicast is the system
+            // default
             if (inSettings->mTTL == -1) {
                 inSettings->mTTL = 1;
             }
@@ -503,8 +504,8 @@ void SetSocketBindToDeviceIfNeeded(struct thread_Settings *inSettings) {
 #ifndef WIN32
     else {  // multicast bind below
         if (inSettings->mThreadMode != kMode_Client) {
-            // multicast on the server uses iperf_multicast_join for device binding
-            // found in listener code, do nothing and return
+            // multicast on the server uses iperf_multicast_join for device
+            // binding found in listener code, do nothing and return
             return;
         }
         // Handle client side bind to device for multicast

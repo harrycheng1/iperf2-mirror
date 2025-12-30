@@ -208,7 +208,9 @@ int main(int argc, char **argv) {
     if (!isSTDOUT(ext_gSettings)) {
 #ifdef HAVE_FREOPEN
         FILE *fd;
-        fprintf(stdout, "Output from stdout (but not from stderr) will be redirected to file %s\n",
+        fprintf(stdout,
+                "Output from stdout (but not from stderr) will be redirected to "
+                "file %s\n",
                 ext_gSettings->mOutputFileName);
         fflush(stdout);
         fd = freopen(ext_gSettings->mOutputFileName, "a", stdout);
@@ -257,7 +259,8 @@ int main(int argc, char **argv) {
             if (isDaemon(ext_gSettings)) {
                 fprintf(stderr, "Running Iperf Server as a daemon\n");
                 // Start the server as a daemon
-                // redirect stdin, stdout and sterr to /dev/null (see dameon and no close flag)
+                // redirect stdin, stdout and sterr to /dev/null (see dameon and
+                // no close flag)
                 if (daemon(1, 0) < 0) {
                     perror("daemon");
                 }

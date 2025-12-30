@@ -57,8 +57,9 @@ Mutex packetringdebug_mutex;
 
 //
 // Initialize a packet ring between a traffic thread and the reporter thread
-// Note: enable dequeue events will have the dequeue return null on an event relevant to
-// the reporter thread moving to the next ring. This is needed for proper summing
+// Note: enable dequeue events will have the dequeue return null on an event
+// relevant to the reporter thread moving to the next ring. This is needed for
+// proper summing
 //
 struct PacketRing *packetring_init(int count, struct Condition *awake_consumer,
                                    struct Condition *awake_producer) {
@@ -71,7 +72,8 @@ struct PacketRing *packetring_init(int count, struct Condition *awake_consumer,
     }
     if (!pr || !pr->data) {
         fprintf(stderr,
-                "ERROR: no memory for packet ring of size %d count, try to reduce with option "
+                "ERROR: no memory for packet ring of size %d count, try to reduce "
+                "with option "
                 "--NUM_REPORT_STRUCTS\n",
                 count);
         exit(1);
@@ -92,9 +94,11 @@ struct PacketRing *packetring_init(int count, struct Condition *awake_consumer,
 #ifdef HAVE_THREAD_DEBUG
     Mutex_Lock(&packetringdebug_mutex);
     totalpacketringcount++;
-    thread_debug("Init %d element packet ring=%p consumer=%p producer=%p total rings=%d enable=%d",
-                 count, (void *)pr, (void *)pr->awake_consumer, (void *)pr->awake_producer,
-                 totalpacketringcount, pr->mutex_enable);
+    thread_debug(
+        "Init %d element packet ring=%p consumer=%p producer=%p total rings=%d "
+        "enable=%d",
+        count, (void *)pr, (void *)pr->awake_consumer, (void *)pr->awake_producer,
+        totalpacketringcount, pr->mutex_enable);
     Mutex_Unlock(&packetringdebug_mutex);
 #endif
     return (pr);
@@ -158,7 +162,9 @@ inline struct ReportStruct *packetring_dequeue(struct PacketRing *pr) {
         // when the ring goes from having something to empty
         if (pr->producer == pr->consumer) {
 #ifdef HAVE_THREAD_DEBUG
-            // thread_debug( "Consumer signal packet ring %p empty per %p", (void *)pr, (void
+            // thread_debug( "Consumer signal packet ring %p empty per %p",
+            // (void
+            // *)pr, (void
             // *)&pr->awake_producer);
 #endif
             assert(pr->awake_producer);
@@ -175,7 +181,8 @@ inline void enqueue_ackring(struct PacketRing *pr, struct ReportStruct *metapack
     // Keep the latency low by signaling the consumer thread
     // per each enqueue
 #ifdef HAVE_THREAD_DEBUG
-    // thread_debug( "Producer signal consumer ackring=%p per %p", (void *)pr, (void
+    // thread_debug( "Producer signal consumer ackring=%p per %p", (void *)pr,
+    // (void
     // *)&pr->awake_consumer);
 #endif
     Condition_Signal(pr->awake_consumer);
@@ -208,7 +215,9 @@ void packetring_free(struct PacketRing *pr) {
             Mutex_Lock(&packetringdebug_mutex);
             totalpacketringcount--;
             thread_debug(
-                "Free packet ring=%p producer=%p (consumer=%p) awaits = %d total rings = %d",
+                "Free packet ring=%p producer=%p (consumer=%p) awaits = %d "
+                "total "
+                "rings = %d",
                 (void *)pr, (void *)pr->awake_producer, (void *)pr->awake_consumer,
                 pr->awaitcounter, totalpacketringcount);
             Mutex_Unlock(&packetringdebug_mutex);

@@ -90,7 +90,8 @@ Server::Server(thread_Settings *inSettings) {
 #if defined(HAVE_LINUX_FILTER_H) && defined(HAVE_AF_PACKET)
     myDropSocket = inSettings->mSockDrop;
     if (isL2LengthCheck(mSettings)) {
-        // For L2 UDP make sure we can receive a full ethernet packet plus a bit more
+        // For L2 UDP make sure we can receive a full ethernet packet plus a bit
+        // more
         if (mSettings->mBufLen < (2 * ETHER_MAX_LEN)) {
             mSettings->mBufLen = (2 * ETHER_MAX_LEN);
         }
@@ -161,8 +162,8 @@ inline bool Server::InProgress() {
 void Server::RunTCP() {
     long currLen;
     intmax_t totLen = 0;
-    struct TCP_burst_payload
-        burst_info;  // used to store burst header and report in last packet of burst
+    struct TCP_burst_payload burst_info;  // used to store burst header and
+                                          // report in last packet of burst
     Timestamp time1, time2;
     double tokens = 0.000004;
 
@@ -208,8 +209,9 @@ void Server::RunTCP() {
                                sizeof(struct TCP_burst_payload), 0)) ==
                     sizeof(struct TCP_burst_payload)) {
                     // burst_info.typelen.type = ntohl(burst_info.typelen.type);
-                    // burst_info.typelen.length = ntohl(burst_info.typelen.length);
-                    // This is the first stamp of the burst
+                    // burst_info.typelen.length =
+                    // ntohl(burst_info.typelen.length); This is the first stamp
+                    // of the burst
                     burst_info.flags = ntohl(burst_info.flags);
                     burst_info.burst_size = ntohl(burst_info.burst_size);
                     assert(burst_info.burst_size > 0);
@@ -242,8 +244,8 @@ void Server::RunTCP() {
                     currLen += n;
                     readLen = (mSettings->mBufLen < burst_nleft) ? mSettings->mBufLen : burst_nleft;
                     WARN(burst_nleft <= 0, "invalid burst read req size");
-                    // thread_debug("***read burst header size %d id=%d", burst_info.burst_size,
-                    // burst_info.burst_id);
+                    // thread_debug("***read burst header size %d id=%d",
+                    // burst_info.burst_size, burst_info.burst_id);
                 } else {
                     if (n > 0) {
                         WARN(1, "partial readn");
@@ -377,7 +379,8 @@ inline bool Server::ReadBBWithRXTimestamp() {
                 if (!(bbflags & HEADER_BBSTOP)) {
                     rc = true;
                 } else {
-                    // last BB write received from client, false return code stops this side
+                    // last BB write received from client, false return code
+                    // stops this side
                 }
                 break;
             }
@@ -546,15 +549,17 @@ inline void Server::SetFullDuplexReportStartTime() {
 inline void Server::SetReportStartTime() {
     if (TimeZero(myReport->info.ts.startTime)) {
         if (isTripTime(mSettings) && !TimeZero(mSettings->sent_time) && !isTxStartTime(mSettings)) {
-            // Servers that aren't full duplex use the accept timestamp for start
+            // Servers that aren't full duplex use the accept timestamp for
+            // start
             myReport->info.ts.startTime.tv_sec = mSettings->sent_time.tv_sec;
             myReport->info.ts.startTime.tv_usec = mSettings->sent_time.tv_usec;
         } else if (!TimeZero(mSettings->accept_time)) {
-            // Servers that aren't full duplex use the accept timestamp for start
+            // Servers that aren't full duplex use the accept timestamp for
+            // start
             myReport->info.ts.startTime.tv_sec = mSettings->accept_time.tv_sec;
             myReport->info.ts.startTime.tv_usec = mSettings->accept_time.tv_usec;
-            // The client may have had a barrier between the connect and start of traffic, check and
-            // adjust
+            // The client may have had a barrier between the connect and start
+            // of traffic, check and adjust
             if (mSettings->barrier_time) {
                 now.setnow();
                 if (now.subUsec(mSettings->accept_time) >= mSettings->barrier_time) {
@@ -605,10 +610,12 @@ inline void Server::SetReportStartTime() {
 }
 
 void Server::ClientReverseFirstRead(void) {
-    // Handle the case when the client spawns a server (no listener) and need the initial header
-    // Case of --trip-times and --reverse or --fullduplex, listener handles normal case
-    // Handle the case when the client spawns a server (no listener) and need the initial header
-    // Case of --trip-times and --reverse or --fullduplex, listener handles normal case
+    // Handle the case when the client spawns a server (no listener) and need
+    // the initial header Case of --trip-times and --reverse or --fullduplex,
+    // listener handles normal case Handle the case when the client spawns a
+    // server (no listener) and need the initial header Case of --trip-times and
+    // --reverse or
+    // --fullduplex, listener handles normal case
     if (isReverse(mSettings) &&
         (isTripTime(mSettings) || isPeriodicBurst(mSettings) || isIsochronous(mSettings))) {
         int nread = 0;
@@ -618,7 +625,8 @@ void Server::ClientReverseFirstRead(void) {
             nread = recvn(mSettings->mSock, mSettings->mBuf, mSettings->mBufLen, 0);
             switch (nread) {
                 case 0:
-                    // peer closed the socket, with no writes e.g. a connect-only test
+                    // peer closed the socket, with no writes e.g. a
+                    // connect-only test
                     peerclose = true;
                     break;
                 case -1:
@@ -646,7 +654,8 @@ void Server::ClientReverseFirstRead(void) {
             nread = recvn(mSettings->mSock, mSettings->mBuf, sizeof(uint32_t), 0);
             if (nread == 0) {
                 fprintf(stderr, "WARN: zero read on header flags\n");
-                // peer closed the socket, with no writes e.g. a connect-only test
+                // peer closed the socket, with no writes e.g. a connect-only
+                // test
                 peerclose = true;
             }
             FAIL_errno((nread < (int)sizeof(uint32_t)), "client read tcp flags", mSettings);
@@ -750,12 +759,13 @@ bool Server::InitTrafficLoop(void) {
         if (mSettings->txstart_epoch.tv_sec > 0) {
             mSettings->accept_time.tv_sec = mSettings->txstart_epoch.tv_sec;
             mSettings->accept_time.tv_usec = mSettings->txstart_epoch.tv_usec;
-            mSettings->sent_time =
-                mSettings->accept_time;  // the first sent time w/epoch starts uses now()
+            mSettings->sent_time = mSettings->accept_time;  // the first sent time w/epoch starts
+                                                            // uses now()
         } else if ((abs(now.getSecs() - mSettings->sent_time.tv_sec)) > diff_tolerance) {
             unsetTripTime(mSettings);
             fprintf(stdout,
-                    "WARN: ignore --trip-times because client didn't provide valid start timestamp "
+                    "WARN: ignore --trip-times because client didn't provide valid "
+                    "start timestamp "
                     "within %d seconds of now\n",
                     diff_tolerance);
             mSettings->accept_time.tv_sec = now.getSecs();
@@ -945,8 +955,9 @@ void Server::L2_processing() {
     // Read the packet to get the UDP length
     int udplen = ntohs(udp_hdr->len);
     //
-    // in the event of an L2 error, double check the packet before passing it to the reporter,
-    // i.e. no reason to run iperf accounting on a packet that has no reasonable L3 or L4 headers
+    // in the event of an L2 error, double check the packet before passing it to
+    // the reporter, i.e. no reason to run iperf accounting on a packet that has
+    // no reasonable L3 or L4 headers
     //
     reportstruct->packetLen = udplen - sizeof(struct udphdr);
     reportstruct->expected_l2len =
@@ -974,8 +985,8 @@ void Server::L2_processing() {
 #endif  // HAVE_AF_PACKET
 }
 
-// Run the L2 packet through a quintuple check, i.e. proto/ip src/ip dst/src port/src dst
-// and return zero is there is a match, otherwize return nonzero
+// Run the L2 packet through a quintuple check, i.e. proto/ip src/ip dst/src
+// port/src dst and return zero is there is a match, otherwize return nonzero
 int Server::L2_quintuple_filter() {
 #if defined(HAVE_LINUX_FILTER_H) && defined(HAVE_AF_PACKET)
 
@@ -1082,8 +1093,8 @@ void Server::RunUDP() {
     bool isLastPacket = false;
 
     bool startReceiving = InitTrafficLoop();
-    Condition_Signal(
-        &mSettings->receiving);  // signal the listener thread so it can hang a new recvfrom
+    Condition_Signal(&mSettings->receiving);  // signal the listener thread so
+                                              // it can hang a new recvfrom
     if (startReceiving) {
         // Exit loop on three conditions
         // 1) Fatal read error
@@ -1109,15 +1120,18 @@ void Server::RunUDP() {
                 reportstruct->packetLen = rxlen;
                 if (isL2LengthCheck(mSettings)) {
                     reportstruct->l2len = rxlen;
-                    // L2 processing will set the reportstruct packet length with the length found
-                    // in the udp header and also set the expected length in the report struct.  The
-                    // reporter thread will do the compare and account and print l2 errors
+                    // L2 processing will set the reportstruct packet length
+                    // with the length found in the udp header and also set the
+                    // expected length in the report struct.  The reporter
+                    // thread will do the compare and account and print l2
+                    // errors
                     reportstruct->l2errors = 0x0;
                     L2_processing();
                 }
                 if (!(reportstruct->l2errors & L2UNKNOWN)) {
-                    // ReadPacketID returns true if this is the last UDP packet sent by the client
-                    // also sets the packet rx time in the reportstruct
+                    // ReadPacketID returns true if this is the last UDP packet
+                    // sent by the client also sets the packet rx time in the
+                    // reportstruct
                     reportstruct->prevSentTime = myReport->info.ts.prevsendTime;
                     reportstruct->prevPacketTime = myReport->info.ts.prevpacketTime;
                     isLastPacket = ReadPacketID(mSettings->l4payloadoffset);
@@ -1157,8 +1171,8 @@ void Server::RunUDPL4S() {
     bool isLastPacket = false;
     bool startReceiving = InitTrafficLoop();
     PragueCC l4s_pacer;
-    Condition_Signal(
-        &mSettings->receiving);  // signal the listener thread so it can hang a new recvfrom
+    Condition_Signal(&mSettings->receiving);  // signal the listener thread so
+                                              // it can hang a new recvfrom
     if (startReceiving) {
 #ifdef HAVE_THREAD_DEBUG
         thread_debug("Server running L4S with thread=%p sum=%p (sock=%d)", (void *)mSettings,
@@ -1184,14 +1198,16 @@ void Server::RunUDPL4S() {
                 if (reportstruct->err_readwrite != ReadWrongSrcPort) {
                     reportstruct->emptyreport = false;
                     reportstruct->packetLen = rxlen;
-                    // ReadPacketID returns true if this is the last UDP packet sent by the client
-                    // also sets the packet rx time in the reportstruct
+                    // ReadPacketID returns true if this is the last UDP packet
+                    // sent by the client also sets the packet rx time in the
+                    // reportstruct
                     reportstruct->prevSentTime = myReport->info.ts.prevsendTime;
                     reportstruct->prevPacketTime = myReport->info.ts.prevpacketTime;
                     isLastPacket = ReadPacketID(mSettings->l4payloadoffset);
                     myReport->info.ts.prevsendTime = reportstruct->sentTime;
                     myReport->info.ts.prevpacketTime = reportstruct->packetTime;
-                    // Read L4S fields from UDP payload, ECN bits came from earlier cmsg
+                    // Read L4S fields from UDP payload, ECN bits came from
+                    // earlier cmsg
                     struct client_udp_l4s_fwd *udp_l4spkt =
                         reinterpret_cast<struct client_udp_l4s_fwd *>(mSettings->mBuf);
                     if (udp_l4spkt->l4s_data_type == L4SPKTDATA) {

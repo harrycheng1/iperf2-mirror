@@ -192,7 +192,8 @@ void Listener::Run() {
                 need_listen = false;
             }
         }
-        // Use a select() with a timeout if -t is set or if this is a v1 -r or -d test
+        // Use a select() with a timeout if -t is set or if this is a v1 -r or
+        // -d test
         fd_set set;
         if (((mMode_Time || isCompat(mSettings)) &&
              (!isPermitKey(mSettings) && (mSettings->mAmount != 0))) ||
@@ -249,17 +250,21 @@ void Listener::Run() {
         if (mCount > 0) {
             mCount--;
         }
-        // These are some exception cases where the accepted socket shouldn't have been
-        // accepted but the accept() was first required to figure this out
+        // These are some exception cases where the accepted socket shouldn't
+        // have been accepted but the accept() was first required to figure this
+        // out
         //
-        // 1) When a client started the listener per -d or -r (but not --reverse.)
+        // 1) When a client started the listener per -d or -r (but not
+        // --reverse.)
         //    What's done here is to see if the server peer opening the
         //    socket matches the expected peer per a compare of the ip addresses
-        //    For the case of a *client Listener* the server and  host must match
-        //    Note: it's a good idea to prefer --reverse and full duplex socket vs this
-        //    -d,-r legacy approach. Still support it though in the name of legacy usage
+        //    For the case of a *client Listener* the server and  host must
+        //    match Note: it's a good idea to prefer --reverse and full duplex
+        //    socket vs this -d,-r legacy approach. Still support it though in
+        //    the name of legacy usage
         //
-        // 2) The peer is using a V6 address but the listener/server didn't get -V (for v6) on
+        // 2) The peer is using a V6 address but the listener/server didn't get
+        // -V (for v6) on
         //    it's command line
         //
         if ((mSettings->clientListener &&
@@ -273,16 +278,17 @@ void Listener::Run() {
             Settings_Destroy(server);
             continue;
         }
-        // isCompat is a version 1.7 test, basically it indicates there is nothing
-        // in the first messages so don't try to process them. Later iperf versions use
-        // the first message to convey test request and test settings information.  This flag
-        // is also used for threads that are children so-to-speak, e.g. a -d or -r client,
-        // which cannot have test flags otherwise there would be "test setup recursion"
-        // Time to read the very first packet received (per UDP) or the test flags (TCP)
-        // to get the client's requested test information.
-        // Note 1: It's important to know that this will also populate mBuf with
-        // enough information for the listener to perform test info exchange later in the code
-        // Note 2: The mBuf read is a peek so the server's traffic thread started later
+        // isCompat is a version 1.7 test, basically it indicates there is
+        // nothing in the first messages so don't try to process them. Later
+        // iperf versions use the first message to convey test request and test
+        // settings information.  This flag is also used for threads that are
+        // children so-to-speak, e.g. a -d or -r client, which cannot have test
+        // flags otherwise there would be "test setup recursion" Time to read
+        // the very first packet received (per UDP) or the test flags (TCP) to
+        // get the client's requested test information. Note 1: It's important
+        // to know that this will also populate mBuf with enough information for
+        // the listener to perform test info exchange later in the code Note 2:
+        // The mBuf read is a peek so the server's traffic thread started later
         // will also process the first message from an accounting perspective.
         // This is required for accurate traffic statistics
         if (!isCompat(server) && (isConnectOnly(server) || !apply_client_settings(server))) {
@@ -301,8 +307,9 @@ void Listener::Run() {
             Settings_Destroy(server);
             continue;
         }
-        // server settings flags should now be set per the client's first message exchange
-        // so the server setting's flags per the client can now be checked
+        // server settings flags should now be set per the client's first
+        // message exchange so the server setting's flags per the client can now
+        // be checked
         if (isUDP(server)) {
             if (!isCompat(mSettings) && !isTapDev(mSettings) &&
                 (isL2LengthCheck(mSettings) || isL2LengthCheck(server)) &&
@@ -321,12 +328,13 @@ void Listener::Run() {
             server->mSumReport->sum_reverse_set = true;
         } else if (isTripTime(server) && server->mSumReport) {
             SetSumHandlers(server,
-                           server->mSumReport);  // this needs to be done again after first read
+                           server->mSumReport);  // this needs to be done again
+                                                 // after first read
         }
 
-        // Read any more test settings and test values (not just the flags) and instantiate
-        // any settings objects for client threads (e.g. bidir or full duplex)
-        // This will set the listener_client_settings to NULL if
+        // Read any more test settings and test values (not just the flags) and
+        // instantiate any settings objects for client threads (e.g. bidir or
+        // full duplex) This will set the listener_client_settings to NULL if
         // there is no need for the Listener to start a client
         //
         // Note: the packet payload pointer for this information has different
@@ -346,9 +354,9 @@ void Listener::Run() {
                 if (isFullDuplex(server)) {
                     assert(server->mSumReport != NULL);
                     if (!server->mSumReport->sum_fd_set) {
-                        // Reset the sum output routine for the server sum report
-                        // now that it's know to be full duplex. This wasn't known
-                        // during accept()
+                        // Reset the sum output routine for the server sum
+                        // report now that it's know to be full duplex. This
+                        // wasn't known during accept()
                         SetSumHandlers(server, server->mSumReport);
                         server->mSumReport->sum_fd_set = true;
                     }
@@ -363,10 +371,12 @@ void Listener::Run() {
                     server->runNow = listener_client_settings;
                 } else if (server->mMode != kTest_Normal) {
 #if HAVE_THREAD_DEBUG
-                    thread_debug("V1 test (-d or -r) sum report client=%p/%p server=%p/%p",
-                                 (void *)listener_client_settings,
-                                 (void *)listener_client_settings->mFullDuplexReport,
-                                 (void *)server, (void *)server->mFullDuplexReport);
+                    thread_debug(
+                        "V1 test (-d or -r) sum report client=%p/%p "
+                        "server=%p/%p",
+                        (void *)listener_client_settings,
+                        (void *)listener_client_settings->mFullDuplexReport, (void *)server,
+                        (void *)server->mFullDuplexReport);
 #endif
                     if (listener_client_settings->mMode == kTest_DualTest) {
 #ifdef HAVE_THREAD
@@ -479,8 +489,8 @@ bool Listener::my_listen() {
                              mSettings->size_local, 0, 0, 0, 0, JL_BOTH);
             WARN_errno(rc == SOCKET_ERROR, "WSAJoinLeaf (aka bind)");
 #else
-#if 0 && (HAVE_DECL_IP_ADD_MEMBERSHIP || \
-          HAVE_DECL_MCAST_JOIN_GROUP)  // possible future, bind to all including unicast
+#if 0 && (HAVE_DECL_IP_ADD_MEMBERSHIP || HAVE_DECL_MCAST_JOIN_GROUP)  // possible future, bind to
+                                                                      // all including unicast
                 iperf_sockaddr tmp;
                 memcpy(&tmp, &mSettings->local, sizeof(tmp));
                 SockAddr_setAddressAny(&tmp); // the multicast join will take care of this
@@ -531,49 +541,56 @@ bool Listener::my_listen() {
 bool Listener::L2_setup(thread_Settings *server, int sockfd) {
 #if defined(HAVE_LINUX_FILTER_H) && defined(HAVE_AF_PACKET)
     //
-    //  Supporting parallel L2 UDP threads is a bit tricky.  Below are some notes as to why and the
-    //  approach used.
+    //  Supporting parallel L2 UDP threads is a bit tricky.  Below are some
+    //  notes as to why and the approach used.
     //
     //  The primary issues for UDP are:
     //
-    //  1) We want the listener thread to hand off the flow to a server thread and not be burdened
-    //  by that flow 2) For -P support, the listener thread neads to detect new flows which will
-    //  share the same UDP port
+    //  1) We want the listener thread to hand off the flow to a server thread
+    //  and not be burdened by that flow 2) For -P support, the listener thread
+    //  neads to detect new flows which will share the same UDP port
     //     and UDP is stateless
     //
-    //  The listener thread needs to detect new traffic flows and hand them to a new server thread,
-    //  and then rehang a listen/accept.  For standard iperf the "flow routing" is done using
-    //  connect() per the ip quintuple. The OS will then route established connected flows to the
-    //  socket descriptor handled by a server thread and won't burden the listener thread with these
-    //  packets.
+    //  The listener thread needs to detect new traffic flows and hand them to a
+    //  new server thread, and then rehang a listen/accept.  For standard iperf
+    //  the "flow routing" is done using connect() per the ip quintuple. The OS
+    //  will then route established connected flows to the socket descriptor
+    //  handled by a server thread and won't burden the listener thread with
+    //  these packets.
     //
-    //  For L2 verification, we have to create a two sockets that will exist for the life of the
-    //  flow.  A new packet socket (AF_PACKET) will receive L2 frames and bypasses the OS network
-    //  stack.  The original AF_INET socket will still send up packets to the network stack.
+    //  For L2 verification, we have to create a two sockets that will exist for
+    //  the life of the flow.  A new packet socket (AF_PACKET) will receive L2
+    //  frames and bypasses the OS network stack.  The original AF_INET socket
+    //  will still send up packets to the network stack.
     //
-    //  When using packet sockets there is inherent packet duplication, the hand off to a server
-    //  thread is not so straight forward as packets will continue being sent up to the listener
-    //  thread (technical problem is that packet sockets do not support connect() which binds the IP
-    //  quintuple as the forwarding key) Since the Listener uses recvfrom(), there is no OS
-    //  mechanism to detect new flows nor to drop packets.  The listener can't listen on quintuple
-    //  based connected flows because the client's source port is unknown.  Therefore the Listener
-    //  thread will continue to receive packets from all established flows sharing the same dst port
-    //  which will impact CPU utilization and hence performance.
+    //  When using packet sockets there is inherent packet duplication, the hand
+    //  off to a server thread is not so straight forward as packets will
+    //  continue being sent up to the listener thread (technical problem is that
+    //  packet sockets do not support connect() which binds the IP quintuple as
+    //  the forwarding key) Since the Listener uses recvfrom(), there is no OS
+    //  mechanism to detect new flows nor to drop packets.  The listener can't
+    //  listen on quintuple based connected flows because the client's source
+    //  port is unknown.  Therefore the Listener thread will continue to receive
+    //  packets from all established flows sharing the same dst port which will
+    //  impact CPU utilization and hence performance.
     //
-    //  The technique used to address this is to open an AF_PACKET socket and leave the AF_INET
-    //  socket open. (This also aligns with BSD based systems)  The original AF_INET socket will
-    //  remain in the (connected) state so the network stack has it's connected state.  A cBPF is
-    //  then used to cause the kernel to fast drop those packets.  A cBPF is set up to drop such
-    //  packets.  The test traffic will then only come over the packet (raw) socket and not the
-    //  AF_INET socket. If we were to try to close the original AF_INET socket (vs leave it open
-    //  w/the fast drop cBPF) then the existing traffic will be sent up by the network stack to he
-    //  Listener thread, flooding it with packets, again something we want to avoid.
+    //  The technique used to address this is to open an AF_PACKET socket and
+    //  leave the AF_INET socket open. (This also aligns with BSD based systems)
+    //  The original AF_INET socket will remain in the (connected) state so the
+    //  network stack has it's connected state.  A cBPF is then used to cause
+    //  the kernel to fast drop those packets.  A cBPF is set up to drop such
+    //  packets. The test traffic will then only come over the packet (raw)
+    //  socket and not the AF_INET socket. If we were to try to close the
+    //  original AF_INET socket (vs leave it open w/the fast drop cBPF) then the
+    //  existing traffic will be sent up by the network stack to he Listener
+    //  thread, flooding it with packets, again something we want to avoid.
     //
-    //  On the packet (raw) socket itself, we do two more things to better handle performance
+    //  On the packet (raw) socket itself, we do two more things to better
+    //  handle performance
     //
-    //  1)  Use a full quintuple cBPF allowing the kernel to filter packets (allow) per the
-    //  quintuple 2)  Use the packet fanout option to assign a CBPF to a socket and hence to a
-    //  single server thread minimizing
+    //  1)  Use a full quintuple cBPF allowing the kernel to filter packets
+    //  (allow) per the quintuple 2)  Use the packet fanout option to assign a
+    //  CBPF to a socket and hence to a single server thread minimizing
     //      duplication (reduce all cBPF's filtering load)
     //
     struct sockaddr *p = reinterpret_cast<sockaddr *>(&server->peer);
@@ -581,7 +598,8 @@ bool Listener::L2_setup(thread_Settings *server, int sockfd) {
     int rc = 0;
 
     //
-    // Establish a packet (raw) socket to be used by the server thread giving it full L2 packets
+    // Establish a packet (raw) socket to be used by the server thread giving it
+    // full L2 packets
     //
     struct sockaddr s;
     socklen_t len = sizeof(s);
@@ -615,7 +633,8 @@ bool Listener::L2_setup(thread_Settings *server, int sockfd) {
     WARN_errno(rc == SOCKET_ERROR, "l2 all drop bpf");
 
     // Now optimize packet flow up the raw socket
-    // Establish the flow BPF to forward up only "connected" packets to this raw socket
+    // Establish the flow BPF to forward up only "connected" packets to this raw
+    // socket
     if (l->sa_family == AF_INET6) {
 #if HAVE_IPV6
         struct in6_addr *v6peer = SockAddr_get_in6_addr(&server->peer);
@@ -626,8 +645,8 @@ bool Listener::L2_setup(thread_Settings *server, int sockfd) {
                                     (reinterpret_cast<struct sockaddr_in6 *>(p))->sin6_port);
             WARN_errno(rc == SOCKET_ERROR, "l2 connect ipv6 bpf");
         } else {
-            // This is an ipv4 address in a v6 family (structure), just pull the lower 32 bits for
-            // the v4 addr
+            // This is an ipv4 address in a v6 family (structure), just pull the
+            // lower 32 bits for the v4 addr
             rc = SockBPF_v4_Connect(server->mSock, v6local->s6_addr32[3], v6peer->s6_addr32[3],
                                     (reinterpret_cast<struct sockaddr_in6 *>(l))->sin6_port,
                                     (reinterpret_cast<struct sockaddr_in6 *>(p))->sin6_port);
@@ -659,7 +678,8 @@ bool Listener::tap_setup(thread_Settings *server, int sockfd) {
     int rc = 0;
 
     //
-    // Establish a packet (raw) socket to be used by the server thread giving it full L2 packets
+    // Establish a packet (raw) socket to be used by the server thread giving it
+    // full L2 packets
     //
     struct sockaddr s;
     socklen_t len = sizeof(s);
@@ -677,7 +697,8 @@ bool Listener::tap_setup(thread_Settings *server, int sockfd) {
     server->l4payloadoffset = server->l4offset + sizeof(struct udphdr);
     server->recvflags = MSG_TRUNC;
     // Now optimize packet flow up the raw socket
-    // Establish the flow BPF to forward up only "connected" packets to this raw socket
+    // Establish the flow BPF to forward up only "connected" packets to this raw
+    // socket
     if (l->sa_family == AF_INET6) {
 #if HAVE_IPV6
         struct in6_addr *v6peer = SockAddr_get_in6_addr(&server->peer);
@@ -688,8 +709,8 @@ bool Listener::tap_setup(thread_Settings *server, int sockfd) {
                                          (reinterpret_cast<struct sockaddr_in6 *>(p))->sin6_port);
             WARN_errno(rc == SOCKET_ERROR, "l2 connect ipv6 bpf");
         } else {
-            // This is an ipv4 address in a v6 family (structure), just pull the lower 32 bits for
-            // the v4 addr
+            // This is an ipv4 address in a v6 family (structure), just pull the
+            // lower 32 bits for the v4 addr
             rc = SockAddr_v4_Connect_BPF(server->mSock, v6local->s6_addr32[3], v6peer->s6_addr32[3],
                                          (reinterpret_cast<struct sockaddr_in6 *>(l))->sin6_port,
                                          (reinterpret_cast<struct sockaddr_in6 *>(p))->sin6_port);
@@ -722,20 +743,22 @@ int Listener::udp_accept(thread_Settings *server) {
     assert(server != NULL);
     int nread = 0;
     assert(ListenSocket > 0);
-    // Preset the server socket to INVALID, hang recvfrom on the Listener's socket
-    // The INVALID socket is used to keep the while loop going
+    // Preset the server socket to INVALID, hang recvfrom on the Listener's
+    // socket The INVALID socket is used to keep the while loop going
     server->mSock = INVALID_SOCKET;
     bool drainstalepkts = true;
     struct UDP_datagram *mBuf_UDP = reinterpret_cast<struct UDP_datagram *>(server->mBuf);
-    // Look for a UDP packet with a postive seq no while draining any neg seq no packets
-    // The UDP client traffic thread uses negative seq numbers to indicate to the server that
-    // traffic is over. Some of those "final" packets can be in the stack/network pipeline after the
-    // server thread has ended and closed its reporting. The Listener will now receive them as if
-    // they are "first packets. Any "new" packets seen by the Listener causes a new "udp accept" per
-    // UDP's stateless design. So, in the case of negative seq nos, we know that this is most likely
-    // not a new client thread requiring a new server thread, but remnants of an old one that
-    // already ended. Hence, the Listener should ignore "first packets" when they have negative seq
-    // numbers.
+    // Look for a UDP packet with a postive seq no while draining any neg seq no
+    // packets The UDP client traffic thread uses negative seq numbers to
+    // indicate to the server that traffic is over. Some of those "final"
+    // packets can be in the stack/network pipeline after the server thread has
+    // ended and closed its reporting. The Listener will now receive them as if
+    // they are "first packets. Any "new" packets seen by the Listener causes a
+    // new "udp accept" per UDP's stateless design. So, in the case of negative
+    // seq nos, we know that this is most likely not a new client thread
+    // requiring a new server thread, but remnants of an old one that already
+    // ended. Hence, the Listener should ignore "first packets" when they have
+    // negative seq numbers.
 RETRYREAD:
     do {
         nread = recvfrom(ListenSocket, server->mBuf, server->mBufLen, 0,
@@ -748,8 +771,8 @@ RETRYREAD:
             if (!isCompat(mSettings) && (nread >= 4) && !(flags & HEADER_SEQNO64B)) {
                 unsetSeqNo64b(server);
             }
-            // filter and ignore negative sequence numbers, these can be heldover from a previous
-            // run
+            // filter and ignore negative sequence numbers, these can be
+            // heldover from a previous run
             if (isSeqNo64b(server)) {
                 // New client - Signed PacketID packed into unsigned id2,id
                 intmax_t packetID64 = (static_cast<uint32_t>(ntohl(mBuf_UDP->id))) |
@@ -793,18 +816,20 @@ RETRYREAD:
             // This connect() will allow the OS to only
             // send packets with the ip quintuple up to the server
             // socket and, hence, to the server thread (yet to be created)
-            // This connect() routing is only supported with AF_INET or AF_INET6 sockets,
-            // e.g. AF_PACKET sockets can't do this.  We'll handle packet sockets later
-            // All UDP accepts here will use AF_INET.  This is intentional and needed
+            // This connect() routing is only supported with AF_INET or AF_INET6
+            // sockets, e.g. AF_PACKET sockets can't do this.  We'll handle
+            // packet sockets later All UDP accepts here will use AF_INET.  This
+            // is intentional and needed
             //
             // There are two choices for connect() and full quintuple matching
             // 1) Open a new socket and connect it as the server thread socket
-            // 2) Use the listener thread socket, connect it, and hand it to the server, then
-            // openb/bind a new listener socket
+            // 2) Use the listener thread socket, connect it, and hand it to the
+            // server, then openb/bind a new listener socket
             //
-            // In case 1, the challenge is packets enqueued won't be made available to the server
-            // thread In case 2, there is time period that there is no recvfrom open on the Listener
-            // port, can cause port refusal ICMP messages
+            // In case 1, the challenge is packets enqueued won't be made
+            // available to the server thread In case 2, there is time period
+            // that there is no recvfrom open on the Listener port, can cause
+            // port refusal ICMP messages
             //
             // See ticket 357 https://sourceforge.net/p/iperf2/tickets/357/
             if (!isMulticast(server)) {
@@ -852,7 +877,8 @@ int Listener::tuntap_accept(thread_Settings *server) {
                    sizeof(struct ether_header) + sizeof(struct udphdr)),
                   0);
     if (rc <= 0) return 0;
-    //	rc = udpchecksum((void *)ip_hdr, (void *)udp_hdr, udplen, (isIPV6(mSettings) ? 1 : 0));
+    //	rc = udpchecksum((void *)ip_hdr, (void *)udp_hdr, udplen,
+    //(isIPV6(mSettings) ? 1 : 0));
     struct iphdr *l3hdr = (struct iphdr *)((char *)server->mBuf + sizeof(struct ether_header));
     struct udphdr *l4hdr = (struct udphdr *)((char *)server->mBuf + sizeof(struct iphdr) +
                                              sizeof(struct ether_header));
@@ -966,13 +992,15 @@ inline bool Listener::test_permit_key(uint32_t flags, thread_Settings *server, i
     int keylen = ntohs(thiskey->length);
     if ((keylen < MIN_PERMITKEY_LEN) || (keylen > MAX_PERMITKEY_LEN)) {
         server->mKeyCheck = false;
-        //	fprintf(stderr, "REJECT: key length bounds error (%d)\n", keylen);
+        //	fprintf(stderr, "REJECT: key length bounds error (%d)\n",
+        // keylen);
         return false;
     }
     if (keylen != static_cast<int>(strlen(server->mPermitKey))) {
         server->mKeyCheck = false;
-        //	fprintf(stderr, "REJECT: key length mismatch (%d!=%d)\n", keylen, (int)
-        //strlen(server->mPermitKey));
+        //	fprintf(stderr, "REJECT: key length mismatch (%d!=%d)\n",
+        // keylen, (int)
+        // strlen(server->mPermitKey));
         return false;
     }
     if (!isUDP(server)) {
@@ -983,7 +1011,8 @@ inline bool Listener::test_permit_key(uint32_t flags, thread_Settings *server, i
     strncpy(server->mPermitKey, thiskey->value, MAX_PERMITKEY_LEN + 1);
     if (strncmp(server->mPermitKey, mSettings->mPermitKey, keylen) != 0) {
         server->mKeyCheck = false;
-        //	fprintf(stderr, "REJECT: key value mismatch per %s\n", thiskey->value);
+        //	fprintf(stderr, "REJECT: key value mismatch per %s\n",
+        // thiskey->value);
         return false;
     }
     server->mKeyCheck = true;
@@ -1019,7 +1048,8 @@ bool Listener::apply_client_settings_udp(thread_Settings *server) {
             }
             if (seqno != 1) {
                 fprintf(stderr,
-                        "WARN: first received packet (id=%d) was not first sent packet, report "
+                        "WARN: first received packet (id=%d) was not first sent "
+                        "packet, report "
                         "start time will be off\n",
                         seqno);
             }
@@ -1027,7 +1057,9 @@ bool Listener::apply_client_settings_udp(thread_Settings *server) {
             if (!isTxStartTime(server) &&
                 ((abs(now.getSecs() - server->sent_time.tv_sec)) > (MAXDIFFTIMESTAMPSECS + 1))) {
                 fprintf(stdout,
-                        "WARN: ignore --trip-times because client didn't provide valid start "
+                        "WARN: ignore --trip-times because client didn't "
+                        "provide valid "
+                        "start "
                         "timestamp within %d seconds of now\n",
                         MAXDIFFTIMESTAMPSECS);
                 unsetTripTime(server);
@@ -1045,7 +1077,9 @@ bool Listener::apply_client_settings_udp(thread_Settings *server) {
                         Settings_Resize_mBuf(server, buflen_peer_req);
                     } else if (buflen_peer_req > server->mBufLen) {
                         fprintf(stdout,
-                                "ERROR: Client write len of %d to big for server read len of %d\n",
+                                "ERROR: Client write len of %d to big for "
+                                "server read len "
+                                "of %d\n",
                                 buflen_peer_req, server->mBufLen);
                         return false;
                     }
@@ -1094,7 +1128,9 @@ bool Listener::apply_client_settings_udp(thread_Settings *server) {
                     if ((abs(now.getSecs() - server->txstart_epoch.tv_sec)) >
                         (MAXDIFFTXSTART + 1)) {
                         fprintf(stdout,
-                                "WARN: ignore --txstart-time because client didn't provide valid "
+                                "WARN: ignore --txstart-time because client "
+                                "didn't provide "
+                                "valid "
                                 "start timestamp within %d seconds of now\n",
                                 MAXDIFFTXSTART);
                         unsetTxStartTime(server);
@@ -1109,7 +1145,8 @@ bool Listener::apply_client_settings_udp(thread_Settings *server) {
                     if (!isTxStartTime(server) && ((abs(now.getSecs() - server->sent_time.tv_sec)) >
                                                    (MAXDIFFTIMESTAMPSECS + 1))) {
                         fprintf(stdout,
-                                "WARN: ignore --trip-times because client didn't provide valid "
+                                "WARN: ignore --trip-times because client "
+                                "didn't provide valid "
                                 "start timestamp within %d seconds of now\n",
                                 MAXDIFFTIMESTAMPSECS);
                         unsetTripTime(server);
@@ -1185,7 +1222,9 @@ bool Listener::apply_client_settings_tcp(thread_Settings *server) {
             if (server->mBounceBackBytes > server->mBufLen) {
                 if (isBuflenSet(server)) {
                     WARN(1,
-                         "Buffer length (-l) too small for bounceback request. Increase -l size or "
+                         "Buffer length (-l) too small for bounceback request. "
+                         "Increase "
+                         "-l size or "
                          "don't set (for auto-adjust)");
                     rc = false;
                     goto DONE;
@@ -1219,7 +1258,9 @@ bool Listener::apply_client_settings_tcp(thread_Settings *server) {
             if (server->mBounceBackReplyBytes > server->mBufLen) {
                 if (isBuflenSet(server)) {
                     WARN(1,
-                         "Buffer length (-l) too small for bounceback reply. Increase -l size or "
+                         "Buffer length (-l) too small for bounceback reply. "
+                         "Increase -l "
+                         "size or "
                          "don't set (for auto-adjust)");
                     rc = false;
                     goto DONE;
@@ -1303,8 +1344,10 @@ bool Listener::apply_client_settings_tcp(thread_Settings *server) {
                         if ((abs(now.getSecs() - server->txstart_epoch.tv_sec)) >
                             (MAXDIFFTXSTART + 1)) {
                             fprintf(stdout,
-                                    "WARN: ignore --txstart-time because client didn't provide "
-                                    "valid start timestamp within %d seconds of now\n",
+                                    "WARN: ignore --txstart-time because "
+                                    "client didn't provide "
+                                    "valid start timestamp within %d seconds "
+                                    "of now\n",
                                     MAXDIFFTXSTART);
                             unsetTxStartTime(server);
                         } else {
@@ -1319,7 +1362,9 @@ bool Listener::apply_client_settings_tcp(thread_Settings *server) {
                             ((abs(now.getSecs() - server->sent_time.tv_sec)) >
                              (MAXDIFFTIMESTAMPSECS + 1))) {
                             fprintf(stdout,
-                                    "WARN: ignore --trip-times because client didn't provide valid "
+                                    "WARN: ignore --trip-times because client "
+                                    "didn't provide "
+                                    "valid "
                                     "start timestamp within %d seconds of now\n",
                                     MAXDIFFTIMESTAMPSECS);
                             unsetTripTime(server);
@@ -1357,7 +1402,8 @@ bool Listener::apply_client_settings_tcp(thread_Settings *server) {
                                                 server->mCongestion, len);
                             if (rc == SOCKET_ERROR) {
                                 fprintf(stderr,
-                                        "Attempt to set '%s' congestion control failed: %s\n",
+                                        "Attempt to set '%s' congestion "
+                                        "control failed: %s\n",
                                         server->mCongestion, strerror(errno));
                                 unsetCongestionControl(server);
                                 DELETE_ARRAY(server->mCongestion);

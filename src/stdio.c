@@ -278,11 +278,10 @@ const char *kLabel_bit[] = {"bit", "Kbit", "Mbit", "Gbit", "Tbit", "Pbit"};
  *
  * Given a number in bytes and a format, converts the number and
  * prints it out with a bits or bytes label.
- *   B, K, M, G, A, P, T for Byte, Kbyte, Mbyte, Gbyte, Tbyte, Pbyte adaptive byte
- *   b, k, m, g, a, p, t for bit,  Kbit,  Mbit,  Gbit, Tbit, Pbit, adaptive bit
- * adaptive picks the "best" one based on the number.
- * outString should be at least 11 chars long
- * (4 digits + space + 5 chars max + null)
+ *   B, K, M, G, A, P, T for Byte, Kbyte, Mbyte, Gbyte, Tbyte, Pbyte adaptive
+ * byte b, k, m, g, a, p, t for bit,  Kbit,  Mbit,  Gbit, Tbit, Pbit, adaptive
+ * bit adaptive picks the "best" one based on the number. outString should be at
+ * least 11 chars long (4 digits + space + 5 chars max + null)
  * ------------------------------------------------------------------- */
 
 void byte_snprintf(char *outString, int inLen, double inNum, char inFormat) {

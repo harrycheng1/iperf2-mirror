@@ -104,8 +104,9 @@ extern "C" {
 // per feedback from Eric Dumazet
 // "Keep in mind the optimal (and max) size of skbs in linux is 64K
 //
-// If you use 16K, TCP is forced to cook smaller packets, and is unable to fill the pipe.
-// (Filling 'the pipe' needs to be able to cook 2 consecutive GSO skbs at any point of time)
+// If you use 16K, TCP is forced to cook smaller packets, and is unable to fill
+// the pipe. (Filling 'the pipe' needs to be able to cook 2 consecutive GSO skbs
+// at any point of time)
 //
 // I would at least use 128KB or 256KB."
 #define SKB_SIZE (64 * 1024)

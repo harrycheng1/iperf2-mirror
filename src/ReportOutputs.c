@@ -484,15 +484,17 @@ void tcp_output_write_bb(struct TransferInfo *stats) {
     if (stats->cntRxBytes > 0) {
         byte_snprintf(outrxbytes, sizeof(outrxbytes), (double)stats->cntRxBytes,
                       toupper((int)stats->common->Format));
-        //	byte_snprintf(outrxbytes, sizeof(outrxbytes), (double)stats->cntRxBytes /
-        //(stats->ts.iEnd - stats->ts.iStart), stats->common->Format);
+        //	byte_snprintf(outrxbytes, sizeof(outrxbytes),
+        //(double)stats->cntRxBytes
+        /// (stats->ts.iEnd - stats->ts.iStart), stats->common->Format);
         outbuffer[sizeof(outrxbytes) - 1] = '\0';
     }
     if (stats->cntTxBytes > 0) {
         byte_snprintf(outtxbytes, sizeof(outtxbytes), (double)stats->cntTxBytes,
                       toupper((int)stats->common->Format));
-        //	byte_snprintf(outtxbytes, sizeof(outtxbytes), (double)stats->cntTxBytes /
-        //(stats->ts.iEnd - stats->ts.iStart), stats->common->Format);
+        //	byte_snprintf(outtxbytes, sizeof(outtxbytes),
+        //(double)stats->cntTxBytes
+        /// (stats->ts.iEnd - stats->ts.iStart), stats->common->Format);
         outbuffer[sizeof(outtxbytes) - 1] = '\0';
     }
 
@@ -2195,14 +2197,18 @@ static void reporter_output_listener_settings(struct ReportSettings *report) {
     if (isUDP(report->common)) {
         if (isSingleClient(report->common)) {
             fprintf(stdout,
-                    "WARN: Suggested to use lower case -u instead of -U (to avoid serialize & "
+                    "WARN: Suggested to use lower case -u instead of -U (to avoid "
+                    "serialize & "
                     "bypass of reporter thread)\n");
         } else if (isSingleClient(report->common)) {
             fprintf(stdout,
-                    "Server set to single client traffic mode per -U (serialize traffic tests)\n");
+                    "Server set to single client traffic mode per -U (serialize "
+                    "traffic tests)\n");
         }
     } else if (isSingleClient(report->common)) {
-        fprintf(stdout, "Server set to single client traffic mode (serialize traffic tests)\n");
+        fprintf(stdout,
+                "Server set to single client traffic mode (serialize traffic "
+                "tests)\n");
     }
 #if defined(HAVE_LINUX_FILTER_H) && defined(HAVE_AF_PACKET) && 0  // take this out for now
     if (isEnhanced(report->common) && isMulticast(report->common) &&
@@ -2212,7 +2218,8 @@ static void reporter_output_listener_settings(struct ReportSettings *report) {
 #endif
     if (isHistogram(report->common)) {
         fprintf(stdout,
-                "Enabled receive histograms bin-width=%0.3f ms, bins=%d (clients should use "
+                "Enabled receive histograms bin-width=%0.3f ms, bins=%d (clients "
+                "should use "
                 "--trip-times)\n",
                 ((1e3 * report->common->HistBinsize) / pow(10, report->common->HistUnits)),
                 report->common->HistBins);
@@ -2226,7 +2233,8 @@ static void reporter_output_listener_settings(struct ReportSettings *report) {
         fprintf(stdout, "Frame or burst interval reporting (feature is experimental)\n");
 #else
         fprintf(stdout,
-                "Frame or burst interval reporting (feature is experimental, ./configure "
+                "Frame or burst interval reporting (feature is experimental, "
+                "./configure "
                 "--enable-fastsampling suggested)\n");
 #endif
     }
@@ -2411,7 +2419,8 @@ static void reporter_output_client_settings(struct ReportSettings *report) {
     if (isNearCongest(report->common)) {
         if (report->common->rtt_weight == NEARCONGEST_DEFAULT) {
             fprintf(stdout,
-                    "TCP near-congestion delay weight set to %2.4f (use --near-congestion=<value> "
+                    "TCP near-congestion delay weight set to %2.4f (use "
+                    "--near-congestion=<value> "
                     "to change)\n",
                     report->common->rtt_weight);
         } else {
@@ -2421,7 +2430,8 @@ static void reporter_output_client_settings(struct ReportSettings *report) {
     }
     if (isSingleClient(report->common)) {
         fprintf(stdout,
-                "WARN: Client set to bypass reporter thread per -U (suggest use lower case -u "
+                "WARN: Client set to bypass reporter thread per -U (suggest use "
+                "lower case -u "
                 "instead)\n");
     }
     if ((isIPG(report->common) || isUDP(report->common)) && !isIsochronous(report->common)) {
@@ -2448,7 +2458,8 @@ static void reporter_output_client_settings(struct ReportSettings *report) {
                     report->common->WritePrefetch);
         } else if (!isUDP(report->common) && isTripTime(report->common)) {
             fprintf(stdout,
-                    "Warn: Send side bloat possible per --tcp-write-prefetch not being set\n");
+                    "Warn: Send side bloat possible per --tcp-write-prefetch not "
+                    "being set\n");
         }
 #endif
         if (isHistogram(report->common)) {
@@ -2457,7 +2468,9 @@ static void reporter_output_client_settings(struct ReportSettings *report) {
                         ((1e3 * report->common->HistBinsize) / pow(10, report->common->HistUnits)),
                         report->common->HistBins);
             } else {
-                fprintf(stdout, "Set bounceback histograms to bin-width=%0.3f ms, bins=%d\n",
+                fprintf(stdout,
+                        "Set bounceback histograms to bin-width=%0.3f ms, "
+                        "bins=%d\n",
                         ((1e3 * report->common->HistBinsize) / pow(10, report->common->HistUnits)),
                         report->common->HistBins);
             }
@@ -2471,19 +2484,19 @@ void reporter_connect_printf_tcp_final(struct ConnectionInfo *report) {
     if (report->connect_times.cnt >= MINSAMPLES_FORVARIANCE) {
         double variance = (sqrt(report->connect_times.m2 / (report->connect_times.cnt - 1)));
         fprintf(stdout,
-                "[ CT] final connect times (min/avg/max/stdev) = %0.3f/%0.3f/%0.3f/%0.3f ms "
+                "[ CT] final connect times (min/avg/max/stdev) = "
+                "%0.3f/%0.3f/%0.3f/%0.3f ms "
                 "(tot/err) = %" PRIdMAX "/%" PRIdMAX "\n",
                 report->connect_times.min, (report->connect_times.sum / report->connect_times.cnt),
                 report->connect_times.max, variance,
                 (report->connect_times.cnt + report->connect_times.err), report->connect_times.err);
     } else if (report->connect_times.cnt > 2) {
-        fprintf(
-            stdout,
-            "[ CT] final connect times (min/avg/max) = %0.3f/%0.3f/%0.3f ms (tot/err) = %" PRIdMAX
-            "/%" PRIdMAX "\n",
-            report->connect_times.min, (report->connect_times.sum / report->connect_times.cnt),
-            report->connect_times.max, (report->connect_times.cnt + report->connect_times.err),
-            report->connect_times.err);
+        fprintf(stdout,
+                "[ CT] final connect times (min/avg/max) = %0.3f/%0.3f/%0.3f ms "
+                "(tot/err) = %" PRIdMAX "/%" PRIdMAX "\n",
+                report->connect_times.min, (report->connect_times.sum / report->connect_times.cnt),
+                report->connect_times.max, (report->connect_times.cnt + report->connect_times.err),
+                report->connect_times.err);
     }
     fflush(stdout);
 }

@@ -265,8 +265,8 @@ const struct mesg error_mesgs[] = {
     {0, "No error."}
 
     /* These appeared in the documentation, but didn't compile.
-     * { WSAINVALIDPROCTABLE,   "Invalid procedure table from service provider." },
-     * { WSAINVALIDPROVIDER,    "Invalid service provider version number." },
+     * { WSAINVALIDPROCTABLE,   "Invalid procedure table from service provider."
+     * }, { WSAINVALIDPROVIDER,    "Invalid service provider version number." },
      * { WSAPROVIDERFAILEDINIT, "Unable to initialize a service provider." },
      */
 

@@ -125,7 +125,9 @@ int main(int argc, char **argv) {
             case '?':
             default:
                 fprintf(stderr,
-                        "Usage -b bins, -c count, -l log normal, -m mean, -p print, -s speed only, "
+                        "Usage -b bins, -c count, -l log normal, -m mean, -p "
+                        "print, -s "
+                        "speed only, "
                         "-v variance");
                 exit(-1);
         }
@@ -184,8 +186,10 @@ int main(int argc, char **argv) {
     }
     exectime = round(1e9 * total / count);
     if (!printout) {
-        printf("Total time=%f secs, count= %d, average generate time of %d nanoseconds\n", total,
-               count, exectime);
+        printf(
+            "Total time=%f secs, count= %d, average generate time of %d "
+            "nanoseconds\n",
+            total, count, exectime);
     }
     return (0);
 }

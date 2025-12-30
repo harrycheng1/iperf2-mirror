@@ -211,7 +211,9 @@ static void clientside_client_reverse(struct thread_Settings *thread,
         theClient->BarrierClient(thread->connects_done);
     if (theClient->isConnected()) {
         FAIL((!reverse_client || !(thread->mSock > 0)),
-             "Reverse test failed to start per thread settings or socket problem", thread);
+             "Reverse test failed to start per thread settings or socket "
+             "problem",
+             thread);
         setTransferID(reverse_client, REVERSED);
         theClient->StartSynch();
         reverse_client->mSock = thread->mSock;  // use the same socket for both directions
@@ -253,7 +255,9 @@ static void clientside_client_fullduplex(struct thread_Settings *thread,
     if (theClient->isConnected()) {
         thread->mFullDuplexReport->info.common->socket = thread->mSock;
         FAIL((!reverse_client || !(thread->mSock > 0)),
-             "Reverse test failed to start per thread settings or socket problem", thread);
+             "Reverse test failed to start per thread settings or socket "
+             "problem",
+             thread);
         reverse_client->mSock = thread->mSock;  // use the same socket for both directions
         reverse_client->mThreadMode = kMode_Server;
         setReverse(reverse_client);
@@ -411,10 +415,10 @@ void client_init(struct thread_Settings *clients) {
             }
             if (isTxStartTime(clients)) {
                 // break apart -P first pkt sends by some usecs
-                // this allows the listener thread to spawn a server, connect() and open
-                // a new socket for subsequent threads. This issue is most
-                // notable with --tx-starttime and -P > 1
-                // use max cores & a max aggregate delay to limit this so it's bounded
+                // this allows the listener thread to spawn a server, connect()
+                // and open a new socket for subsequent threads. This issue is
+                // most notable with --tx-starttime and -P > 1 use max cores & a
+                // max aggregate delay to limit this so it's bounded
 #define MAXCORES 10
 #define MAXDELAY 20000  // 20 ms
                 next->sendfirst_pacing = (i % MAXCORES) * (MAXDELAY / MAXCORES);
@@ -424,8 +428,8 @@ void client_init(struct thread_Settings *clients) {
                 // force a setHostname
                 SockAddr_zeroAddress(&next->peer);
             } else if (clients->mBindPort) {
-                // Increment the source port of none of the quintuple is being change or the user
-                // requests it
+                // Increment the source port of none of the quintuple is being
+                // change or the user requests it
                 if ((!isIncrDstPort(clients) && !isIncrDstIP(clients) && !isIncrSrcIP(clients)) ||
                     isIncrSrcPort(clients)) {
                     // case -B with src port and -P > 1

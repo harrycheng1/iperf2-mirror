@@ -349,7 +349,8 @@ struct TransferInfo {
     enum edgeLevel uplevel;
     enum edgeLevel downlevel;
     int groupID;
-    int slot_thread_upcount;    // increments on a thread's first sample into a report interval
+    int slot_thread_upcount;    // increments on a thread's first sample into a
+                                // report interval
     int slot_thread_downcount;  // increments on a thread's interval sum output
     bool isMaskOutput;
     uintmax_t cntBytes;
@@ -365,8 +366,8 @@ struct TransferInfo {
     double jitter;
     double IPGsum;
     double IPGsumcarry;
-    struct ShiftCounters
-        total;  // Shift counters used to calculate interval reports and hold totals
+    struct ShiftCounters total;  // Shift counters used to calculate interval
+                                 // reports and hold totals
     union SendReadStats sock_callstats;
     struct IsochStats isochstats;
     struct histogram *latency_histogram;
@@ -485,9 +486,10 @@ extern report_statistics multiple_reports[];
 
 // The packet or read/write accounting routines used by the reporter thread
 // They're function vectors called from the reporter loop via
-// this_ireport->packet_handler_pre_report or this_ireport->packet_handler_post_report
-// The vectors are set during report instantiation in Reports.c
-// Note that client packet handling is the same for TCP and UDP
+// this_ireport->packet_handler_pre_report or
+// this_ireport->packet_handler_post_report The vectors are set during report
+// instantiation in Reports.c Note that client packet handling is the same for
+// TCP and UDP
 void reporter_handle_packet_null(struct ReporterData *data, struct ReportStruct *packet);
 void reporter_handle_packet_client(struct ReporterData *data, struct ReportStruct *packet);
 void reporter_handle_packet_server_udp(struct ReporterData *data, struct ReportStruct *packet);
@@ -495,9 +497,10 @@ void reporter_handle_packet_server_tcp(struct ReporterData *data, struct ReportS
 void reporter_handle_packet_bb_client(struct ReporterData *data, struct ReportStruct *packet);
 
 // Reporter thread's conditional prints of interval reports
-// Invoked from the Reporter thread per function vector this_ireport->transfer_interval_handler
-// This is set during Report instantiation (found in Reports.c)
-// These conditionally, e.g per a sample interval, invoke the transfer protocol handlers
+// Invoked from the Reporter thread per function vector
+// this_ireport->transfer_interval_handler This is set during Report
+// instantiation (found in Reports.c) These conditionally, e.g per a sample
+// interval, invoke the transfer protocol handlers
 bool reporter_condprint_time_interval_report(struct ReporterData *data,
                                              struct ReportStruct *packet);
 bool reporter_condprint_frame_interval_report_client_udp(struct ReporterData *data,
@@ -518,9 +521,10 @@ bool reporter_condprint_burst_interval_report_client_tcp(struct ReporterData *da
                                                          struct ReportStruct *packet);
 
 // Each report type needs specialized updating prior to printing its report
-// These functions realize that updating. They are called by the transfer protocol handler,
-// e.g. (*data->transfer_protocol_handler)(data, 0) found in src/Reporter.c
-// These update the TransferInfo stats struct which is used during output (e.g. the output handler)
+// These functions realize that updating. They are called by the transfer
+// protocol handler, e.g. (*data->transfer_protocol_handler)(data, 0) found in
+// src/Reporter.c These update the TransferInfo stats struct which is used
+// during output (e.g. the output handler)
 void reporter_transfer_protocol_null(struct ReporterData *data, bool final);
 void reporter_transfer_protocol_client_tcp(struct ReporterData *data, bool final);
 void reporter_transfer_protocol_client_bb_tcp(struct ReporterData *data, bool final);

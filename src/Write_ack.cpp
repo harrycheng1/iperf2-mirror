@@ -103,8 +103,8 @@ void WriteAck::RunServer(void) {
         if (packet->packetID < 0) break;
         int len = write(mSettings->mSock, packet, sizeof(ReportStruct));
 #ifdef HAVE_THREAD_DEBUG
-        // thread_debug("Write ack (bytes=%d ack len=%d) sent %p (%p)", packet->packetLen, len,
-        // (void *) packet, (void *) mSettings);
+        // thread_debug("Write ack (bytes=%d ack len=%d) sent %p (%p)",
+        // packet->packetLen, len, (void *) packet, (void *) mSettings);
 #endif
         if (len != sizeof(ReportStruct)) {
             fprintf(stderr, "Write ack length error: got %d but expected %d\n", len,

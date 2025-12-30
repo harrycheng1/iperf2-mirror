@@ -81,7 +81,8 @@ static void active_table_show_entry(const char *action, Iperf_ListEntry *entry, 
     unsigned short port = SockAddr_getPort(&(entry->host));
     SockAddr_getHostAddress(&(entry->host), tmpaddr, len);
     thread_debug(
-        "active table: %s %s port %d (flag=%d) rootp=%p entryp=%p hostcnt/flowcnt/threadcnt = "
+        "active table: %s %s port %d (flag=%d) rootp=%p entryp=%p "
+        "hostcnt/flowcnt/threadcnt = "
         "%d/%d/%d",
         action, tmpaddr, port, found, (void *)active_table.sum_root, (void *)entry->sumreport,
         active_table.sum_count, active_table.flow_count, entry->thread_count);
@@ -114,7 +115,8 @@ void Iperf_initialize_active_table() {
 }
 
 /*
- * Add Entry add to the list or update thread count, return 0 on UDP tuple duplicate
+ * Add Entry add to the list or update thread count, return 0 on UDP tuple
+ * duplicate
  */
 static inline struct Iperf_ListEntry *hostkey_insert(iperf_sockaddr *host) {
     struct Iperf_ListEntry *this_key = new Iperf_ListEntry();
@@ -148,8 +150,9 @@ static inline struct Iperf_ListEntry *flowkey_insert(iperf_sockaddr *host) {
     this_key->host = *host;
 #if HAVE_THREAD_DEBUG
     active_table.flow_count++;
-//    active_table_show_flow_entry("new flow entry", this_key, ((SockAddr_are_Equal(&this_key->host,
-//    host) && SockAddr_Hostare_Equal(&this_key->host, host))));
+//    active_table_show_flow_entry("new flow entry", this_key,
+//    ((SockAddr_are_Equal(&this_key->host, host) &&
+//    SockAddr_Hostare_Equal(&this_key->host, host))));
 #endif
     return this_key;
 }

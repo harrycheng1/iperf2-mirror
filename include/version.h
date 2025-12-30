@@ -6,22 +6,13 @@
 #define IPERF_BRANCH ""
 /*
  * 	case 0:
- *	    sprintf(report->peerversion + strlen(report->peerversion) - 1,"-dev)");
- *	    break;
- *	case 1:
- *	    sprintf(report->peerversion + strlen(report->peerversion) - 1,"-rc)");
- *	    break;
- *	case 2:
- *	    sprintf(report->peerversion + strlen(report->peerversion) - 1,"-rc2)");
- *	    break;
- *	case 3:
- *	    break;
- *	case 4:
- *	    sprintf(report->peerversion + strlen(report->peerversion) - 1,"-private)");
- *	    break;
- *	case 5:
- *	    sprintf(report->peerversion + strlen(report->peerversion) - 1,"-master)");
- * 	    break;
- *	default:
- *	    sprintf(report->peerversion + strlen(report->peerversion) - 1, "-unk)");
+ *	    sprintf(report->peerversion + strlen(report->peerversion) -
+ *1,"-dev)"); break; case 1: sprintf(report->peerversion +
+ *strlen(report->peerversion) - 1,"-rc)"); break; case 2:
+ *	    sprintf(report->peerversion + strlen(report->peerversion) -
+ *1,"-rc2)"); break; case 3: break; case 4: sprintf(report->peerversion +
+ *strlen(report->peerversion) - 1,"-private)"); break; case 5:
+ *	    sprintf(report->peerversion + strlen(report->peerversion) -
+ *1,"-master)"); break; default: sprintf(report->peerversion +
+ *strlen(report->peerversion) - 1, "-unk)");
  */

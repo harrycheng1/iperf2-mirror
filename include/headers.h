@@ -100,15 +100,15 @@ typedef bool _Bool;
 #define __bool_true_false_are_defined 1
 #endif
 
-// v4: 1470 bytes UDP payload will fill one and only one ethernet datagram (IPv4 overhead is 20
-// bytes)
+// v4: 1470 bytes UDP payload will fill one and only one ethernet datagram (IPv4
+// overhead is 20 bytes)
 #define kDefault_UDPTxBufLen 1470
-// v6: 1450 bytes UDP payload will fill one and only one ethernet datagram (IPv6 overhead is 40
-// bytes)
+// v6: 1450 bytes UDP payload will fill one and only one ethernet datagram (IPv6
+// overhead is 40 bytes)
 #define kDefault_UDPTxBufLenV6 1450
 #define kDefault_UDPRxBufLen \
-    128 * 1024  // 128 Kbytes, ok for UDP reads (actual size is set by the sender and part of the
-                // read)
+    128 * 1024  // 128 Kbytes, ok for UDP reads (actual size is set by the
+                // sender and part of the read)
 #define IPV4HDRLEN 20
 #define IPV6HDRLEN 40
 #define UDPHDRLEN 8
@@ -134,7 +134,8 @@ typedef bool _Bool;
 
 // AF_PACKET HEADERS
 #if defined(HAVE_LINUX_FILTER_H) && defined(HAVE_AF_PACKET)
-// Bummer, AF_PACKET requires kernel headers as <netpacket/packet.h> isn't sufficient
+// Bummer, AF_PACKET requires kernel headers as <netpacket/packet.h> isn't
+// sufficient
 #include <linux/filter.h>
 #include <linux/if_packet.h>
 #include <netinet/ip.h>

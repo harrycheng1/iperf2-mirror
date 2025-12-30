@@ -135,19 +135,21 @@ int recvn(int inSock, char *outBuf, int inLen, int flags) {
                     WARN(1, "recvn peek checking connection status");
 
 #ifdef MSG_DONTWAIT
-                    // Distinguish between no data available vs connection closed
+                    // Distinguish between no data available vs connection
+                    // closed
                     {
                         char test_byte;
                         int test_recv = recv(inSock, &test_byte, 1, MSG_DONTWAIT);
                         if (test_recv == 0) {
-                            // Definitely closed - peer performed orderly shutdown
+                            // Definitely closed - peer performed orderly
+                            // shutdown
 #ifdef HAVE_THREAD_DEBUG
                             WARN(1, "recvn peek peer close confirmed");
 #endif
                             goto DONE;
                         } else if (test_recv < 0 && (errno == EWOULDBLOCK || errno == EAGAIN)) {
-                            // Just no data available, connection still open, continue waiting for
-                            // data
+                            // Just no data available, connection still open,
+                            // continue waiting for data
                             break;
                         }
                         // For other errors, fall through to peer close
@@ -256,8 +258,8 @@ DONE:
 /* -------------------------------------------------------------------
  * Write data with scheduled transmit time and/or IP TOS using control msgs
  * Returns number of bytes written, or -1 on error.
- * delay_ns: nanoseconds from now when packet should be transmitted (0 = no delay)
- * tos_value: IP Type of Service value (0-255, or -1 to skip TOS setting)
+ * delay_ns: nanoseconds from now when packet should be transmitted (0 = no
+ * delay) tos_value: IP Type of Service value (0-255, or -1 to skip TOS setting)
  * ------------------------------------------------------------------- */
 #if HAVE_DECL_SO_TXTIME
 int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_ns, int tos_value) {
@@ -340,9 +342,14 @@ int writemsg_delay_tos(int inSock, const void *inBuf, int inLen, uint64_t delay_
         if (errno == EINVAL) {
             WARN(1, "writemsg_delay: control message not configured on socket");
         } else if (errno == ENOTSUP) {
-            WARN(1, "writemsg_delay: control message not supported by kernel/driver");
+            WARN(1,
+                 "writemsg_delay: control message not supported by "
+                 "kernel/driver");
         } else if (errno == EPERM) {
-            WARN(1, "writemsg_delay: permission denied (may need CAP_NET_ADMIN for some options)");
+            WARN(1,
+                 "writemsg_delay: permission denied (may need CAP_NET_ADMIN "
+                 "for some "
+                 "options)");
         } else {
             WARN_errno(1, "writemsg_delay sendmsg failed");
         }

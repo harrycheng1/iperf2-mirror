@@ -88,8 +88,9 @@ struct ReportStruct {
     int l2len;
     int expected_l2len;
     u_char tos;
-    // isochStartTime is overloaded: first write timestamp of the frame or burst w/trip-times or
-    // very first read w/o trip-times reporter calculation will compute latency accordingly
+    // isochStartTime is overloaded: first write timestamp of the frame or burst
+    // w/trip-times or very first read w/o trip-times reporter calculation will
+    // compute latency accordingly
     struct timeval isochStartTime;
     uint32_t prevframeID;
     uint32_t frameID;

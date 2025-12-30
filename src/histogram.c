@@ -124,7 +124,8 @@ void histogram_delete(struct histogram *h) {
 // value is units seconds
 int histogram_insert(struct histogram *h, float value, struct timeval *ts) {
     int bin;
-    // calculate the bin, convert the value units from seconds to units of interest
+    // calculate the bin, convert the value units from seconds to units of
+    // interest
     bin = (int)(h->units * (value - h->offset) / h->binwidth);
     h->populationcnt++;
     if (ts && (value > h->maxval)) {
@@ -132,13 +133,15 @@ int histogram_insert(struct histogram *h, float value, struct timeval *ts) {
         h->maxval = value;
         h->maxts.tv_sec = ts->tv_sec;
         h->maxts.tv_usec = ts->tv_usec;
-        // printf("imax=%ld.%06ld %f\n",h->maxts.tv_sec, h->maxts.tv_usec, value);
+        // printf("imax=%ld.%06ld %f\n",h->maxts.tv_sec, h->maxts.tv_usec,
+        // value);
         if (value > h->fmaxval) {
             h->fmaxbin = bin;
             h->fmaxval = value;
             h->fmaxts.tv_sec = ts->tv_sec;
             h->fmaxts.tv_usec = ts->tv_usec;
-            // printf("fmax=%ld.%06ld %f\n",h->fmaxts.tv_sec, h->fmaxts.tv_usec, value);
+            // printf("fmax=%ld.%06ld %f\n",h->fmaxts.tv_sec, h->fmaxts.tv_usec,
+            // value);
         }
     }
     if (bin < 0) {

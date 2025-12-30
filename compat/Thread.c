@@ -252,9 +252,10 @@ void thread_start(struct thread_Settings *thread) {
             Condition_Unlock(thread_sNum_cond);
         }
 #if HAVE_THREAD_DEBUG
-        thread_debug("Thread_run_wrapper(%p mode=%x) thread counts tot/trfc=%d/%d (id=%d)",
-                     (void *)thread, thread->mThreadMode, thread_sNum, thread_trfc_sNum,
-                     (int)thread->mTID);
+        thread_debug(
+            "Thread_run_wrapper(%p mode=%x) thread counts tot/trfc=%d/%d "
+            "(id=%d)",
+            (void *)thread, thread->mThreadMode, thread_sNum, thread_trfc_sNum, (int)thread->mTID);
 #endif
 #elif defined(HAVE_WIN32_THREAD)
         // Win32 threads -- spawn new thread
@@ -343,7 +344,7 @@ void thread_stop(struct thread_Settings *thread) {
 #if defined(HAVE_WIN32_THREAD)
 DWORD WINAPI
 #else
-void*
+void *
 #endif
 thread_run_wrapper(void *paramPtr) {
     bool signal_on_exit = false;

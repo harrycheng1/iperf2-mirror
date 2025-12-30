@@ -48,7 +48,8 @@
 #include "headers.h"
 #include "histogram.hpp"
 
-// Produce a frame counter with frequency in units of frames per second, e.g. 60 fps
+// Produce a frame counter with frequency in units of frames per second, e.g. 60
+// fps
 Histogram::Histogram(unsigned int bincount, unsigned int binwidth, float offset, char *name)
     : bincount(bincount), binwidth(binwidth), offset(offset) {
     mybins = new unsigned int[bincount];

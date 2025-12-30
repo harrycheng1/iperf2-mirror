@@ -146,8 +146,9 @@ enum L4SDataType {
 enum MsgType { CLIENTHDR = 0x1, CLIENTHDRACK, CLIENTTCPHDR, SERVERHDR, SERVERHDRACK };
 
 #define MINIPERFPAYLOAD 18
-// Minimum IPv4 frame size = 18 (Ethernet) + 20 (IPv4) + 8 (UDP) + 18 (payload) = 64 bytes
-// Minimum IPv6 frame size = 18 (Ethernet) + 40 (IPv6) + 8 (UDP) + 18 (payload) = 84 bytes
+// Minimum IPv4 frame size = 18 (Ethernet) + 20 (IPv4) + 8 (UDP) + 18 (payload)
+// = 64 bytes Minimum IPv6 frame size = 18 (Ethernet) + 40 (IPv6) + 8 (UDP) + 18
+// (payload) = 84 bytes
 
 /*
  * Structures below will be passed as network i/o
@@ -217,16 +218,16 @@ struct client_hdr_v1 {
 //    o) burst size is the payload size and size of bounce back write
 //    o) burst id is a running seq no
 //    o) send is the write timestamp
-//    o) bb_r2w_hold is an optional delay value between the read and bb write, typically expected as
-//    zero o) triptimes will support OWD measurements in each direction (useful for asymmetry
-//    testing) o) min payload
+//    o) bb_r2w_hold is an optional delay value between the read and bb write,
+//    typically expected as zero o) triptimes will support OWD measurements in
+//    each direction (useful for asymmetry testing) o) min payload
 //         - seven 32b or 28 bytes with round trip only,
 //	   - eleven 32b or 44 bytes when including trip-times support
 //    o) no need for a bb read timestamp to be passed in the payload
 //    o) OWD calculations require e2e clock sync and --trip-times cli option
-//    o) no need to copy bb payload as rx buffer with be used for bounce back write
-//    o) single threaded design
-//    o) these are packed, be careful that the union doesn't break this
+//    o) no need to copy bb payload as rx buffer with be used for bounce back
+//    write o) single threaded design o) these are packed, be careful that the
+//    union doesn't break this
 //
 
 struct bb_ts {
@@ -537,8 +538,8 @@ struct client_udp_l4s_fwd {
  *                +--------+--------+--------+--------+
  */
 struct udp_l4s_ack {
-    uint16_t flags;  // L4S_ECN_ERR bit, receiver found a bleached/error ECN; stop using L4S_id on
-                     // the sending packets!
+    uint16_t flags;  // L4S_ECN_ERR bit, receiver found a bleached/error ECN;
+                     // stop using L4S_id on the sending packets!
     uint16_t l4sreserved;
     int32_t rx_ts;      // timestamp from peer, freeze and keep this time
     int32_t echoed_ts;  // echoed_timestamp can be used to calculate the RTT

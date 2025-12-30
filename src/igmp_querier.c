@@ -2,24 +2,28 @@
  * Copyright (c) 2018
  * Broadcom Corporation
  * All Rights Reserved.
- * Redistribution and use in source and binary forms, with or without modification, are permitted
- * provided that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- * Redistributions of source code must retain the above copyright notice, this list of conditions
- * and the following disclaimer.  Redistributions in binary form must reproduce the above copyright
- * notice, this list of conditions and the following disclaimer in the documentation and/or other
- * materials provided with the distribution.  Neither the name of the Broadcom nor the names of
- * contributors may be used to endorse or promote products derived from this software without
- * specific prior written permission.
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.  Redistributions in binary
+ * form must reproduce the above copyright notice, this list of conditions and
+ * the following disclaimer in the documentation and/or other materials provided
+ * with the distribution.  Neither the name of the Broadcom nor the names of
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
- * USEn, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
- * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USEn, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  * Author Robert J. McMahon, Broadcom LTD
  * Date April 2016
@@ -94,7 +98,8 @@ int main(int argc, char **argv) {
                     fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
             default:
                 fprintf(stderr,
-                        "Usage -c <count>, -d daemon, -g <group>, -t <period in seconds>\n");
+                        "Usage -c <count>, -d daemon, -g <group>, -t <period in "
+                        "seconds>\n");
                 exit(-1);
         }
     }
@@ -117,17 +122,24 @@ int main(int argc, char **argv) {
         if (tvalue != NULL) {
             sendcount = 1;
             printf(
-                "IGMP All Hosts Querier (pid=%d) started as a daemon with interval of %d seconds "
+                "IGMP All Hosts Querier (pid=%d) started as a daemon with "
+                "interval "
+                "of %d seconds "
                 "to %s\n",
                 pid, queryinterval, mcast_queryaddr);
         } else {
             sendcount = 0;
-            printf("IGMP All Hosts Querier (pid=%d) to %s started as a daemon only\n", pid,
-                   mcast_queryaddr);
+            printf(
+                "IGMP All Hosts Querier (pid=%d) to %s started as a daemon "
+                "only\n",
+                pid, mcast_queryaddr);
         }
     } else {
-        printf("IGMP All Hosts Querier (pid=%d) sending %d reports with interval of %d seconds\n",
-               pid, sendcount, queryinterval);
+        printf(
+            "IGMP All Hosts Querier (pid=%d) sending %d reports with interval "
+            "of "
+            "%d seconds\n",
+            pid, sendcount, queryinterval);
     }
     fflush(stdout);
     while (daemonmode || sendcount) {
