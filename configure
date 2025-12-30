@@ -800,7 +800,6 @@ enable_discover_defaultlen
 enable_thread_debug
 enable_packet_debug
 enable_summing_debug
-enable_udp_l4s
 enable_checkprograms
 enable_debug_symbols
 enable_af_packet
@@ -1484,7 +1483,6 @@ Optional Features:
                           is disable)
   --enable-summing-debug  enable support for interval summing debugging
                           (default is disable)
-  --enable-udp-l4s        enable udp-l4s support (default is $udp_l4s_default)
   --enable-checkprograms  enable support for building support programs such as
                           checkdelay, checkpdfs, etc. (default is disable)
   --enable-debug-symbols  enable debugging with symbols, default: no
@@ -4191,23 +4189,6 @@ fi
 else
   SUMMING_DEBUG_TRUE='#'
   SUMMING_DEBUG_FALSE=
-fi
-
-
-udp_l4s_default=no
-if test -d .git; then
-  git_branch=`git rev-parse --abbrev-ref HEAD 2>/dev/null || echo ""`
-  if test "x$git_branch" = "xudp-l4s"; then
-    udp_l4s_default=yes
-  fi
-fi
-# Check whether --enable-udp_l4s was given.
-if test ${enable_udp_l4s+y}
-then :
-  enableval=$enable_udp_l4s; enable_udp_l4s=$enableval
-else case e in #(
-  e) enable_udp_l4s=$udp_l4s_default ;;
-esac
 fi
 
 
