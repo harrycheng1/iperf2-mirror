@@ -81,8 +81,8 @@ void markov_graph_print(struct markov_graph *graph, char *prepend) {
         int ix, jx;
         tmp = graph->entrys;
         if (tmp) {
-            printf("%sMarkov chain: %s transitions: %" PRIdMAX " unknowns: %" PRIdMAX "\n", prepend,
-                   graph->braket_str, graph->transition_cnt, graph->unknown_cnt);
+            printf("%sMarkov chain: %s transitions: %" PRIdMAX " unknowns: %" PRIdMAX "\n", prepend, graph->braket_str,
+                   graph->transition_cnt, graph->unknown_cnt);
             for (ix = 0; ix < graph->count; ix++) {
                 printf("%s%d=", prepend, tmp[ix][0].node_len);
                 uintmax_t pullcnt = 0;
@@ -90,9 +90,8 @@ void markov_graph_print(struct markov_graph *graph, char *prepend) {
                     pullcnt += tmp[ix][jx].transition_cnt;
                 }
                 for (jx = 0; jx < graph->count; jx++) {
-                    printf("%d(%d,%d)|%0.3f/%0.3f(%" PRIdMAX "/%0.3f) ",
-                           tmp[ix][jx].adjacent_node_len, ix, jx, tmp[ix][jx].prob,
-                           tmp[ix][jx].prob_cummulative, tmp[ix][jx].transition_cnt,
+                    printf("%d(%d,%d)|%0.3f/%0.3f(%" PRIdMAX "/%0.3f) ", tmp[ix][jx].adjacent_node_len, ix, jx,
+                           tmp[ix][jx].prob, tmp[ix][jx].prob_cummulative, tmp[ix][jx].transition_cnt,
                            (float)tmp[ix][jx].transition_cnt / (float)pullcnt);
                 }
                 printf(" %" PRIdMAX "/%" PRIdMAX "(%0.1f%%)\n", pullcnt, graph->transition_cnt,
@@ -123,8 +122,7 @@ struct markov_graph *markov_graph_init(char *braket_option) {
     int count = bracnt;
     if (graph && (bracnt > 0)) {
         int ix;
-        struct markov_entry **tmp =
-            (struct markov_entry **)malloc(sizeof(struct markov_entry *) * count);
+        struct markov_entry **tmp = (struct markov_entry **)malloc(sizeof(struct markov_entry *) * count);
         for (ix = 0; ix < count; ix++) {
             // allocate memory for rows
             tmp[ix] = (struct markov_entry *)calloc(sizeof(struct markov_entry), count);
@@ -160,8 +158,7 @@ struct markov_graph *markov_graph_init(char *braket_option) {
                     goto ERR_EXIT;
                 }
                 if (FloatLessThanZero(tmp[kx][cx].prob) || FloatGreaterThanOne(tmp[kx][cx].prob)) {
-                    fprintf(stderr, "Probability must be between 0 and 1 but is %f\n",
-                            tmp[kx][cx].prob);
+                    fprintf(stderr, "Probability must be between 0 and 1 but is %f\n", tmp[kx][cx].prob);
                     markov_graph_free(graph);
                     free(ket_prob_list);
                     graph = NULL;

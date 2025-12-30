@@ -40,8 +40,8 @@
 extern "C" {
 #endif
 
-int gnu_getopt_long(int argc, char *const *argv, const char *options,
-                    const struct option *long_options, int *opt_index) {
+int gnu_getopt_long(int argc, char *const *argv, const char *options, const struct option *long_options,
+                    int *opt_index) {
     return _gnu_getopt_internal(argc, argv, options, long_options, opt_index, 0);
 }
 
@@ -50,8 +50,8 @@ int gnu_getopt_long(int argc, char *const *argv, const char *options,
    but does match a short option, it is parsed as a short option
    instead.  */
 
-int gnu_getopt_long_only(int argc, char *const *argv, const char *options,
-                         const struct option *long_options, int *opt_index) {
+int gnu_getopt_long_only(int argc, char *const *argv, const char *options, const struct option *long_options,
+                         int *opt_index) {
     return _gnu_getopt_internal(argc, argv, options, long_options, opt_index, 1);
 }
 
@@ -73,9 +73,9 @@ char **argv;
     while (1) {
         int this_option_optind = gnu_optind ? gnu_optind : 1;
         int option_index = 0;
-        static struct option long_options[] = {
-            {"add", 1, 0, 0},    {"append", 0, 0, 0}, {"delete", 1, 0, 0}, {"verbose", 0, 0, 0},
-            {"create", 0, 0, 0}, {"file", 1, 0, 0},   {0, 0, 0, 0}};
+        static struct option long_options[] = {{"add", 1, 0, 0},     {"append", 0, 0, 0}, {"delete", 1, 0, 0},
+                                               {"verbose", 0, 0, 0}, {"create", 0, 0, 0}, {"file", 1, 0, 0},
+                                               {0, 0, 0, 0}};
 
         c = gnu_getopt_long(argc, argv, "abc:d:0123456789", long_options, &option_index);
         if (c == -1) break;

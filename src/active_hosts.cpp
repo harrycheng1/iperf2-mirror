@@ -84,11 +84,11 @@ static void active_table_show_entry(const char *action, Iperf_ListEntry *entry, 
         "active table: %s %s port %d (flag=%d) rootp=%p entryp=%p "
         "hostcnt/flowcnt/threadcnt = "
         "%d/%d/%d",
-        action, tmpaddr, port, found, (void *)active_table.sum_root, (void *)entry->sumreport,
-        active_table.sum_count, active_table.flow_count, entry->thread_count);
+        action, tmpaddr, port, found, (void *)active_table.sum_root, (void *)entry->sumreport, active_table.sum_count,
+        active_table.flow_count, entry->thread_count);
 }
-static void active_table_show_compare(const char *action, Iperf_ListEntry *entry,
-                                      iperf_sockaddr *host, const char *type) {
+static void active_table_show_compare(const char *action, Iperf_ListEntry *entry, iperf_sockaddr *host,
+                                      const char *type) {
     assert(action != NULL);
     assert(entry != NULL);
     char lookupaddr[200];
@@ -98,8 +98,8 @@ static void active_table_show_compare(const char *action, Iperf_ListEntry *entry
     unsigned short findport = SockAddr_getPort(host);
     SockAddr_getHostAddress(&(entry->host), lookupaddr, len);
     SockAddr_getHostAddress(host, findaddr, len);
-    thread_debug("active table: compare table entry %s %s/%d against host %s/%d (%s)", type,
-                 lookupaddr, port, findaddr, findport, action);
+    thread_debug("active table: compare table entry %s %s/%d against host %s/%d (%s)", type, lookupaddr, port, findaddr,
+                 findport, action);
 }
 #endif
 
@@ -131,9 +131,9 @@ static inline struct Iperf_ListEntry *hostkey_insert(iperf_sockaddr *host) {
     this_key->thread_count = 0;
 #if HAVE_THREAD_DEBUG
     active_table.sum_count++;
-    active_table_show_entry("new host entry", this_key,
-                            ((SockAddr_are_Equal(&this_key->host, host) &&
-                              SockAddr_Hostare_Equal(&this_key->host, host))));
+    active_table_show_entry(
+        "new host entry", this_key,
+        ((SockAddr_are_Equal(&this_key->host, host) && SockAddr_Hostare_Equal(&this_key->host, host))));
 #endif
     return this_key;
 }
@@ -158,8 +158,7 @@ static inline struct Iperf_ListEntry *flowkey_insert(iperf_sockaddr *host) {
 }
 
 static inline iperf_sockaddr *active_table_get_host_key(struct thread_Settings *agent) {
-    iperf_sockaddr *key =
-        ((isIncrDstIP(agent) || isSumServerDstIP(agent)) ? &agent->local : &agent->peer);
+    iperf_sockaddr *key = ((isIncrDstIP(agent) || isSumServerDstIP(agent)) ? &agent->local : &agent->peer);
     return key;
 }
 

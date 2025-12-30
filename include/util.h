@@ -216,11 +216,9 @@ void make_lower(char *s);
 
 #define TimeZero(timeval) ((timeval.tv_sec == 0) && (timeval.tv_usec == 0))
 
-#define TimeDifference(left, right) \
-    ((left.tv_sec - right.tv_sec) + (left.tv_usec - right.tv_usec) / ((double)rMillion))
+#define TimeDifference(left, right) ((left.tv_sec - right.tv_sec) + (left.tv_usec - right.tv_usec) / ((double)rMillion))
 
-#define TimeDifferenceUsec(left, right) \
-    ((1e6 * (left.tv_sec - right.tv_sec)) + (double)(left.tv_usec - right.tv_usec))
+#define TimeDifferenceUsec(left, right) ((1e6 * (left.tv_sec - right.tv_sec)) + (double)(left.tv_usec - right.tv_usec))
 
 #define TimeDouble(timeval) (timeval.tv_sec + timeval.tv_usec / ((double)rMillion))
 
@@ -284,19 +282,16 @@ void redirect(const char *inOutputFileName);
 #define FATALUDPREADERR(errno) (((errno = WSAGetLastError()) != WSAEWOULDBLOCK))
 #define FATALTCPWRITERR(errno) ((errno = WSAGetLastError()) != WSAETIMEDOUT)
 #define NONFATALTCPWRITERR(errno) ((errno = WSAGetLastError()) == WSAETIMEDOUT)
-#define FATALUDPWRITERR(errno) \
-    (((errno = WSAGetLastError()) != WSAETIMEDOUT) && (errno != WSAECONNREFUSED))
-#define FATALTCPCONNECTERR(errno)                                                   \
-    (((errno = WSAGetLastError()) != WSAETIMEDOUT) && (errno != WSAECONNREFUSED) && \
-     (errno != WSAEWOULDBLOCK))
+#define FATALUDPWRITERR(errno) (((errno = WSAGetLastError()) != WSAETIMEDOUT) && (errno != WSAECONNREFUSED))
+#define FATALTCPCONNECTERR(errno) \
+    (((errno = WSAGetLastError()) != WSAETIMEDOUT) && (errno != WSAECONNREFUSED) && (errno != WSAEWOULDBLOCK))
 #else
 #define FATALTCPREADERR(errno) ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR))
 #define FATALUDPREADERR(errno) ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR))
 #define FATALTCPWRITERR(errno) (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR)
 #define NONFATALTCPWRITERR(errno) (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
-#define FATALUDPWRITERR(errno)                                                                     \
-    ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR) && (errno != ECONNREFUSED) && \
-     (errno != ENOBUFS))
+#define FATALUDPWRITERR(errno) \
+    ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR) && (errno != ECONNREFUSED) && (errno != ENOBUFS))
 #define FATALTCPCONNECTERR(errno) \
     ((errno != EAGAIN) && (errno != EWOULDBLOCK) && (errno != EINTR) && (errno != ECONNREFUSED))
 #endif

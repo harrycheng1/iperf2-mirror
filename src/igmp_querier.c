@@ -198,8 +198,7 @@ static int send_igmp_allhosts_querier(char *mcast_queryaddr) {
     if (sid != -1) {
         rc = setsockopt(sid, IPPROTO_IP, IP_TTL, (char *)&ttl, sizeof(ttl));
         if (rc != -1) {
-            rc = sendto(sid, &buf, IGMP_HEADER_SIZE, 0, (const struct sockaddr *)&msock,
-                        sizeof(msock));
+            rc = sendto(sid, &buf, IGMP_HEADER_SIZE, 0, (const struct sockaddr *)&msock, sizeof(msock));
             if (rc == -1) {
                 fprintf(stderr, "IGMP Query sendto error = %s\n", strerror(errno));
             }
@@ -217,8 +216,8 @@ static int send_igmp_allhosts_querier(char *mcast_queryaddr) {
     }
     setuid(getuid());
     if (rc) {
-        printf("Sent IGMP all hosts querier to %s (count = %d) at %s", mcast_queryaddr,
-               ++querier_sent_count, ctime(&timer));
+        printf("Sent IGMP all hosts querier to %s (count = %d) at %s", mcast_queryaddr, ++querier_sent_count,
+               ctime(&timer));
         fflush(stdout);
     }
     return rc;

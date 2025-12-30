@@ -87,29 +87,20 @@ static void reporter_reset_transfer_stats_sum(struct TransferInfo *stats);
 // code for welfornd's algorithm to produce running mean/min/max/var
 static void reporter_update_mmm(struct MeanMinMaxStats *stats, double value);
 static void reporter_reset_mmm(struct MeanMinMaxStats *stats);
-static void reporter_update_mmm_sum(struct MeanMinMaxStats *sumstats,
-                                    struct MeanMinMaxStats *stats);
+static void reporter_update_mmm_sum(struct MeanMinMaxStats *sumstats, struct MeanMinMaxStats *stats);
 
 // one way delay (OWD) calculations
-static void reporter_handle_packet_oneway_transit(struct TransferInfo *stats,
-                                                  struct ReportStruct *packet);
-static void reporter_handle_isoch_oneway_transit_tcp(struct TransferInfo *stats,
-                                                     struct ReportStruct *packet);
-static void reporter_handle_isoch_oneway_transit_udp(struct TransferInfo *stats,
-                                                     struct ReportStruct *packet);
-static void reporter_handle_frame_isoch_oneway_transit(struct TransferInfo *stats,
-                                                       struct ReportStruct *packet);
-static void reporter_handle_txmsg_oneway_transit(struct TransferInfo *stats,
-                                                 struct ReportStruct *packet);
-static void reporter_handle_rxmsg_oneway_transit(struct TransferInfo *stats,
-                                                 struct ReportStruct *packet);
+static void reporter_handle_packet_oneway_transit(struct TransferInfo *stats, struct ReportStruct *packet);
+static void reporter_handle_isoch_oneway_transit_tcp(struct TransferInfo *stats, struct ReportStruct *packet);
+static void reporter_handle_isoch_oneway_transit_udp(struct TransferInfo *stats, struct ReportStruct *packet);
+static void reporter_handle_frame_isoch_oneway_transit(struct TransferInfo *stats, struct ReportStruct *packet);
+static void reporter_handle_txmsg_oneway_transit(struct TransferInfo *stats, struct ReportStruct *packet);
+static void reporter_handle_rxmsg_oneway_transit(struct TransferInfo *stats, struct ReportStruct *packet);
 
-static inline void reporter_compute_packet_pps(struct TransferInfo *stats,
-                                               struct ReportStruct *packet);
+static inline void reporter_compute_packet_pps(struct TransferInfo *stats, struct ReportStruct *packet);
 
 #if HAVE_TCP_STATS
-static inline void reporter_handle_packet_tcpistats(struct ReporterData *data,
-                                                    struct ReportStruct *packet);
+static inline void reporter_handle_packet_tcpistats(struct ReporterData *data, struct ReportStruct *packet);
 #endif
 static struct ConnectionInfo *myConnectionReport;
 
@@ -257,8 +248,7 @@ bool EndJob(struct ReportHeader *reporthdr, struct ReportStruct *finalpacket) {
             struct Condition *tmp = &report->FullDuplexReport->fullduplex_barrier.await;
             Condition_Destroy(tmp);
 #if HAVE_THREAD_DEBUG
-            thread_debug("Socket fullduplex close sock=%d",
-                         report->FullDuplexReport->info.common->socket);
+            thread_debug("Socket fullduplex close sock=%d", report->FullDuplexReport->info.common->socket);
 #endif
             FreeSumReport(report->FullDuplexReport);
         } else {
@@ -284,8 +274,7 @@ struct ConsumptionDetectorType consumption_detector = {
 
 static inline void reset_consumption_detector(void) {
     consumption_detector.accounted_packet_threads = thread_numtrafficthreads();
-    if ((consumption_detector.accounted_packets = thread_numtrafficthreads() * MINPERQUEUEDEPTH) <=
-        MINPACKETDEPTH) {
+    if ((consumption_detector.accounted_packets = thread_numtrafficthreads() * MINPERQUEUEDEPTH) <= MINPACKETDEPTH) {
         consumption_detector.accounted_packets = MINPACKETDEPTH;
     }
 }
@@ -360,8 +349,7 @@ static inline struct ReportHeader *reporter_jobq_set_root(struct thread_Settings
         ReportPendingTail->next = ReportRoot;
         ReportRoot = ReportPendingHead;
 #ifdef HAVE_THREAD_DEBUG
-        thread_debug("Jobq *ROOT* %p (last=%p)", (void *)ReportRoot,
-                     (void *)ReportPendingTail->next);
+        thread_debug("Jobq *ROOT* %p (last=%p)", (void *)ReportRoot, (void *)ReportPendingTail->next);
 #endif
         ReportPendingHead = NULL;
         ReportPendingTail = NULL;
@@ -431,8 +419,7 @@ static void reporter_reset_mmm(struct MeanMinMaxStats *stats) {
     stats->cnt = 0;
 };
 
-static void reporter_update_mmm_sum(struct MeanMinMaxStats *sumstats,
-                                    struct MeanMinMaxStats *stats) {
+static void reporter_update_mmm_sum(struct MeanMinMaxStats *sumstats, struct MeanMinMaxStats *stats) {
     assert(stats != NULL);
     stats->cnt++;
     if (sumstats->cnt == 0) {
@@ -541,16 +528,14 @@ void reporter_spawn(struct thread_Settings *thread) {
     }
 #ifdef HAVE_THREAD_DEBUG
     if (sInterupted) reporter_jobq_dump();
-    thread_debug("Reporter thread finished user/traffic %d/%d", thread_numuserthreads(),
-                 thread_numtrafficthreads());
+    thread_debug("Reporter thread finished user/traffic %d/%d", thread_numuserthreads(), thread_numtrafficthreads());
 #endif
 }
 
 // The Transfer or Data report is by far the most complicated report
 bool reporter_process_transfer_report(struct ReporterData *this_ireport) {
     assert(this_ireport != NULL);
-    struct TransferInfo *sumstats =
-        (this_ireport->GroupSumReport ? &this_ireport->GroupSumReport->info : NULL);
+    struct TransferInfo *sumstats = (this_ireport->GroupSumReport ? &this_ireport->GroupSumReport->info : NULL);
     struct TransferInfo *fullduplexstats =
         (this_ireport->FullDuplexReport ? &this_ireport->FullDuplexReport->info : NULL);
     bool need_free = false;
@@ -582,8 +567,7 @@ bool reporter_process_transfer_report(struct ReporterData *this_ireport) {
         }
 #endif
 #if (HAVE_DECL_SO_MAX_PACING_RATE)
-        if (isFQPacing(this_ireport->info.common))
-            this_ireport->info.FQPacingRateCurrent = packet->FQPacingRate;
+        if (isFQPacing(this_ireport->info.common)) this_ireport->info.FQPacingRateCurrent = packet->FQPacingRate;
 #endif
         if (this_ireport->transfer_interval_handler) {
             if (sumstats && (this_ireport->packetring->uplevel != sumstats->uplevel) &&
@@ -595,9 +579,8 @@ bool reporter_process_transfer_report(struct ReporterData *this_ireport) {
                     "uplevel "
                     "(sum/pkt)=%d/%d\n",
                     this_ireport->info.common->transferIDStr, (void *)this_ireport->packetring,
-                    (long)packet->packetTime.tv_sec, (long)packet->packetTime.tv_usec,
-                    sumstats->slot_thread_upcount, sumstats->slot_thread_downcount,
-                    sumstats->uplevel, this_ireport->packetring->uplevel);
+                    (long)packet->packetTime.tv_sec, (long)packet->packetTime.tv_usec, sumstats->slot_thread_upcount,
+                    sumstats->slot_thread_downcount, sumstats->uplevel, this_ireport->packetring->uplevel);
 #endif
                 this_ireport->packetring->uplevel = toggleLevel(this_ireport->packetring->uplevel);
             }
@@ -644,8 +627,7 @@ bool reporter_process_transfer_report(struct ReporterData *this_ireport) {
                 }
                 if (DecrSumReportRefCounter(this_ireport->FullDuplexReport) == 0) {
                     if (this_ireport->FullDuplexReport->transfer_protocol_sum_handler) {
-                        (*this_ireport->FullDuplexReport->transfer_protocol_sum_handler)(
-                            fullduplexstats, true);
+                        (*this_ireport->FullDuplexReport->transfer_protocol_sum_handler)(fullduplexstats, true);
                     }
                     // FullDuplex report gets freed by a traffic thread (per its
                     // barrier)
@@ -701,13 +683,11 @@ inline bool reporter_process_report(struct ReportHeader *reporthdr) {
         case CONNECTION_REPORT: {
             struct ConnectionInfo *creport = (struct ConnectionInfo *)reporthdr->this_report;
             assert(creport != NULL);
-            if (!isCompat(creport->common) && (creport->common->ThreadMode == kMode_Client) &&
-                myConnectionReport) {
+            if (!isCompat(creport->common) && (creport->common->ThreadMode == kMode_Client) && myConnectionReport) {
                 // Clients' connect times will be inputs to the overall connect
                 // stats
                 if (creport->tcpinitstats.connecttime > 0.0) {
-                    reporter_update_mmm(&myConnectionReport->connect_times,
-                                        creport->tcpinitstats.connecttime);
+                    reporter_update_mmm(&myConnectionReport->connect_times, creport->tcpinitstats.connecttime);
                 } else {
                     myConnectionReport->connect_times.err++;
                 }
@@ -757,8 +737,7 @@ void reporter_handle_packet_null(struct ReporterData *data, struct ReportStruct 
 void reporter_transfer_protocol_null(struct ReporterData *data, bool final) {}
 
 #define DEBUG_PPS 0
-static inline void reporter_compute_packet_pps(struct TransferInfo *stats,
-                                               struct ReportStruct *packet) {
+static inline void reporter_compute_packet_pps(struct TransferInfo *stats, struct ReportStruct *packet) {
     if (!packet->emptyreport) {
         stats->total.Datagrams.current++;
         stats->total.IPG.current++;
@@ -788,16 +767,14 @@ static inline void reporter_compute_packet_pps(struct TransferInfo *stats,
         "*** IPGsum = %f cnt=%ld ipg=%ld.%06ld pkt=%ld.%06ld id=%ld empty=%d "
         "transit=%f "
         "prev=%ld.%06ld carry %f\n",
-        stats->IPGsum, stats->total.IPG.current, stats->ts.IPGstart.tv_sec,
-        stats->ts.IPGstart.tv_usec, packet->packetTime.tv_sec, packet->packetTime.tv_usec,
-        packet->packetID, packet->emptyreport,
+        stats->IPGsum, stats->total.IPG.current, stats->ts.IPGstart.tv_sec, stats->ts.IPGstart.tv_usec,
+        packet->packetTime.tv_sec, packet->packetTime.tv_usec, packet->packetID, packet->emptyreport,
         TimeDifference(packet->packetTime, packet->prevPacketTime), packet->prevPacketTime.tv_sec,
         packet->prevPacketTime.tv_usec, stats->IPGsumcarry);
 #endif
 }
 
-static void reporter_handle_packet_oneway_transit(struct TransferInfo *stats,
-                                                  struct ReportStruct *packet) {
+static void reporter_handle_packet_oneway_transit(struct TransferInfo *stats, struct ReportStruct *packet) {
     // Transit or latency updates done inline below
     double transit = TimeDifference(packet->packetTime, packet->sentTime);
     if (stats->latency_histogram) {
@@ -868,8 +845,7 @@ static void reporter_handle_packet_oneway_transit(struct TransferInfo *stats,
     }
 }
 
-static void reporter_handle_isoch_oneway_transit_tcp(struct TransferInfo *stats,
-                                                     struct ReportStruct *packet) {
+static void reporter_handle_isoch_oneway_transit_tcp(struct TransferInfo *stats, struct ReportStruct *packet) {
     // printf("fid=%lu bs=%lu remain=%lu\n", packet->frameID, packet->burstsize,
     // packet->remaining);
     if (packet->frameID && packet->transit_ready) {
@@ -899,8 +875,7 @@ static void reporter_handle_isoch_oneway_transit_tcp(struct TransferInfo *stats,
                 reporter_update_mmm(&stats->isochstats.transit.total, frametransit);
                 reporter_update_mmm(&stats->isochstats.transit.current, frametransit);
                 if (stats->framelatency_histogram) {
-                    histogram_insert(stats->framelatency_histogram, frametransit,
-                                     &packet->packetTime);
+                    histogram_insert(stats->framelatency_histogram, frametransit, &packet->packetTime);
                 }
             }
         }
@@ -908,8 +883,7 @@ static void reporter_handle_isoch_oneway_transit_tcp(struct TransferInfo *stats,
     }
 }
 
-static void reporter_handle_isoch_oneway_transit_udp(struct TransferInfo *stats,
-                                                     struct ReportStruct *packet) {
+static void reporter_handle_isoch_oneway_transit_udp(struct TransferInfo *stats, struct ReportStruct *packet) {
     // printf("fid=%lu bs=%lu remain=%lu\n", packet->frameID, packet->burstsize,
     // packet->remaining);
     if (packet->frameID && packet->transit_ready) {
@@ -948,8 +922,7 @@ static void reporter_handle_isoch_oneway_transit_udp(struct TransferInfo *stats,
     }
 }
 
-static void reporter_handle_rxmsg_oneway_transit(struct TransferInfo *stats,
-                                                 struct ReportStruct *packet) {
+static void reporter_handle_rxmsg_oneway_transit(struct TransferInfo *stats, struct ReportStruct *packet) {
     // very first burst
     if (!stats->isochstats.frameID) {
         stats->isochstats.frameID = packet->frameID;
@@ -971,8 +944,7 @@ static void reporter_handle_rxmsg_oneway_transit(struct TransferInfo *stats,
         stats->ts.prevpacketTime = packet->sentTime;
         stats->isochstats.frameID++;  // RJM fix this overload
         stats->burstid_transition = true;
-    } else if (stats->burstid_transition && packet->frameID &&
-               (packet->frameID != stats->isochstats.frameID)) {
+    } else if (stats->burstid_transition && packet->frameID && (packet->frameID != stats->isochstats.frameID)) {
         stats->burstid_transition = false;
         fprintf(stderr, "%sError: expected burst id %u but got %d\n", stats->common->transferIDStr,
                 stats->isochstats.frameID + 1, packet->frameID);
@@ -980,8 +952,7 @@ static void reporter_handle_rxmsg_oneway_transit(struct TransferInfo *stats,
     }
 }
 
-static inline void reporter_handle_txmsg_oneway_transit(struct TransferInfo *stats,
-                                                        struct ReportStruct *packet) {
+static inline void reporter_handle_txmsg_oneway_transit(struct TransferInfo *stats, struct ReportStruct *packet) {
     // very first burst
     if (!stats->isochstats.frameID) {
         stats->isochstats.frameID = packet->frameID;
@@ -996,17 +967,15 @@ static inline void reporter_handle_txmsg_oneway_transit(struct TransferInfo *sta
         // stats->transit.lastTransit);
         if (isIsochronous(stats->common)) {
             if (packet->frameID && (packet->frameID != (stats->isochstats.frameID + 1))) {
-                fprintf(stderr, "%sError: expected burst id %u but got %d\n",
-                        stats->common->transferIDStr, stats->isochstats.frameID + 1,
-                        packet->frameID);
+                fprintf(stderr, "%sError: expected burst id %u but got %d\n", stats->common->transferIDStr,
+                        stats->isochstats.frameID + 1, packet->frameID);
             }
             stats->isochstats.frameID = packet->frameID;
         }
     }
 }
 
-static void reporter_handle_frame_isoch_oneway_transit(struct TransferInfo *stats,
-                                                       struct ReportStruct *packet) {
+static void reporter_handle_frame_isoch_oneway_transit(struct TransferInfo *stats, struct ReportStruct *packet) {
     // printf("fid=%lu bs=%lu remain=%lu\n", packet->frameID, packet->burstsize,
     // packet->remaining);
     if (packet->scheduled) {
@@ -1040,8 +1009,7 @@ void reporter_handle_packet_client(struct ReporterData *data, struct ReportStruc
             stats->sock_callstats.write.totWriteErr++;
         case WriteSuccess:
             stats->total.Bytes.current += packet->packetLen;
-            if (isOmit(stats->common) &&
-                (TimeDifference(stats->ts.omitTime, stats->ts.packetTime) > 0)) {
+            if (isOmit(stats->common) && (TimeDifference(stats->ts.omitTime, stats->ts.packetTime) > 0)) {
                 stats->cntOmitBytes += packet->packetLen;
             }
             // These are valid packets that need standard iperf accounting
@@ -1052,8 +1020,7 @@ void reporter_handle_packet_client(struct ReporterData *data, struct ReportStruc
             } else if (isPeriodicBurst(stats->common)) {
                 reporter_handle_txmsg_oneway_transit(stats, packet);
             }
-            if (isTcpWriteTimes(stats->common) && !isUDP(stats->common) &&
-                (packet->write_time > 0)) {
+            if (isTcpWriteTimes(stats->common) && !isUDP(stats->common) && (packet->write_time > 0)) {
                 reporter_update_mmm(&stats->write_mmm.current, ((double)packet->write_time));
                 reporter_update_mmm(&stats->write_mmm.total, ((double)packet->write_time));
                 if (stats->write_histogram) {
@@ -1071,8 +1038,7 @@ void reporter_handle_packet_client(struct ReporterData *data, struct ReportStruc
         case NullEvent:
             break;
         default:
-            fprintf(stderr, "Program error: invalid client packet->err_readwrite %d\n",
-                    packet->err_readwrite);
+            fprintf(stderr, "Program error: invalid client packet->err_readwrite %d\n", packet->err_readwrite);
     }
 
     if (isUDP(stats->common)) {
@@ -1148,14 +1114,12 @@ void reporter_handle_packet_bb_client(struct ReporterData *data, struct ReportSt
     }
 }
 
-inline void reporter_handle_packet_server_tcp(struct ReporterData *data,
-                                              struct ReportStruct *packet) {
+inline void reporter_handle_packet_server_tcp(struct ReporterData *data, struct ReportStruct *packet) {
     struct TransferInfo *stats = &data->info;
     if (packet->packetLen > 0) {
         int bin;
         stats->total.Bytes.current += packet->packetLen;
-        if (isOmit(stats->common) &&
-            (TimeDifference(stats->ts.omitTime, stats->ts.packetTime) > 0)) {
+        if (isOmit(stats->common) && (TimeDifference(stats->ts.omitTime, stats->ts.packetTime) > 0)) {
             stats->cntOmitBytes += packet->packetLen;
         }
         // mean min max tests
@@ -1175,8 +1139,7 @@ inline void reporter_handle_packet_server_tcp(struct ReporterData *data,
     }
 }
 
-inline void reporter_handle_packet_server_udp(struct ReporterData *data,
-                                              struct ReportStruct *packet) {
+inline void reporter_handle_packet_server_udp(struct ReporterData *data, struct ReportStruct *packet) {
     struct TransferInfo *stats = &data->info;
     stats->ts.packetTime = packet->packetTime;
     if (packet->emptyreport && (stats->transit.current.cnt == 0)) {
@@ -1225,9 +1188,9 @@ inline void reporter_handle_packet_server_udp(struct ReporterData *data,
         if (packet->err_readwrite == ReadErrLen) {
             stats->sock_callstats.read.ReadErrLenCnt.current++;
         }
-        if (!ooo_packet && ((packet->err_readwrite == ReadSuccess) ||
-                            ((packet->err_readwrite == ReadErrLen) &&
-                             (packet->packetLen >= sizeof(struct UDP_datagram))))) {
+        if (!ooo_packet &&
+            ((packet->err_readwrite == ReadSuccess) ||
+             ((packet->err_readwrite == ReadErrLen) && (packet->packetLen >= sizeof(struct UDP_datagram))))) {
             reporter_handle_packet_oneway_transit(stats, packet);
         }
         stats->total.Bytes.current += packet->packetLen;
@@ -1250,8 +1213,7 @@ inline void reporter_handle_packet_server_udp(struct ReporterData *data,
     }
 }
 #if HAVE_TCP_STATS
-static inline void reporter_handle_packet_tcpistats(struct ReporterData *data,
-                                                    struct ReportStruct *packet) {
+static inline void reporter_handle_packet_tcpistats(struct ReporterData *data, struct ReportStruct *packet) {
     assert(data != NULL);
     struct TransferInfo *stats = &data->info;
     stats->sock_callstats.write.tcpstats.retry +=
@@ -1275,8 +1237,7 @@ static inline void reporter_handle_packet_tcpistats(struct ReporterData *data,
 /*
  * Report printing routines below
  */
-static inline void reporter_set_timestamps_time(struct TransferInfo *stats,
-                                                enum TimeStampType tstype) {
+static inline void reporter_set_timestamps_time(struct TransferInfo *stats, enum TimeStampType tstype) {
     // There is a corner case when the first packet is also the last where the
     // start time (which comes from app level syscall) is greater than the
     // packetTime (which come for kernel level SO_TIMESTAMP) For this case set
@@ -1294,16 +1255,13 @@ static inline void reporter_set_timestamps_time(struct TransferInfo *stats,
                 TimeAdd(times->nextTime, times->intervalTime);
                 if (isOmit(stats->common)) {
                     stats->common->Omit =
-                        ((TimeDifference(times->omitTime, times->startTime) > times->iStart)
-                             ? true
-                             : false);
+                        ((TimeDifference(times->omitTime, times->startTime) > times->iStart) ? true : false);
                 }
                 stats->final = false;
                 break;
             }
             case TOTAL: {
-                times->iStart =
-                    (isOmit(stats->common) ? TimeDifference(times->omitTime, times->startTime) : 0);
+                times->iStart = (isOmit(stats->common) ? TimeDifference(times->omitTime, times->startTime) : 0);
                 times->iEnd = TimeDifference(times->packetTime, times->startTime);
                 stats->final = true;
                 break;
@@ -1314,8 +1272,7 @@ static inline void reporter_set_timestamps_time(struct TransferInfo *stats,
                 stats->final = false;
                 break;
             case INTERVALPARTIAL:
-                if ((times->iStart = TimeDifference(times->prevpacketTime, times->startTime)) < 0)
-                    times->iStart = 0.0;
+                if ((times->iStart = TimeDifference(times->prevpacketTime, times->startTime)) < 0) times->iStart = 0.0;
                 times->iEnd = TimeDifference(times->packetTime, times->startTime);
                 stats->final = false;
                 break;
@@ -1336,39 +1293,33 @@ static void reporter_dump_timestamps(struct ReportStruct *packet, struct Transfe
             "**** %s pkt      =%ld.%06ld (up/down)=%d/%d ibytes=%ld/%ld "
             "sbytes=%ld/%ld "
             "(final=%d)\n",
-            stats->common->transferIDStr, (long)packet->packetTime.tv_sec,
-            (long)packet->packetTime.tv_usec, sumstats->slot_thread_upcount,
-            sumstats->slot_thread_downcount, stats->total.Bytes.prev, stats->total.Bytes.current,
-            sumstats->total.Bytes.prev, sumstats->total.Bytes.current, final);
+            stats->common->transferIDStr, (long)packet->packetTime.tv_sec, (long)packet->packetTime.tv_usec,
+            sumstats->slot_thread_upcount, sumstats->slot_thread_downcount, stats->total.Bytes.prev,
+            stats->total.Bytes.current, sumstats->total.Bytes.prev, sumstats->total.Bytes.current, final);
     else {
         printf(
             "**** %s pkt ts   =%ld.%06ld prev=%ld.%06ld (up/down)=%d/%d "
             "ibytes=%ld/%ld "
             "sbytes=%ld/%ld (final=%d)\n",
-            stats->common->transferIDStr, (long)stats->ts.packetTime.tv_sec,
-            (long)stats->ts.packetTime.tv_usec, (long)stats->ts.prevpacketTime.tv_sec,
-            (long)stats->ts.prevpacketTime.tv_usec, sumstats->slot_thread_upcount,
-            sumstats->slot_thread_downcount, stats->total.Bytes.prev, stats->total.Bytes.current,
-            sumstats->total.Bytes.prev, sumstats->total.Bytes.current, final);
+            stats->common->transferIDStr, (long)stats->ts.packetTime.tv_sec, (long)stats->ts.packetTime.tv_usec,
+            (long)stats->ts.prevpacketTime.tv_sec, (long)stats->ts.prevpacketTime.tv_usec,
+            sumstats->slot_thread_upcount, sumstats->slot_thread_downcount, stats->total.Bytes.prev,
+            stats->total.Bytes.current, sumstats->total.Bytes.prev, sumstats->total.Bytes.current, final);
     }
-    printf("**** %s stats    =%ld.%06ld next=%ld.%06ld prev=%ld.%06ld\n",
-           stats->common->transferIDStr, (long)stats->ts.packetTime.tv_sec,
-           (long)stats->ts.packetTime.tv_usec, (long)stats->ts.nextTime.tv_sec,
+    printf("**** %s stats    =%ld.%06ld next=%ld.%06ld prev=%ld.%06ld\n", stats->common->transferIDStr,
+           (long)stats->ts.packetTime.tv_sec, (long)stats->ts.packetTime.tv_usec, (long)stats->ts.nextTime.tv_sec,
            (long)stats->ts.nextTime.tv_usec, (long)stats->ts.prevpacketTime.tv_sec,
            (long)stats->ts.prevpacketTime.tv_usec);
-    printf("**** %s sum stats=%ld.%06ld next=%ld.%06ld prev=%ld.%06ld \n",
-           stats->common->transferIDStr, (long)sumstats->ts.packetTime.tv_sec,
-           (long)sumstats->ts.packetTime.tv_usec, (long)sumstats->ts.nextTime.tv_sec,
-           (long)sumstats->ts.nextTime.tv_usec, (long)sumstats->ts.prevTime.tv_sec,
+    printf("**** %s sum stats=%ld.%06ld next=%ld.%06ld prev=%ld.%06ld \n", stats->common->transferIDStr,
+           (long)sumstats->ts.packetTime.tv_sec, (long)sumstats->ts.packetTime.tv_usec,
+           (long)sumstats->ts.nextTime.tv_sec, (long)sumstats->ts.nextTime.tv_usec, (long)sumstats->ts.prevTime.tv_sec,
            (long)sumstats->ts.prevTime.tv_usec);
 }
 #endif
 
 // If reports were missed, catch up now
-static inline void reporter_transfer_protocol_missed_reports(struct TransferInfo *stats,
-                                                             struct ReportStruct *packet) {
-    while (TimeDifference(packet->packetTime, stats->ts.nextTime) >
-           TimeDouble(stats->ts.intervalTime)) {
+static inline void reporter_transfer_protocol_missed_reports(struct TransferInfo *stats, struct ReportStruct *packet) {
+    while (TimeDifference(packet->packetTime, stats->ts.nextTime) > TimeDouble(stats->ts.intervalTime)) {
         //	printf("**** cmp=%f/%f next %ld.%06ld packet %ld.%06ld
         // id=%ld\n",
         // TimeDifference(packet->packetTime, stats->ts.nextTime),
@@ -1381,16 +1332,14 @@ static inline void reporter_transfer_protocol_missed_reports(struct TransferInfo
         emptystats.ts.iStart = stats->ts.iStart;
         emptystats.ts.iEnd = stats->ts.iEnd;
         emptystats.common = stats->common;
-        if ((stats->output_handler) && !(stats->isMaskOutput))
-            (*stats->output_handler)(&emptystats);
+        if ((stats->output_handler) && !(stats->isMaskOutput)) (*stats->output_handler)(&emptystats);
     }
 }
 
 static inline void reporter_reset_transfer_stats_sum(struct TransferInfo *sumstats) {
 #if HAVE_SUMMING_DEBUG
-    printf("***** [SUM] RESET %ld.%06ld nxt %ld.%06ld down=%d up=%d\n",
-           (long)sumstats->ts.prevTime.tv_sec, (long)sumstats->ts.prevTime.tv_usec,
-           (long)sumstats->ts.nextTime.tv_sec, (long)sumstats->ts.nextTime.tv_usec,
+    printf("***** [SUM] RESET %ld.%06ld nxt %ld.%06ld down=%d up=%d\n", (long)sumstats->ts.prevTime.tv_sec,
+           (long)sumstats->ts.prevTime.tv_usec, (long)sumstats->ts.nextTime.tv_sec, (long)sumstats->ts.nextTime.tv_usec,
            sumstats->slot_thread_downcount, sumstats->slot_thread_upcount);
 #endif
     sumstats->slot_thread_upcount -= sumstats->slot_thread_downcount;
@@ -1476,8 +1425,7 @@ static inline void reporter_reset_transfer_stats_server_udp(struct TransferInfo 
     stats->iInP = 0;
     stats->sock_callstats.read.ReadCnt.prev = stats->sock_callstats.read.ReadCnt.current;
     stats->sock_callstats.read.ReadTimeoCnt.prev = stats->sock_callstats.read.ReadTimeoCnt.current;
-    stats->sock_callstats.read.ReadErrLenCnt.prev =
-        stats->sock_callstats.read.ReadErrLenCnt.current;
+    stats->sock_callstats.read.ReadErrLenCnt.prev = stats->sock_callstats.read.ReadErrLenCnt.current;
     if (stats->cntDatagrams) stats->IPGsum = 0;
 }
 // These do the following
@@ -1487,16 +1435,13 @@ static inline void reporter_reset_transfer_stats_server_udp(struct TransferInfo 
 //
 void reporter_transfer_protocol_server_udp(struct ReporterData *data, bool final) {
     struct TransferInfo *stats = &data->info;
-    struct TransferInfo *sumstats =
-        (data->GroupSumReport != NULL) ? &data->GroupSumReport->info : NULL;
-    struct TransferInfo *fullduplexstats =
-        (data->FullDuplexReport != NULL) ? &data->FullDuplexReport->info : NULL;
+    struct TransferInfo *sumstats = (data->GroupSumReport != NULL) ? &data->GroupSumReport->info : NULL;
+    struct TransferInfo *fullduplexstats = (data->FullDuplexReport != NULL) ? &data->FullDuplexReport->info : NULL;
     // print a interval report and possibly a partial interval report if this a
     // final
     stats->cntBytes = stats->total.Bytes.current - stats->total.Bytes.prev;
     stats->cntOutofOrder = stats->total.OutofOrder.current - stats->total.OutofOrder.prev;
-    stats->cntSrcPortMismatch =
-        stats->total.SrcPortMismatch.current - stats->total.SrcPortMismatch.prev;
+    stats->cntSrcPortMismatch = stats->total.SrcPortMismatch.current - stats->total.SrcPortMismatch.prev;
     // assume most of the  time out-of-order packets are
     // duplicate packets, so conditionally subtract them from the lost packets.
     stats->cntError = stats->total.Lost.current - stats->total.Lost.prev - stats->cntOutofOrder;
@@ -1505,10 +1450,10 @@ void reporter_transfer_protocol_server_udp(struct ReporterData *data, bool final
     stats->cntIPG = stats->total.IPG.current - stats->total.IPG.prev;
     stats->sock_callstats.read.cntRead =
         stats->sock_callstats.read.ReadCnt.current - stats->sock_callstats.read.ReadCnt.prev;
-    stats->sock_callstats.read.cntReadTimeo = stats->sock_callstats.read.ReadTimeoCnt.current -
-                                              stats->sock_callstats.read.ReadTimeoCnt.prev;
-    stats->sock_callstats.read.cntReadErrLen = stats->sock_callstats.read.ReadErrLenCnt.current -
-                                               stats->sock_callstats.read.ReadErrLenCnt.prev;
+    stats->sock_callstats.read.cntReadTimeo =
+        stats->sock_callstats.read.ReadTimeoCnt.current - stats->sock_callstats.read.ReadTimeoCnt.prev;
+    stats->sock_callstats.read.cntReadErrLen =
+        stats->sock_callstats.read.ReadErrLenCnt.current - stats->sock_callstats.read.ReadErrLenCnt.prev;
 
     if (stats->latency_histogram) {
         stats->latency_histogram->final = final;
@@ -1517,12 +1462,10 @@ void reporter_transfer_protocol_server_udp(struct ReporterData *data, bool final
         stats->jitter_histogram->final = final;
     }
     if (isIsochronous(stats->common)) {
-        stats->isochstats.cntFrames =
-            stats->isochstats.framecnt.current - stats->isochstats.framecnt.prev;
+        stats->isochstats.cntFrames = stats->isochstats.framecnt.current - stats->isochstats.framecnt.prev;
         stats->isochstats.cntFramesMissed =
             stats->isochstats.framelostcnt.current - stats->isochstats.framelostcnt.prev;
-        stats->isochstats.cntSlips =
-            stats->isochstats.slipcnt.current - stats->isochstats.slipcnt.prev;
+        stats->isochstats.cntSlips = stats->isochstats.slipcnt.current - stats->isochstats.slipcnt.prev;
         if (stats->framelatency_histogram) {
             stats->framelatency_histogram->final = final;
         }
@@ -1531,19 +1474,15 @@ void reporter_transfer_protocol_server_udp(struct ReporterData *data, bool final
     if (isTripTime(stats->common) && !final) {
         double lambda = ((stats->IPGsum > 0.0) ? (round(stats->cntIPG / stats->IPGsum)) : 0.0);
         double meantransit =
-            (double)((stats->transit.current.cnt > 0)
-                         ? (stats->transit.current.sum / stats->transit.current.cnt)
-                         : 0.0);
+            (double)((stats->transit.current.cnt > 0) ? (stats->transit.current.sum / stats->transit.current.cnt)
+                                                      : 0.0);
         double variance =
-            (stats->transit.current.cnt < 2)
-                ? 0
-                : (sqrt(stats->transit.current.m2 / (stats->transit.current.cnt - 1)));
+            (stats->transit.current.cnt < 2) ? 0 : (sqrt(stats->transit.current.m2 / (stats->transit.current.cnt - 1)));
         stats->iInP = (double)lambda * meantransit;
         stats->iInPVar = (double)lambda * variance;
     }
     if (sumstats) {
-        sumstats->total.OutofOrder.current +=
-            stats->total.OutofOrder.current - stats->total.OutofOrder.prev;
+        sumstats->total.OutofOrder.current += stats->total.OutofOrder.current - stats->total.OutofOrder.prev;
         sumstats->total.SrcPortMismatch.current +=
             stats->total.SrcPortMismatch.current - stats->total.SrcPortMismatch.prev;
         // assume most of the  time out-of-order packets are not
@@ -1574,24 +1513,21 @@ void reporter_transfer_protocol_server_udp(struct ReporterData *data, bool final
             printf(
                 "**** %s downcnt (%p) (up/down)=%d/%d final true uplevel "
                 "(sum/pkt)=%d/%d\n",
-                stats->common->transferIDStr, (void *)data->packetring,
-                sumstats->slot_thread_upcount, sumstats->slot_thread_downcount, sumstats->uplevel,
-                data->packetring->uplevel);
+                stats->common->transferIDStr, (void *)data->packetring, sumstats->slot_thread_upcount,
+                sumstats->slot_thread_downcount, sumstats->uplevel, data->packetring->uplevel);
 #endif
         }
     }
     if (fullduplexstats) {
         fullduplexstats->total.Bytes.current += stats->cntBytes;
         fullduplexstats->total.IPG.current += stats->cntIPG;
-        fullduplexstats->total.Datagrams.current +=
-            (stats->total.Datagrams.current - stats->total.Datagrams.prev);
+        fullduplexstats->total.Datagrams.current += (stats->total.Datagrams.current - stats->total.Datagrams.prev);
         if (fullduplexstats->IPGsum < stats->IPGsum) fullduplexstats->IPGsum = stats->IPGsum;
     }
     if (final) {
         if ((stats->cntBytes > 0) && !TimeZero(stats->ts.intervalTime)) {
             stats->cntOutofOrder = stats->total.OutofOrder.current - stats->total.OutofOrder.prev;
-            stats->cntSrcPortMismatch =
-                stats->total.SrcPortMismatch.current - stats->total.SrcPortMismatch.prev;
+            stats->cntSrcPortMismatch = stats->total.SrcPortMismatch.current - stats->total.SrcPortMismatch.prev;
             // assume most of the  time out-of-order packets are not
             // duplicate packets, so conditionally subtract them from the lost
             // packets.
@@ -1627,13 +1563,9 @@ void reporter_transfer_protocol_server_udp(struct ReporterData *data, bool final
         if (isTripTime(stats->common)) {
             double lambda = ((stats->IPGsum > 0.0) ? (round(stats->cntIPG / stats->IPGsum)) : 0.0);
             double meantransit =
-                (double)((stats->transit.total.cnt > 0)
-                             ? (stats->transit.total.sum / stats->transit.total.cnt)
-                             : 0.0);
+                (double)((stats->transit.total.cnt > 0) ? (stats->transit.total.sum / stats->transit.total.cnt) : 0.0);
             double variance =
-                (stats->transit.total.cnt < 2)
-                    ? 0
-                    : (sqrt(stats->transit.total.m2 / (stats->transit.total.cnt - 1)));
+                (stats->transit.total.cnt < 2) ? 0 : (sqrt(stats->transit.total.m2 / (stats->transit.total.cnt - 1)));
             stats->fInP = (double)lambda * meantransit;
             stats->fInPVar = (double)lambda * variance;
             if (sumstats) {
@@ -1694,8 +1626,7 @@ void reporter_transfer_protocol_sum_server_udp(struct TransferInfo *stats, bool 
         // assume most of the  time out-of-order packets are not
         // duplicate packets, so conditionally subtract them from the lost
         // packets.
-        stats->cntSrcPortMismatch =
-            stats->total.SrcPortMismatch.current - stats->total.SrcPortMismatch.prev;
+        stats->cntSrcPortMismatch = stats->total.SrcPortMismatch.current - stats->total.SrcPortMismatch.prev;
         stats->cntError = stats->total.Lost.current - stats->total.Lost.prev;
         stats->cntError -= stats->cntOutofOrder;
         if (stats->cntError < 0) stats->cntError = 0;
@@ -1742,20 +1673,16 @@ void reporter_transfer_protocol_sum_client_udp(struct TransferInfo *stats, bool 
 
 void reporter_transfer_protocol_client_udp(struct ReporterData *data, bool final) {
     struct TransferInfo *stats = &data->info;
-    struct TransferInfo *sumstats =
-        (data->GroupSumReport != NULL) ? &data->GroupSumReport->info : NULL;
-    struct TransferInfo *fullduplexstats =
-        (data->FullDuplexReport != NULL) ? &data->FullDuplexReport->info : NULL;
+    struct TransferInfo *sumstats = (data->GroupSumReport != NULL) ? &data->GroupSumReport->info : NULL;
+    struct TransferInfo *fullduplexstats = (data->FullDuplexReport != NULL) ? &data->FullDuplexReport->info : NULL;
     stats->cntBytes = stats->total.Bytes.current - stats->total.Bytes.prev;
     stats->cntDatagrams = stats->total.Datagrams.current - stats->total.Datagrams.prev;
     stats->cntIPG = stats->total.IPG.current - stats->total.IPG.prev;
     if (isIsochronous(stats->common)) {
-        stats->isochstats.cntFrames =
-            stats->isochstats.framecnt.current - stats->isochstats.framecnt.prev;
+        stats->isochstats.cntFrames = stats->isochstats.framecnt.current - stats->isochstats.framecnt.prev;
         stats->isochstats.cntFramesMissed =
             stats->isochstats.framelostcnt.current - stats->isochstats.framelostcnt.prev;
-        stats->isochstats.cntSlips =
-            stats->isochstats.slipcnt.current - stats->isochstats.slipcnt.prev;
+        stats->isochstats.cntSlips = stats->isochstats.slipcnt.current - stats->isochstats.slipcnt.prev;
     }
     if (sumstats) {
         sumstats->total.Bytes.current += stats->cntBytes;
@@ -1780,9 +1707,8 @@ void reporter_transfer_protocol_client_udp(struct ReporterData *data, bool final
             printf(
                 "**** %s downcnt (%p) (up/down)=%d/%d final true level "
                 "(sum/pkt)=%d/%d\n",
-                stats->common->transferIDStr, (void *)data->packetring,
-                sumstats->slot_thread_upcount, sumstats->slot_thread_downcount, sumstats->uplevel,
-                data->packetring->uplevel);
+                stats->common->transferIDStr, (void *)data->packetring, sumstats->slot_thread_upcount,
+                sumstats->slot_thread_downcount, sumstats->uplevel, data->packetring->uplevel);
 #endif
         }
     }
@@ -1829,10 +1755,8 @@ void reporter_transfer_protocol_client_udp(struct ReporterData *data, bool final
 
 void reporter_transfer_protocol_server_tcp(struct ReporterData *data, bool final) {
     struct TransferInfo *stats = &data->info;
-    struct TransferInfo *sumstats =
-        (data->GroupSumReport != NULL) ? &data->GroupSumReport->info : NULL;
-    struct TransferInfo *fullduplexstats =
-        (data->FullDuplexReport != NULL) ? &data->FullDuplexReport->info : NULL;
+    struct TransferInfo *sumstats = (data->GroupSumReport != NULL) ? &data->GroupSumReport->info : NULL;
+    struct TransferInfo *fullduplexstats = (data->FullDuplexReport != NULL) ? &data->FullDuplexReport->info : NULL;
     stats->cntBytes = stats->total.Bytes.current - stats->total.Bytes.prev;
     int ix;
     if (stats->framelatency_histogram) {
@@ -1843,9 +1767,8 @@ void reporter_transfer_protocol_server_tcp(struct ReporterData *data, bool final
         double bytecnt = (double)(stats->total.Bytes.current - stats->total.Bytes.prev);
         double lambda = (stats->IPGsum > 0.0) ? (bytecnt / stats->IPGsum) : 0.0;
         double meantransit =
-            (double)((stats->transit.current.cnt > 0)
-                         ? (stats->transit.current.sum / stats->transit.current.cnt)
-                         : 0.0);
+            (double)((stats->transit.current.cnt > 0) ? (stats->transit.current.sum / stats->transit.current.cnt)
+                                                      : 0.0);
         thisInP = lambda * meantransit;
         stats->iInP = thisInP;
         stats->sock_callstats.read.cntRead =
@@ -1853,9 +1776,8 @@ void reporter_transfer_protocol_server_tcp(struct ReporterData *data, bool final
     } else {
         double bytecnt = (double)stats->cntBytes;
         double lambda = (stats->IPGsum > 0.0) ? (bytecnt / stats->IPGsum) : 0.0;
-        double meantransit = (double)((stats->transit.total.cnt > 0)
-                                          ? (stats->transit.total.sum / stats->transit.total.cnt)
-                                          : 0.0);
+        double meantransit =
+            (double)((stats->transit.total.cnt > 0) ? (stats->transit.total.sum / stats->transit.total.cnt) : 0.0);
         thisInP = lambda * meantransit;
         stats->fInP = thisInP;
         stats->sock_callstats.read.cntRead = stats->sock_callstats.read.ReadCnt.current;
@@ -1885,9 +1807,8 @@ void reporter_transfer_protocol_server_tcp(struct ReporterData *data, bool final
             printf(
                 "**** %s downcnt (%p) (up/down)=%d/%d final true level "
                 "(sum/pkt)=%d/%d\n",
-                stats->common->transferIDStr, (void *)data->packetring,
-                sumstats->slot_thread_upcount, sumstats->slot_thread_downcount, sumstats->uplevel,
-                data->packetring->uplevel);
+                stats->common->transferIDStr, (void *)data->packetring, sumstats->slot_thread_upcount,
+                sumstats->slot_thread_downcount, sumstats->uplevel, data->packetring->uplevel);
 #endif
             if (isOmit(stats->common)) {
                 sumstats->total.Bytes.current -= stats->cntOmitBytes;
@@ -1902,12 +1823,10 @@ void reporter_transfer_protocol_server_tcp(struct ReporterData *data, bool final
             // print a partial interval report if enable and this a final
             if ((stats->output_handler) && !(stats->isMaskOutput)) {
                 if (isIsochronous(stats->common)) {
-                    stats->isochstats.cntFrames =
-                        stats->isochstats.framecnt.current - stats->isochstats.framecnt.prev;
-                    stats->isochstats.cntFramesMissed = stats->isochstats.framelostcnt.current -
-                                                        stats->isochstats.framelostcnt.prev;
-                    stats->isochstats.cntSlips =
-                        stats->isochstats.slipcnt.current - stats->isochstats.slipcnt.prev;
+                    stats->isochstats.cntFrames = stats->isochstats.framecnt.current - stats->isochstats.framecnt.prev;
+                    stats->isochstats.cntFramesMissed =
+                        stats->isochstats.framelostcnt.current - stats->isochstats.framelostcnt.prev;
+                    stats->isochstats.cntSlips = stats->isochstats.slipcnt.current - stats->isochstats.slipcnt.prev;
                 }
                 reporter_set_timestamps_time(stats, FINALPARTIAL);
                 if ((stats->ts.iEnd - stats->ts.iStart) > stats->ts.significant_partial)
@@ -1939,12 +1858,10 @@ void reporter_transfer_protocol_server_tcp(struct ReporterData *data, bool final
             stats->framelatency_histogram->final = true;
         }
     } else if (isIsochronous(stats->common)) {
-        stats->isochstats.cntFrames =
-            stats->isochstats.framecnt.current - stats->isochstats.framecnt.prev;
+        stats->isochstats.cntFrames = stats->isochstats.framecnt.current - stats->isochstats.framecnt.prev;
         stats->isochstats.cntFramesMissed =
             stats->isochstats.framelostcnt.current - stats->isochstats.framelostcnt.prev;
-        stats->isochstats.cntSlips =
-            stats->isochstats.slipcnt.current - stats->isochstats.slipcnt.prev;
+        stats->isochstats.cntSlips = stats->isochstats.slipcnt.current - stats->isochstats.slipcnt.prev;
     }
     if ((stats->output_handler) && !stats->isMaskOutput) {
         (*stats->output_handler)(stats);
@@ -1957,10 +1874,8 @@ void reporter_transfer_protocol_server_tcp(struct ReporterData *data, bool final
 
 void reporter_transfer_protocol_client_tcp(struct ReporterData *data, bool final) {
     struct TransferInfo *stats = &data->info;
-    struct TransferInfo *sumstats =
-        (data->GroupSumReport != NULL) ? &data->GroupSumReport->info : NULL;
-    struct TransferInfo *fullduplexstats =
-        (data->FullDuplexReport != NULL) ? &data->FullDuplexReport->info : NULL;
+    struct TransferInfo *sumstats = (data->GroupSumReport != NULL) ? &data->GroupSumReport->info : NULL;
+    struct TransferInfo *fullduplexstats = (data->FullDuplexReport != NULL) ? &data->FullDuplexReport->info : NULL;
     stats->cntBytes = stats->total.Bytes.current - stats->total.Bytes.prev;
     if (stats->latency_histogram) {
         stats->latency_histogram->final = final;
@@ -1974,12 +1889,10 @@ void reporter_transfer_protocol_client_tcp(struct ReporterData *data, bool final
             stats->isochstats.cntFramesMissed = stats->isochstats.framelostcnt.current;
             stats->isochstats.cntSlips = stats->isochstats.slipcnt.current;
         } else {
-            stats->isochstats.cntFrames =
-                stats->isochstats.framecnt.current - stats->isochstats.framecnt.prev;
+            stats->isochstats.cntFrames = stats->isochstats.framecnt.current - stats->isochstats.framecnt.prev;
             stats->isochstats.cntFramesMissed =
                 stats->isochstats.framelostcnt.current - stats->isochstats.framelostcnt.prev;
-            stats->isochstats.cntSlips =
-                stats->isochstats.slipcnt.current - stats->isochstats.slipcnt.prev;
+            stats->isochstats.cntSlips = stats->isochstats.slipcnt.current - stats->isochstats.slipcnt.prev;
         }
     }
     if (sumstats) {
@@ -2000,9 +1913,8 @@ void reporter_transfer_protocol_client_tcp(struct ReporterData *data, bool final
             printf(
                 "**** %s downcnt (%p) (up/down)=%d/%d final true level "
                 "(sum/pkt)=%d/%d\n",
-                stats->common->transferIDStr, (void *)data->packetring,
-                sumstats->slot_thread_upcount, sumstats->slot_thread_downcount, sumstats->uplevel,
-                data->packetring->uplevel);
+                stats->common->transferIDStr, (void *)data->packetring, sumstats->slot_thread_upcount,
+                sumstats->slot_thread_downcount, sumstats->uplevel, data->packetring->uplevel);
 #endif
             if (isOmit(stats->common)) {
                 sumstats->total.Bytes.current -= stats->cntOmitBytes;
@@ -2014,8 +1926,7 @@ void reporter_transfer_protocol_client_tcp(struct ReporterData *data, bool final
 
 #if HAVE_TCP_STATS
         sumstats->sock_callstats.write.tcpstats.retry += stats->sock_callstats.write.tcpstats.retry;
-        sumstats->sock_callstats.write.tcpstats.retry_tot +=
-            stats->sock_callstats.write.tcpstats.retry;
+        sumstats->sock_callstats.write.tcpstats.retry_tot += stats->sock_callstats.write.tcpstats.retry;
 #endif
     }
     if (fullduplexstats) {
@@ -2032,12 +1943,10 @@ void reporter_transfer_protocol_client_tcp(struct ReporterData *data, bool final
             // print a partial interval report if enable and this a final
             if ((stats->output_handler) && !(stats->isMaskOutput)) {
                 if (isIsochronous(stats->common)) {
-                    stats->isochstats.cntFrames =
-                        stats->isochstats.framecnt.current - stats->isochstats.framecnt.prev;
-                    stats->isochstats.cntFramesMissed = stats->isochstats.framelostcnt.current -
-                                                        stats->isochstats.framelostcnt.prev;
-                    stats->isochstats.cntSlips =
-                        stats->isochstats.slipcnt.current - stats->isochstats.slipcnt.prev;
+                    stats->isochstats.cntFrames = stats->isochstats.framecnt.current - stats->isochstats.framecnt.prev;
+                    stats->isochstats.cntFramesMissed =
+                        stats->isochstats.framelostcnt.current - stats->isochstats.framelostcnt.prev;
+                    stats->isochstats.cntSlips = stats->isochstats.slipcnt.current - stats->isochstats.slipcnt.prev;
                 }
                 reporter_set_timestamps_time(stats, FINALPARTIAL);
                 if ((stats->ts.iEnd - stats->ts.iStart) > stats->ts.significant_partial)
@@ -2065,12 +1974,10 @@ void reporter_transfer_protocol_client_tcp(struct ReporterData *data, bool final
         stats->write_mmm.current = stats->write_mmm.total;
         reporter_set_timestamps_time(stats, TOTAL);
     } else if (isIsochronous(stats->common)) {
-        stats->isochstats.cntFrames =
-            stats->isochstats.framecnt.current - stats->isochstats.framecnt.prev;
+        stats->isochstats.cntFrames = stats->isochstats.framecnt.current - stats->isochstats.framecnt.prev;
         stats->isochstats.cntFramesMissed =
             stats->isochstats.framelostcnt.current - stats->isochstats.framelostcnt.prev;
-        stats->isochstats.cntSlips =
-            stats->isochstats.slipcnt.current - stats->isochstats.slipcnt.prev;
+        stats->isochstats.cntSlips = stats->isochstats.slipcnt.current - stats->isochstats.slipcnt.prev;
     }
     if ((stats->output_handler) && !(stats->isMaskOutput)) {
         (*stats->output_handler)(stats);
@@ -2112,8 +2019,7 @@ void reporter_transfer_protocol_sum_client_tcp(struct TransferInfo *stats, bool 
 
 void reporter_transfer_protocol_client_bb_tcp(struct ReporterData *data, bool final) {
     struct TransferInfo *stats = &data->info;
-    struct TransferInfo *sumstats =
-        (data->GroupSumReport != NULL) ? &data->GroupSumReport->info : NULL;
+    struct TransferInfo *sumstats = (data->GroupSumReport != NULL) ? &data->GroupSumReport->info : NULL;
     if (final) {
         if ((stats->cntBytes > 0) && stats->output_handler && !TimeZero(stats->ts.intervalTime)) {
             // print a partial interval report if enable and this a final
@@ -2144,10 +2050,8 @@ void reporter_transfer_protocol_client_bb_tcp(struct ReporterData *data, bool fi
             sumstats->sock_callstats.write.totWriteErr += stats->sock_callstats.write.WriteErr;
             sumstats->sock_callstats.write.totWriteCnt += stats->sock_callstats.write.WriteCnt;
 #if HAVE_TCP_STATS
-            sumstats->sock_callstats.write.tcpstats.retry +=
-                stats->sock_callstats.write.tcpstats.retry;
-            sumstats->sock_callstats.write.tcpstats.retry_tot +=
-                stats->sock_callstats.write.tcpstats.retry;
+            sumstats->sock_callstats.write.tcpstats.retry += stats->sock_callstats.write.tcpstats.retry;
+            sumstats->sock_callstats.write.tcpstats.retry_tot += stats->sock_callstats.write.tcpstats.retry;
 #endif
         } else {
             sumstats->threadcnt_final++;
@@ -2161,9 +2065,8 @@ void reporter_transfer_protocol_client_bb_tcp(struct ReporterData *data, bool fi
             printf(
                 "**** %s downcnt (%p) (up/down)=%d/%d final true level "
                 "(sum/pkt)=%d/%d\n",
-                stats->common->transferIDStr, (void *)data->packetring,
-                sumstats->slot_thread_upcount, sumstats->slot_thread_downcount, sumstats->uplevel,
-                data->packetring->uplevel);
+                stats->common->transferIDStr, (void *)data->packetring, sumstats->slot_thread_upcount,
+                sumstats->slot_thread_downcount, sumstats->uplevel, data->packetring->uplevel);
 #endif
         }
 #if HAVE_SUMMING_DEBUG
@@ -2259,8 +2162,7 @@ void reporter_transfer_protocol_fullduplex_udp(struct TransferInfo *stats, bool 
 }
 
 // Conditional print based on time
-bool reporter_condprint_time_interval_report(struct ReporterData *data,
-                                             struct ReportStruct *packet) {
+bool reporter_condprint_time_interval_report(struct ReporterData *data, struct ReportStruct *packet) {
     struct TransferInfo *stats = &data->info;
     assert(stats != NULL);
     //   printf("***sum handler = %p\n", (void *)
@@ -2279,22 +2181,19 @@ bool reporter_condprint_time_interval_report(struct ReporterData *data,
         assert(data->transfer_protocol_handler != NULL);
         advance_jobq = true;
         struct TransferInfo *sumstats = (data->GroupSumReport ? &data->GroupSumReport->info : NULL);
-        struct TransferInfo *fullduplexstats =
-            (data->FullDuplexReport ? &data->FullDuplexReport->info : NULL);
+        struct TransferInfo *fullduplexstats = (data->FullDuplexReport ? &data->FullDuplexReport->info : NULL);
         stats->ts.packetTime = packet->packetTime;
 #if DEBUG_PPS
         printf(
             "*** packetID TRIGGER = %ld pt=%ld.%06ld empty=%d nt=%ld.%06ld "
             "carry "
             "%f\n",
-            packet->packetID, packet->packetTime.tv_sec, packet->packetTime.tv_usec,
-            packet->emptyreport, stats->ts.nextTime.tv_sec, stats->ts.nextTime.tv_usec,
-            stats->IPGsumcarry);
+            packet->packetID, packet->packetTime.tv_sec, packet->packetTime.tv_usec, packet->emptyreport,
+            stats->ts.nextTime.tv_sec, stats->ts.nextTime.tv_usec, stats->IPGsumcarry);
 #endif
         reporter_set_timestamps_time(stats, INTERVAL);
         (*data->transfer_protocol_handler)(data, 0);
-        if (fullduplexstats && ((++data->FullDuplexReport->threads) == 2) &&
-            isEnhanced(stats->common)) {
+        if (fullduplexstats && ((++data->FullDuplexReport->threads) == 2) && isEnhanced(stats->common)) {
             data->FullDuplexReport->threads = 0;
             assert(data->FullDuplexReport->transfer_protocol_sum_handler != NULL);
             (*data->FullDuplexReport->transfer_protocol_sum_handler)(fullduplexstats, false);
@@ -2309,9 +2208,8 @@ bool reporter_condprint_time_interval_report(struct ReporterData *data,
                     "false "
                     "level "
                     "(sum/pkt)=%d/%d\n",
-                    stats->common->transferIDStr, (void *)data->packetring,
-                    (long)packet->packetTime.tv_sec, (long)packet->packetTime.tv_usec,
-                    sumstats->slot_thread_upcount, sumstats->slot_thread_downcount,
+                    stats->common->transferIDStr, (void *)data->packetring, (long)packet->packetTime.tv_sec,
+                    (long)packet->packetTime.tv_usec, sumstats->slot_thread_upcount, sumstats->slot_thread_downcount,
                     sumstats->uplevel, data->packetring->uplevel);
 #endif
             }
@@ -2333,31 +2231,26 @@ bool reporter_condprint_time_interval_report(struct ReporterData *data,
         }
         // In the (hopefully unlikely event) the reporter fell behind
         // output the missed reports to catch up
-        if ((stats->output_handler) && !(stats->isMaskOutput))
-            reporter_transfer_protocol_missed_reports(stats, packet);
+        if ((stats->output_handler) && !(stats->isMaskOutput)) reporter_transfer_protocol_missed_reports(stats, packet);
     }
     return advance_jobq;
 }
 
 // Conditional print based on bursts or frames
-bool reporter_condprint_frame_interval_report_server_udp(struct ReporterData *data,
-                                                         struct ReportStruct *packet) {
+bool reporter_condprint_frame_interval_report_server_udp(struct ReporterData *data, struct ReportStruct *packet) {
     struct TransferInfo *stats = &data->info;
     bool advance_jobq = false;
     // first packet of a burst and not a duplicate
-    if ((packet->burstsize == (packet->remaining + packet->packetLen)) &&
-        (stats->matchframeID != packet->frameID)) {
+    if ((packet->burstsize == (packet->remaining + packet->packetLen)) && (stats->matchframeID != packet->frameID)) {
         stats->matchframeID = packet->frameID;
     }
     if ((packet->packetLen == packet->remaining) && (packet->frameID == stats->matchframeID)) {
-        if ((stats->ts.iStart = TimeDifference(stats->ts.nextTime, stats->ts.startTime)) < 0)
-            stats->ts.iStart = 0.0;
+        if ((stats->ts.iStart = TimeDifference(stats->ts.nextTime, stats->ts.startTime)) < 0) stats->ts.iStart = 0.0;
         stats->frameID = packet->frameID;
         stats->ts.iEnd = TimeDifference(packet->packetTime, stats->ts.startTime);
         stats->cntBytes = stats->total.Bytes.current - stats->total.Bytes.prev;
         stats->cntOutofOrder = stats->total.OutofOrder.current - stats->total.OutofOrder.prev;
-        stats->cntSrcPortMismatch =
-            stats->total.SrcPortMismatch.current - stats->total.SrcPortMismatch.prev;
+        stats->cntSrcPortMismatch = stats->total.SrcPortMismatch.current - stats->total.SrcPortMismatch.prev;
         // assume most of the  time out-of-order packets are not
         // duplicate packets, so conditionally subtract them from the lost
         // packets.
@@ -2372,14 +2265,12 @@ bool reporter_condprint_frame_interval_report_server_udp(struct ReporterData *da
     return advance_jobq;
 }
 
-bool reporter_condprint_frame_interval_report_server_tcp(struct ReporterData *data,
-                                                         struct ReportStruct *packet) {
+bool reporter_condprint_frame_interval_report_server_tcp(struct ReporterData *data, struct ReportStruct *packet) {
     fprintf(stderr, "FIX ME\n");
     return true;
 }
 
-bool reporter_condprint_burst_interval_report_server_tcp(struct ReporterData *data,
-                                                         struct ReportStruct *packet) {
+bool reporter_condprint_burst_interval_report_server_tcp(struct ReporterData *data, struct ReportStruct *packet) {
     struct TransferInfo *stats = &data->info;
     int advance_jobq = false;
     if (packet->transit_ready) {
@@ -2396,8 +2287,7 @@ bool reporter_condprint_burst_interval_report_server_tcp(struct ReporterData *da
     return advance_jobq;
 }
 
-bool reporter_condprint_burst_interval_report_client_tcp(struct ReporterData *data,
-                                                         struct ReportStruct *packet) {
+bool reporter_condprint_burst_interval_report_client_tcp(struct ReporterData *data, struct ReportStruct *packet) {
     struct TransferInfo *stats = &data->info;
     int advance_jobq = false;
     // first packet of a burst and not a duplicate
@@ -2424,14 +2314,13 @@ int post_connection_error(struct thread_Settings *inSettings, struct timeval t) 
     int connect_errno = errno_decode(errtext, sizeof(errtext));
     unsigned short port = SockAddr_getPort(&inSettings->peer);
     SockAddr_getHostAddress(&inSettings->peer, tmpaddr, sizeof(tmpaddr));
-    iperf_formattime(timestr, sizeof(timestr), t, isEnhanced(inSettings), isUTC(inSettings),
-                     YearThruSecTZ);
-    int slen = snprintf(NULL, 0, "%stcp connect to %s port %" PRIu16 " failed (%s) on %s",
-                        inSettings->mTransferIDStr, tmpaddr, port, errtext, timestr);
+    iperf_formattime(timestr, sizeof(timestr), t, isEnhanced(inSettings), isUTC(inSettings), YearThruSecTZ);
+    int slen = snprintf(NULL, 0, "%stcp connect to %s port %" PRIu16 " failed (%s) on %s", inSettings->mTransferIDStr,
+                        tmpaddr, port, errtext, timestr);
     char *text = (char *)calloc((slen + 1), sizeof(char));
     if (text) {
-        snprintf(text, (slen + 1), "%stcp connect to %s port %" PRIu16 " failed (%s) on %s",
-                 inSettings->mTransferIDStr, tmpaddr, port, errtext, timestr);
+        snprintf(text, (slen + 1), "%stcp connect to %s port %" PRIu16 " failed (%s) on %s", inSettings->mTransferIDStr,
+                 tmpaddr, port, errtext, timestr);
         PostReport(InitErrorReport(text));
         FREE_ARRAY(text);
     }
@@ -2439,14 +2328,11 @@ int post_connection_error(struct thread_Settings *inSettings, struct timeval t) 
 }
 void post_connect_timer_expired(struct thread_Settings *inSettings, struct timeval t) {
     char timestr[120];
-    iperf_formattime(timestr, sizeof(timestr), t, isEnhanced(inSettings), isUTC(inSettings),
-                     YearThruSecTZ);
-    int len = snprintf(NULL, 0, "%stcp connect attempt timer expired on %s\n",
-                       inSettings->mTransferIDStr, timestr);
+    iperf_formattime(timestr, sizeof(timestr), t, isEnhanced(inSettings), isUTC(inSettings), YearThruSecTZ);
+    int len = snprintf(NULL, 0, "%stcp connect attempt timer expired on %s\n", inSettings->mTransferIDStr, timestr);
     char *text = (char *)calloc(len + 1, sizeof(char));
     if (text) {
-        snprintf(text, len, "%stcp connect attempt timer expired on %s\n",
-                 inSettings->mTransferIDStr, timestr);
+        snprintf(text, len, "%stcp connect attempt timer expired on %s\n", inSettings->mTransferIDStr, timestr);
         PostReport(InitErrorReport(text));
         FREE_ARRAY(text);
     }

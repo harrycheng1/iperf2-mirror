@@ -128,8 +128,7 @@ unsigned char *dst;
     while ((ch = *src++) != '\0') {
         const char *pch;
 
-        if ((pch = strchr((xdigits = xdigits_l), ch)) == NULL)
-            pch = strchr((xdigits = xdigits_u), ch);
+        if ((pch = strchr((xdigits = xdigits_l), ch)) == NULL) pch = strchr((xdigits = xdigits_u), ch);
         if (pch != NULL) {
             val <<= 4;
             val |= (pch - xdigits);

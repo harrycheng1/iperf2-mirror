@@ -68,8 +68,7 @@ inline void gettcpinfo(int sock, struct iperf_tcpstats *stats) {
 #if HAVE_DECL_TCP_INFO
     struct tcp_info tcp_info_buf;
     socklen_t tcp_info_length = sizeof(struct tcp_info);
-    if ((sock > 0) &&
-        !(getsockopt(sock, IPPROTO_TCP, TCP_INFO, &tcp_info_buf, &tcp_info_length) < 0)) {
+    if ((sock > 0) && !(getsockopt(sock, IPPROTO_TCP, TCP_INFO, &tcp_info_buf, &tcp_info_length) < 0)) {
 #if HAVE_STRUCT_TCP_INFO_TCPI_SND_CWND
         stats->cwnd_packets = tcp_info_buf.tcpi_snd_cwnd;
 #else
@@ -89,16 +88,15 @@ inline void gettcpinfo(int sock, struct iperf_tcpstats *stats) {
         stats->mss_negotiated = -1;
 #endif
 #if HAVE_TCP_INFLIGHT
-        stats->packets_in_flight = (tcp_info_buf.tcpi_unacked - tcp_info_buf.tcpi_sacked -
-                                    tcp_info_buf.tcpi_lost + tcp_info_buf.tcpi_retrans);
+        stats->packets_in_flight =
+            (tcp_info_buf.tcpi_unacked - tcp_info_buf.tcpi_sacked - tcp_info_buf.tcpi_lost + tcp_info_buf.tcpi_retrans);
         stats->bytes_in_flight = stats->packets_in_flight * tcp_info_buf.tcpi_snd_mss / 1024;
 #endif
         stats->isValid = true;
 #elif HAVE_DECL_TCP_CONNECTION_INFO
     struct tcp_connection_info tcp_info_buf;
     socklen_t tcp_info_length = sizeof(struct tcp_connection_info);
-    if ((sock > 0) && !(getsockopt(sock, IPPROTO_TCP, TCP_CONNECTION_INFO, &tcp_info_buf,
-                                   &tcp_info_length) < 0)) {
+    if ((sock > 0) && !(getsockopt(sock, IPPROTO_TCP, TCP_CONNECTION_INFO, &tcp_info_buf, &tcp_info_length) < 0)) {
 #ifdef __APPLE__
         stats->cwnd = tcp_info_buf.tcpi_snd_cwnd / 1024;
         stats->cwnd_packets = -1;

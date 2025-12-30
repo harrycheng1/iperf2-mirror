@@ -459,8 +459,7 @@ struct ReportHeader *InitIndividualReport(struct thread_Settings *inSettings);
 struct ReportHeader *InitConnectionReport(struct thread_Settings *inSettings);
 struct ConnectionInfo *InitConnectOnlyReport(struct thread_Settings *thread);
 struct ReportHeader *InitSettingsReport(struct thread_Settings *inSettings);
-struct ReportHeader *InitServerRelayUDPReport(struct thread_Settings *inSettings,
-                                              struct server_hdr *server);
+struct ReportHeader *InitServerRelayUDPReport(struct thread_Settings *inSettings, struct server_hdr *server);
 struct ReportHeader *InitStringReport(char *textoutput);
 struct ReportHeader *InitErrorReport(char *textoutput);
 void PostReport(struct ReportHeader *reporthdr);
@@ -501,24 +500,15 @@ void reporter_handle_packet_bb_client(struct ReporterData *data, struct ReportSt
 // this_ireport->transfer_interval_handler This is set during Report
 // instantiation (found in Reports.c) These conditionally, e.g per a sample
 // interval, invoke the transfer protocol handlers
-bool reporter_condprint_time_interval_report(struct ReporterData *data,
-                                             struct ReportStruct *packet);
-bool reporter_condprint_frame_interval_report_client_udp(struct ReporterData *data,
-                                                         struct ReportStruct *packet);
-bool reporter_condprint_frame_interval_report_server_udp(struct ReporterData *data,
-                                                         struct ReportStruct *packet);
-bool reporter_condprint_frame_interval_report_server_tcp(struct ReporterData *data,
-                                                         struct ReportStruct *packet);
-bool reporter_condprint_frame_interval_report_client_tcp(struct ReporterData *data,
-                                                         struct ReportStruct *packet);
-bool reporter_condprint_burst_interval_report_client_udp(struct ReporterData *data,
-                                                         struct ReportStruct *packet);
-bool reporter_condprint_burst_interval_report_server_udp(struct ReporterData *data,
-                                                         struct ReportStruct *packet);
-bool reporter_condprint_burst_interval_report_server_tcp(struct ReporterData *data,
-                                                         struct ReportStruct *packet);
-bool reporter_condprint_burst_interval_report_client_tcp(struct ReporterData *data,
-                                                         struct ReportStruct *packet);
+bool reporter_condprint_time_interval_report(struct ReporterData *data, struct ReportStruct *packet);
+bool reporter_condprint_frame_interval_report_client_udp(struct ReporterData *data, struct ReportStruct *packet);
+bool reporter_condprint_frame_interval_report_server_udp(struct ReporterData *data, struct ReportStruct *packet);
+bool reporter_condprint_frame_interval_report_server_tcp(struct ReporterData *data, struct ReportStruct *packet);
+bool reporter_condprint_frame_interval_report_client_tcp(struct ReporterData *data, struct ReportStruct *packet);
+bool reporter_condprint_burst_interval_report_client_udp(struct ReporterData *data, struct ReportStruct *packet);
+bool reporter_condprint_burst_interval_report_server_udp(struct ReporterData *data, struct ReportStruct *packet);
+bool reporter_condprint_burst_interval_report_server_tcp(struct ReporterData *data, struct ReportStruct *packet);
+bool reporter_condprint_burst_interval_report_client_tcp(struct ReporterData *data, struct ReportStruct *packet);
 
 // Each report type needs specialized updating prior to printing its report
 // These functions realize that updating. They are called by the transfer

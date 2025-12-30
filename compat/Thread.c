@@ -430,9 +430,7 @@ void thread_joinall(void) {
  * are equal. On some OS's nthread_t is a struct so == will not work.
  * TODO use pthread_equal. Any Win32 equivalent??
  * ------------------------------------------------------------------- */
-int thread_equalid(nthread_t inLeft, nthread_t inRight) {
-    return (memcmp(&inLeft, &inRight, sizeof(inLeft)) == 0);
-}
+int thread_equalid(nthread_t inLeft, nthread_t inRight) { return (memcmp(&inLeft, &inRight, sizeof(inLeft)) == 0); }
 
 /* -------------------------------------------------------------------
  * Return a zero'd out thread ID. On some OS's nthread_t is a struct

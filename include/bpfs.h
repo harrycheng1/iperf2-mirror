@@ -55,14 +55,10 @@ extern "C" {
 extern int SockBPF_Drop_All(int sock);
 extern int SockBPF_v4_Accept(int sock, uint16_t port);
 extern int SockBPF_Accept_V4_TAP(int sock, uint32_t dstip, uint16_t port);
-extern int SockBPF_v4_Connect(int sock, uint32_t dstip, uint32_t srcip, uint16_t dstport,
-                              uint16_t srcport);
-extern int SockBPF_v4_Connect_TAP(int sock, uint32_t dstip, uint32_t srcip, uint16_t dstport,
-                                  uint16_t srcport);
-extern int SockBPF_v4_Connect_Drop(int sock, uint32_t dstip, uint32_t srcip, uint16_t dstport,
-                                   uint16_t srcport);
-extern int SockBPF_v6_Connect(int sock, struct in6_addr *dst, struct in6_addr *src,
-                              uint16_t dstport, uint16_t srcport);
+extern int SockBPF_v4_Connect(int sock, uint32_t dstip, uint32_t srcip, uint16_t dstport, uint16_t srcport);
+extern int SockBPF_v4_Connect_TAP(int sock, uint32_t dstip, uint32_t srcip, uint16_t dstport, uint16_t srcport);
+extern int SockBPF_v4_Connect_Drop(int sock, uint32_t dstip, uint32_t srcip, uint16_t dstport, uint16_t srcport);
+extern int SockBPF_v6_Connect(int sock, struct in6_addr *dst, struct in6_addr *src, uint16_t dstport, uint16_t srcport);
 
 #ifdef __cplusplus
 } /* end extern "C" */

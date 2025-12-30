@@ -513,8 +513,7 @@ struct thread_Settings {
 #define isBurstSize(settings) ((settings->flags_extend2 & FLAG_BURSTSIZE) != 0)
 #define isSendDelay(settings) ((settings->flags_extend2 & FLAG_SENDDELAY) != 0)
 #define isFQPacingStep(settings) ((settings->flags_extend2 & FLAG_FQPACINGSTEP) != 0)
-#define isFQPacingStepInterval(settings) \
-    ((settings->flags_extend2 & FLAG_FQPACINGSTEPINTERVAL) != 0)
+#define isFQPacingStepInterval(settings) ((settings->flags_extend2 & FLAG_FQPACINGSTEPINTERVAL) != 0)
 #define isOmit(settings) ((settings->flags_extend2 & FLAG_OMIT) != 0)
 #define isSyncTransferID(settings) ((settings->flags_extend2 & FLAG_SYNCTRANSFERID) != 0)
 #define isIgnoreShutdown(settings) ((settings->flags_extend2 & FLAG_IGNORESHUTDOWN) != 0)
@@ -724,12 +723,10 @@ void Settings_GetLowerCaseArg(const char*, char*);
 void Settings_GetUpperCaseArg(const char*, char*);
 
 // generate settings for listener instance
-void Settings_GenerateListenerSettings(struct thread_Settings* client,
-                                       struct thread_Settings** listener);
+void Settings_GenerateListenerSettings(struct thread_Settings* client, struct thread_Settings** listener);
 
 // generate settings for speaker instance
-void Settings_GenerateClientSettings(struct thread_Settings* server,
-                                     struct thread_Settings** client, void* mBuf);
+void Settings_GenerateClientSettings(struct thread_Settings* server, struct thread_Settings** client, void* mBuf);
 
 // generate client header for server
 int Settings_GenerateClientHdr(struct thread_Settings* client, void* hdr, struct timeval startTime);

@@ -430,13 +430,11 @@ void Settings_Copy(struct thread_Settings *from, struct thread_Settings **into, 
             strcpy((*into)->mSSMMulticastStr, from->mSSMMulticastStr);
         }
         if (from->mIfrname != NULL) {
-            (*into)->mIfrname =
-                static_cast<char *>(calloc(strlen(from->mIfrname) + 1, sizeof(char)));
+            (*into)->mIfrname = static_cast<char *>(calloc(strlen(from->mIfrname) + 1, sizeof(char)));
             strcpy((*into)->mIfrname, from->mIfrname);
         }
         if (from->mIfrnametx != NULL) {
-            (*into)->mIfrnametx =
-                static_cast<char *>(calloc(strlen(from->mIfrnametx) + 1, sizeof(char)));
+            (*into)->mIfrnametx = static_cast<char *>(calloc(strlen(from->mIfrnametx) + 1, sizeof(char)));
             strcpy((*into)->mIfrnametx, from->mIfrnametx);
         }
         if (from->mIsochronousStr != NULL) {
@@ -488,8 +486,7 @@ void Settings_Copy(struct thread_Settings *from, struct thread_Settings **into, 
 #if defined(HAVE_LINUX_FILTER_H) && defined(HAVE_AF_PACKET)
     (*into)->mSockDrop = INVALID_SOCKET;
 #endif
-    int mbuflen = (from->mBufLen > MINMBUFALLOCSIZE) ? from->mBufLen
-                                                     : MINMBUFALLOCSIZE;  // defined in payloads.h
+    int mbuflen = (from->mBufLen > MINMBUFALLOCSIZE) ? from->mBufLen : MINMBUFALLOCSIZE;  // defined in payloads.h
 #if (((HAVE_TUNTAP_TUN) || (HAVE_TUNTAP_TAP)) && (AF_PACKET))
     mbuflen += TAPBYTESSLOP;
 #endif
@@ -694,8 +691,7 @@ void Settings_Interpret(char option, const char *optarg, struct thread_Settings 
                     exit(1);
                 }
                 if (itime > (UINT_MAX / 1e6)) {
-                    fprintf(stderr, "Too large value of '%s' for -i interval, max is %f\n", optarg,
-                            (UINT_MAX / 1e6));
+                    fprintf(stderr, "Too large value of '%s' for -i interval, max is %f\n", optarg, (UINT_MAX / 1e6));
                     exit(1);
                 }
                 mExtSettings->mInterval = static_cast<unsigned int>(ceil(itime * 1e6));
@@ -885,8 +881,7 @@ void Settings_Interpret(char option, const char *optarg, struct thread_Settings 
                    // messaging
             setCompat(mExtSettings);
             if (mExtSettings->mMode != kTest_Normal) {
-                fprintf(stderr, warn_invalid_compatibility_option,
-                        (mExtSettings->mMode == kTest_DualTest ? 'd' : 'r'));
+                fprintf(stderr, warn_invalid_compatibility_option, (mExtSettings->mMode == kTest_DualTest ? 'd' : 'r'));
                 mExtSettings->mMode = kTest_Normal;
             }
             break;
@@ -1201,8 +1196,7 @@ void Settings_Interpret(char option, const char *optarg, struct thread_Settings 
 #endif
                 if (val > 0.0) {
                     if (val > (UINT_MAX / 1e6)) {
-                        fprintf(stderr, "Too large value of '%s' for --omit, max is %f\n", optarg,
-                                (UINT_MAX / 1e6));
+                        fprintf(stderr, "Too large value of '%s' for --omit, max is %f\n", optarg, (UINT_MAX / 1e6));
                         exit(1);
                     }
                     if (val < (1e-6)) {
@@ -1213,8 +1207,7 @@ void Settings_Interpret(char option, const char *optarg, struct thread_Settings 
                         exit(1);
                     }
                     setOmit(mExtSettings);
-                    mExtSettings->mOmitAmount =
-                        static_cast<unsigned int>(val * 1000000);  // units usecs
+                    mExtSettings->mOmitAmount = static_cast<unsigned int>(val * 1000000);  // units usecs
                 } else {
                     mExtSettings->mOmitAmount = 0;
                 }
@@ -1295,8 +1288,7 @@ void Settings_Interpret(char option, const char *optarg, struct thread_Settings 
             if (fqratestep) {
                 fqratestep = 0;
                 setFQPacingStep(mExtSettings);
-                mExtSettings->mFQPacingRateStep =
-                    static_cast<uintmax_t>(bitorbyte_atoi(optarg) / 8);
+                mExtSettings->mFQPacingRateStep = static_cast<uintmax_t>(bitorbyte_atoi(optarg) / 8);
                 setEnhanced(mExtSettings);
             }
             if (fqratestepinterval) {
@@ -1474,8 +1466,7 @@ void Settings_Interpret(char option, const char *optarg, struct thread_Settings 
                 Timestamp holdbackdelay;
                 double delay = strtof(optarg, &end);
                 if (*end != '\0') {
-                    fprintf(stderr, "Invalid value of '%s' for --bounceback-txdelay time\n",
-                            optarg);
+                    fprintf(stderr, "Invalid value of '%s' for --bounceback-txdelay time\n", optarg);
                 } else {
                     holdbackdelay.set(delay);
                     mExtSettings->txholdback_timer.tv_sec = holdbackdelay.getSecs();
@@ -1522,8 +1513,7 @@ void Settings_Interpret(char option, const char *optarg, struct thread_Settings 
                 tapif = 0;
 #if HAVE_TUNTAP_TAP
                 if (optarg) {
-                    mExtSettings->mIfrname =
-                        static_cast<char *>(calloc(strlen(optarg) + 1, sizeof(char)));
+                    mExtSettings->mIfrname = static_cast<char *>(calloc(strlen(optarg) + 1, sizeof(char)));
                     strcpy(mExtSettings->mIfrname, optarg);
                 }
                 setTapDev(mExtSettings);
@@ -1540,8 +1530,7 @@ void Settings_Interpret(char option, const char *optarg, struct thread_Settings 
                 exit(1);
 #if HAVE_TUNTAP_TUN
                 if (optarg) {
-                    mExtSettings->mIfrname =
-                        static_cast<char *>(calloc(strlen(optarg) + 1, sizeof(char)));
+                    mExtSettings->mIfrname = static_cast<char *>(calloc(strlen(optarg) + 1, sizeof(char)));
                     strcpy(mExtSettings->mIfrname, optarg);
                 }
                 setTunDev(mExtSettings);
@@ -1646,8 +1635,7 @@ static void generate_permit_key(struct thread_Settings *mExtSettings) {
     mExtSettings->mPermitKeyTime.tv_sec = now.getSecs();
     mExtSettings->mPermitKeyTime.tv_usec = now.getUsecs();
     int usecs = mExtSettings->mPermitKeyTime.tv_usec;
-    int timestrlength = snprintf(NULL, 0, "%ld.%06d-",
-                                 static_cast<long>(mExtSettings->mPermitKeyTime.tv_sec), usecs);
+    int timestrlength = snprintf(NULL, 0, "%ld.%06d-", static_cast<long>(mExtSettings->mPermitKeyTime.tv_sec), usecs);
     snprintf(mExtSettings->mPermitKey, (timestrlength + 1), "%ld.%06d-",
              static_cast<long>(mExtSettings->mPermitKeyTime.tv_sec), usecs);
     srand(static_cast<unsigned int>(time(NULL)));
@@ -1730,8 +1718,8 @@ void Settings_ModalOptions(struct thread_Settings *mExtSettings) {
     }
     if (!mExtSettings->mPortLast) mExtSettings->mPortLast = mExtSettings->mPort;
 
-    if (isTripTime(mExtSettings) && (isReverse(mExtSettings) || isFullDuplex(mExtSettings) ||
-                                     (mExtSettings->mMode != kTest_Normal))) {
+    if (isTripTime(mExtSettings) &&
+        (isReverse(mExtSettings) || isFullDuplex(mExtSettings) || (mExtSettings->mMode != kTest_Normal))) {
         setEnhanced(mExtSettings);
     }
 
@@ -1749,32 +1737,25 @@ void Settings_ModalOptions(struct thread_Settings *mExtSettings) {
         // write() rate limiting)
         if (isUDP(mExtSettings)) {
             if (!isBWSet(mExtSettings)) {
-                if ((static_cast<int>(mExtSettings->mBurstSize) == 0) &&
-                    !isPeriodicBurst(mExtSettings)) {
+                if ((static_cast<int>(mExtSettings->mBurstSize) == 0) && !isPeriodicBurst(mExtSettings)) {
                     mExtSettings->mAppRate = kDefault_UDPRate;
-                } else if ((static_cast<int>(mExtSettings->mBurstSize) == 0) &&
-                           isPeriodicBurst(mExtSettings)) {
+                } else if ((static_cast<int>(mExtSettings->mBurstSize) == 0) && isPeriodicBurst(mExtSettings)) {
                     mExtSettings->mBurstSize = byte_atoi("1M");  // default to 1 Mbyte
                     setBurstSize(mExtSettings);
-                } else if ((static_cast<int>(mExtSettings->mBurstSize) != 0) &&
-                           !isPeriodicBurst(mExtSettings)) {
+                } else if ((static_cast<int>(mExtSettings->mBurstSize) != 0) && !isPeriodicBurst(mExtSettings)) {
                     mExtSettings->mFPS = 1.0;
                     setPeriodicBurst(mExtSettings);
                 }
             } else {
                 if ((mExtSettings->mAppRateUnits == kRate_PPS) &&
-                    ((static_cast<int>(mExtSettings->mBurstSize) != 0) ||
-                     isPeriodicBurst(mExtSettings))) {
+                    ((static_cast<int>(mExtSettings->mBurstSize) != 0) || isPeriodicBurst(mExtSettings))) {
                     mExtSettings->mAppRateUnits = kRate_BW;
                     mExtSettings->mAppRate = mExtSettings->mAppRate * mExtSettings->mBufLen * 8;
                 }
-                if ((static_cast<int>(mExtSettings->mBurstSize) == 0) &&
-                    isPeriodicBurst(mExtSettings)) {
-                    mExtSettings->mBurstSize =
-                        static_cast<uint32_t>((mExtSettings->mAppRate / 8) / mExtSettings->mFPS);
+                if ((static_cast<int>(mExtSettings->mBurstSize) == 0) && isPeriodicBurst(mExtSettings)) {
+                    mExtSettings->mBurstSize = static_cast<uint32_t>((mExtSettings->mAppRate / 8) / mExtSettings->mFPS);
                     setBurstSize(mExtSettings);
-                } else if ((static_cast<int>(mExtSettings->mBurstSize) != 0) &&
-                           !isPeriodicBurst(mExtSettings)) {
+                } else if ((static_cast<int>(mExtSettings->mBurstSize) != 0) && !isPeriodicBurst(mExtSettings)) {
                     mExtSettings->mFPS = (static_cast<double>(mExtSettings->mAppRate / 8) /
                                           static_cast<double>(mExtSettings->mBurstSize));
                     setPeriodicBurst(mExtSettings);
@@ -1796,10 +1777,9 @@ void Settings_ModalOptions(struct thread_Settings *mExtSettings) {
     // Bail outs
     bool bail = false;
     // compat mode doesn't support these test settings
-    int compat_nosupport =
-        (isReverse(mExtSettings) | isFullDuplex(mExtSettings) | isTripTime(mExtSettings) |
-         isVaryLoad(mExtSettings) | isHistogram(mExtSettings) | isIsochronous(mExtSettings) |
-         isEnhanced(mExtSettings) | (mExtSettings->mMode != kTest_Normal));
+    int compat_nosupport = (isReverse(mExtSettings) | isFullDuplex(mExtSettings) | isTripTime(mExtSettings) |
+                            isVaryLoad(mExtSettings) | isHistogram(mExtSettings) | isIsochronous(mExtSettings) |
+                            isEnhanced(mExtSettings) | (mExtSettings->mMode != kTest_Normal));
     if (isCompat(mExtSettings) && compat_nosupport) {
         fprintf(stderr,
                 "ERROR: compatibility mode not supported with the requested with "
@@ -1912,23 +1892,20 @@ void Settings_ModalOptions(struct thread_Settings *mExtSettings) {
                     struct timeval t;
                     t.tv_sec = now.getSecs();
                     t.tv_usec = now.getUsecs();
-                    iperf_formattime(timestr, sizeof(timestr), t,
-                                     (isEnhanced(mExtSettings) ? Milliseconds : Seconds),
+                    iperf_formattime(timestr, sizeof(timestr), t, (isEnhanced(mExtSettings) ? Milliseconds : Seconds),
                                      isUTC(mExtSettings), YearThruSecTZ);
                     printf(error_starttime_exceeds, mExtSettings->txstart_epoch.tv_sec,
                            mExtSettings->txstart_epoch.tv_usec, timestr, MAXDIFFTXSTART);
                     bail = true;
                 }
             } else if (mExtSettings->txholdback_timer.tv_sec > MAXDIFFTXDELAY) {
-                printf(error_delaytime_exceeds, mExtSettings->txholdback_timer.tv_sec,
-                       MAXDIFFTXDELAY);
+                printf(error_delaytime_exceeds, mExtSettings->txholdback_timer.tv_sec, MAXDIFFTXDELAY);
                 bail = true;
             }
         }
         if (isTripTime(mExtSettings)) {
-            int minsize =
-                static_cast<int>(isUDP(mExtSettings) ? (sizeof(struct UDP_datagram))
-                                                     : (sizeof(struct TCP_burst_payload)));
+            int minsize = static_cast<int>(isUDP(mExtSettings) ? (sizeof(struct UDP_datagram))
+                                                               : (sizeof(struct TCP_burst_payload)));
             if (mExtSettings->mBufLen < minsize) {
                 fprintf(stderr,
                         "ERROR: payload (-l) size of %d too small for "
@@ -2111,21 +2088,18 @@ void Settings_ModalOptions(struct thread_Settings *mExtSettings) {
             {
                 double delay_target;
                 if (isIPG(mExtSettings)) {
-                    delay_target = ((mExtSettings->mBurstIPG > 0)
-                                        ? mExtSettings->mBurstIPG * 1e3
-                                        : 0);  // convert from microseconds to nanoseconds
+                    delay_target = ((mExtSettings->mBurstIPG > 0) ? mExtSettings->mBurstIPG * 1e3
+                                                                  : 0);  // convert from microseconds to nanoseconds
                 } else {
                     // compute delay target in units of nanoseconds
                     if (mExtSettings->mAppRateUnits == kRate_BW) {
                         // compute delay for bandwidth restriction, constrained
                         // to [0,max] seconds
                         delay_target =
-                            ((mExtSettings->mAppRate > 0)
-                                 ? ((mExtSettings->mBufLen * 8e9) / mExtSettings->mAppRate)
-                                 : 0);
+                            ((mExtSettings->mAppRate > 0) ? ((mExtSettings->mBufLen * 8e9) / mExtSettings->mAppRate)
+                                                          : 0);
                     } else {
-                        delay_target =
-                            ((mExtSettings->mAppRate > 0) ? (1e9 / mExtSettings->mAppRate) : 0);
+                        delay_target = ((mExtSettings->mAppRate > 0) ? (1e9 / mExtSettings->mAppRate) : 0);
                     }
                 }
                 if (delay_target < 0 || delay_target > MAXIPGSECS * 1e9) {
@@ -2191,8 +2165,7 @@ void Settings_ModalOptions(struct thread_Settings *mExtSettings) {
                 fprintf(stderr, "ERROR: units of pps not supported with TCP\n");
                 bail = true;
             }
-            if (!isUDP(mExtSettings) && isUDPL4S(mExtSettings) &&
-                (mExtSettings->mThreadMode == kMode_Client)) {
+            if (!isUDP(mExtSettings) && isUDPL4S(mExtSettings) && (mExtSettings->mThreadMode == kMode_Client)) {
                 fprintf(stderr, "ERROR: UDP L4S not supported with TCP\n");
                 bail = true;
             }
@@ -2232,8 +2205,7 @@ void Settings_ModalOptions(struct thread_Settings *mExtSettings) {
         }
     } else {
         if (mExtSettings->mPortLast && (!(mExtSettings->mPortLast >= mExtSettings->mPort))) {
-            fprintf(stderr, "ERROR: invalid port range of %d-%d\n", mExtSettings->mPort,
-                    mExtSettings->mPortLast);
+            fprintf(stderr, "ERROR: invalid port range of %d-%d\n", mExtSettings->mPort, mExtSettings->mPortLast);
             bail = true;
         }
         if (isPermitKey(mExtSettings)) {
@@ -2455,8 +2427,7 @@ void Settings_ModalOptions(struct thread_Settings *mExtSettings) {
             }
         }
     } else {
-        if (mExtSettings->mBurstSize &&
-            (static_cast<int>(mExtSettings->mBurstSize) < mExtSettings->mBufLen)) {
+        if (mExtSettings->mBurstSize && (static_cast<int>(mExtSettings->mBurstSize) < mExtSettings->mBufLen)) {
             fprintf(stderr,
                     "WARN: Setting --burst-size to %d because value given is "
                     "smaller "
@@ -2518,8 +2489,7 @@ void Settings_ModalOptions(struct thread_Settings *mExtSettings) {
     // full addresses look like 192.168.1.1:6001%eth0 or
     // [2001:e30:1401:2:d46e:b891:3082:b939]:6001%eth0 Parse -B addresses
     if (mExtSettings->mLocalhost) {
-        if (((results = strtok(mExtSettings->mLocalhost, "%")) != NULL) &&
-            ((results = strtok(NULL, "%")) != NULL)) {
+        if (((results = strtok(mExtSettings->mLocalhost, "%")) != NULL) && ((results = strtok(NULL, "%")) != NULL)) {
             mExtSettings->mIfrname = static_cast<char *>(calloc(strlen(results) + 1, sizeof(char)));
             strcpy(mExtSettings->mIfrname, results);
             if (mExtSettings->mThreadMode == kMode_Client) {
@@ -2557,9 +2527,8 @@ void Settings_ModalOptions(struct thread_Settings *mExtSettings) {
             } else {
                 setMulticast(mExtSettings);
                 if (isSSMMulticast(mExtSettings)) {
-                    SockAddr_setHostname(
-                        mExtSettings->mSSMMulticastStr, &mExtSettings->multicast_group_source,
-                        &mExtSettings->size_multicast_group, (isIPV6(mExtSettings) ? 1 : 0));
+                    SockAddr_setHostname(mExtSettings->mSSMMulticastStr, &mExtSettings->multicast_group_source,
+                                         &mExtSettings->size_multicast_group, (isIPV6(mExtSettings) ? 1 : 0));
                     if (SockAddr_isMulticast(&mExtSettings->multicast_group_source)) {
                         fprintf(stderr,
                                 "WARNING: SSM host src address (-H or "
@@ -2597,8 +2566,7 @@ void Settings_ModalOptions(struct thread_Settings *mExtSettings) {
         if (!mExtSettings->mThreads) mExtSettings->mThreads = 1;
 
         mExtSettings->mIfrnametx = NULL;  // default off SO_BINDTODEVICE
-        if (((results = strtok(mExtSettings->mHost, "%")) != NULL) &&
-            ((results = strtok(NULL, "%")) != NULL)) {
+        if (((results = strtok(mExtSettings->mHost, "%")) != NULL) && ((results = strtok(NULL, "%")) != NULL)) {
             size_t len = strlen(results) + 1;
             mExtSettings->mIfrnametx = static_cast<char *>(calloc(len, sizeof(char)));
             strncpy(mExtSettings->mIfrnametx, results, len);
@@ -2630,8 +2598,7 @@ void Settings_ModalOptions(struct thread_Settings *mExtSettings) {
         }
         if (SockAddr_isMulticast(&mExtSettings->peer)) {
             bail = false;
-            if (isFullDuplex(mExtSettings) || isReverse(mExtSettings) ||
-                (mExtSettings->mMode != kTest_Normal)) {
+            if (isFullDuplex(mExtSettings) || isReverse(mExtSettings) || (mExtSettings->mMode != kTest_Normal)) {
                 fprintf(stderr,
                         "ERROR: options of --full-duplex, --reverse, -d and -r not "
                         "supported with "
@@ -2665,16 +2632,14 @@ void Settings_GetUpperCaseArg(const char *inarg, char *outarg) {
     int len = strlen(inarg);
     strcpy(outarg, inarg);
 
-    if ((len > 0) && (inarg[len - 1] >= 'a') && (inarg[len - 1] <= 'z'))
-        outarg[len - 1] = outarg[len - 1] + 'A' - 'a';
+    if ((len > 0) && (inarg[len - 1] >= 'a') && (inarg[len - 1] <= 'z')) outarg[len - 1] = outarg[len - 1] + 'A' - 'a';
 }
 
 void Settings_GetLowerCaseArg(const char *inarg, char *outarg) {
     int len = strlen(inarg);
     strcpy(outarg, inarg);
 
-    if ((len > 0) && (inarg[len - 1] >= 'A') && (inarg[len - 1] <= 'Z'))
-        outarg[len - 1] = outarg[len - 1] - 'A' + 'a';
+    if ((len > 0) && (inarg[len - 1] >= 'A') && (inarg[len - 1] <= 'Z')) outarg[len - 1] = outarg[len - 1] - 'A' + 'a';
 }
 
 /*
@@ -2686,8 +2651,7 @@ void Settings_GetLowerCaseArg(const char *inarg, char *outarg) {
  * for client side execution
  */
 #define DUALTIMER_MS 300
-void Settings_GenerateListenerSettings(struct thread_Settings *client,
-                                       struct thread_Settings **listener) {
+void Settings_GenerateListenerSettings(struct thread_Settings *client, struct thread_Settings **listener) {
     if ((client->mMode == kTest_DualTest) || (client->mMode == kTest_TradeOff)) {
         Settings_Copy(client, listener, SHALLOW_COPY);
         unsetDaemon((*listener));
@@ -2734,8 +2698,7 @@ void Settings_GenerateListenerSettings(struct thread_Settings *client,
     }
 }
 
-void Settings_ReadClientSettingsIsoch(struct thread_Settings **client,
-                                      struct client_hdrext_isoch_settings *hdr) {
+void Settings_ReadClientSettingsIsoch(struct thread_Settings **client, struct client_hdrext_isoch_settings *hdr) {
     (*client)->mFPS = ntohl(hdr->FPSl);
     (*client)->mFPS += ntohl(hdr->FPSu) / static_cast<double>(rMillion);
     (*client)->mMean = ntohl(hdr->Meanl);
@@ -2746,8 +2709,7 @@ void Settings_ReadClientSettingsIsoch(struct thread_Settings **client,
     (*client)->mBurstIPG += ntohl(hdr->BurstIPGu) / static_cast<double>(rMillion);
 }
 
-void Settings_ReadClientSettingsBurst(struct thread_Settings **client,
-                                      struct client_hdrext_isoch_settings *hdr) {
+void Settings_ReadClientSettingsBurst(struct thread_Settings **client, struct client_hdrext_isoch_settings *hdr) {
     (*client)->mFPS = ntohl(hdr->FPSl);
     (*client)->mFPS += ntohl(hdr->FPSu) / static_cast<double>(rMillion);
 }
@@ -2789,13 +2751,11 @@ void Settings_ReadClientSettingsV1(struct thread_Settings **client, struct clien
  * Note: mBuf should already be filled out per the Listener's
  * apply_client_settings
  */
-void Settings_GenerateClientSettings(struct thread_Settings *server,
-                                     struct thread_Settings **client, void *mBuf) {
+void Settings_GenerateClientSettings(struct thread_Settings *server, struct thread_Settings **client, void *mBuf) {
     assert(server != NULL);
     assert(mBuf != NULL);
-    uint32_t flags = isUDP(server)
-                         ? ntohl(*(uint32_t *)((char *)mBuf + sizeof(struct UDP_datagram)))
-                         : ntohl(*(uint32_t *)mBuf);
+    uint32_t flags =
+        isUDP(server) ? ntohl(*(uint32_t *)((char *)mBuf + sizeof(struct UDP_datagram))) : ntohl(*(uint32_t *)mBuf);
     uint16_t upperflags = 0;
     uint16_t lowerflags = 0;
     thread_Settings *reversed_thread = NULL;
@@ -2849,8 +2809,7 @@ void Settings_GenerateClientSettings(struct thread_Settings *server,
         if (flags & HEADER_EXTEND) {
             reversed_thread->mAppRate = ntohl(hdr->extend.lRate);
 #ifdef HAVE_INT64_T
-            reversed_thread->mAppRate |=
-                (static_cast<uint64_t>(ntohl(hdr->extend.uRate) >> 8) << 32);
+            reversed_thread->mAppRate |= (static_cast<uint64_t>(ntohl(hdr->extend.uRate) >> 8) << 32);
 #endif
             upperflags = ntohs(hdr->extend.upperflags);
             if (upperflags & HEADER_NOUDPFIN) {
@@ -2869,8 +2828,7 @@ void Settings_GenerateClientSettings(struct thread_Settings *server,
                 setFQPacing(reversed_thread);
                 reversed_thread->mFQPacingRate = ntohl(hdr->start_fq.fqratel);
 #ifdef HAVE_INT64_T
-                reversed_thread->mFQPacingRate |=
-                    (static_cast<uint64_t>(ntohl(hdr->start_fq.fqrateu)) << 32);
+                reversed_thread->mFQPacingRate |= (static_cast<uint64_t>(ntohl(hdr->start_fq.fqrateu)) << 32);
 #endif
             }
             lowerflags = ntohs(hdr->extend.lowerflags);
@@ -2896,8 +2854,7 @@ void Settings_GenerateClientSettings(struct thread_Settings *server,
         if (flags & HEADER_EXTEND) {
             reversed_thread->mAppRate = ntohl(hdr->extend.lRate);
 #ifdef HAVE_INT64_T
-            reversed_thread->mAppRate |=
-                (static_cast<uint64_t>(ntohl(hdr->extend.uRate) >> 8) << 32);
+            reversed_thread->mAppRate |= (static_cast<uint64_t>(ntohl(hdr->extend.uRate) >> 8) << 32);
 #endif
             upperflags = ntohs(hdr->extend.upperflags);
             reversed_thread->mTOS = ntohs(hdr->extend.tos);
@@ -2911,8 +2868,7 @@ void Settings_GenerateClientSettings(struct thread_Settings *server,
                 setFQPacing(reversed_thread);
                 reversed_thread->mFQPacingRate = ntohl(hdr->start_fq.fqratel);
 #ifdef HAVE_INT64_T
-                reversed_thread->mFQPacingRate |=
-                    (static_cast<uint64_t>(ntohl(hdr->start_fq.fqrateu)) << 32);
+                reversed_thread->mFQPacingRate |= (static_cast<uint64_t>(ntohl(hdr->start_fq.fqrateu)) << 32);
 #endif
             }
         }
@@ -2924,22 +2880,21 @@ void Settings_GenerateClientSettings(struct thread_Settings *server,
     if (v1test) {
         reversed_thread->mHost = new char[REPORT_ADDRLEN];
         if ((reinterpret_cast<sockaddr *>(&server->peer))->sa_family == AF_INET) {
-            inet_ntop(AF_INET, &(reinterpret_cast<sockaddr_in *>(&server->peer))->sin_addr,
-                      reversed_thread->mHost, REPORT_ADDRLEN);
+            inet_ntop(AF_INET, &(reinterpret_cast<sockaddr_in *>(&server->peer))->sin_addr, reversed_thread->mHost,
+                      REPORT_ADDRLEN);
         }
 #if HAVE_IPV6
         else {
-            inet_ntop(AF_INET6, &(reinterpret_cast<sockaddr_in6 *>(&server->peer))->sin6_addr,
-                      reversed_thread->mHost, REPORT_ADDRLEN);
+            inet_ntop(AF_INET6, &(reinterpret_cast<sockaddr_in6 *>(&server->peer))->sin6_addr, reversed_thread->mHost,
+                      REPORT_ADDRLEN);
         }
 #endif
     } else {
         reversed_thread->mMode = kTest_Normal;
 #if HAVE_DECL_SO_MAX_PACING_RATE
         if (isFQPacing(reversed_thread)) {
-            int rc =
-                setsockopt(reversed_thread->mSock, SOL_SOCKET, SO_MAX_PACING_RATE,
-                           &reversed_thread->mFQPacingRate, sizeof(reversed_thread->mFQPacingRate));
+            int rc = setsockopt(reversed_thread->mSock, SOL_SOCKET, SO_MAX_PACING_RATE, &reversed_thread->mFQPacingRate,
+                                sizeof(reversed_thread->mFQPacingRate));
             WARN_errno(rc == SOCKET_ERROR, "setsockopt SO_MAX_PACING_RATE");
 #ifdef HAVE_THREAD_DEBUG
 #ifdef HAVE_INT64_T
@@ -2955,8 +2910,7 @@ void Settings_GenerateClientSettings(struct thread_Settings *server,
     }
 }
 
-int Settings_GenerateClientHdrV1(struct thread_Settings *client, struct client_hdr_v1 *hdr,
-                                 uint32_t *flags) {
+int Settings_GenerateClientHdrV1(struct thread_Settings *client, struct client_hdr_v1 *hdr, uint32_t *flags) {
     if (isBuflenSet(client)) {
         hdr->mBufLen = htonl(client->mBufLen);
     } else {
@@ -2972,8 +2926,7 @@ int Settings_GenerateClientHdrV1(struct thread_Settings *client, struct client_h
             fprintf(stderr, "WARN: num threads too large for --sync-transfer-id\n");
         } else {
             uint32_t tidthreads =
-                (HEADER_HASTRANSFERID |
-                 ((client->mTransferID << HEADER_TRANSFERIDSHIFT) & HEADER_TRANSFERIDMASK) |
+                (HEADER_HASTRANSFERID | ((client->mTransferID << HEADER_TRANSFERIDSHIFT) & HEADER_TRANSFERIDMASK) |
                  client->mThreads);
             hdr->numThreads = htonl(tidthreads);
         }
@@ -3004,8 +2957,7 @@ int Settings_GenerateClientHdrV1(struct thread_Settings *client, struct client_h
  *
  * Returns size of header in bytes
  */
-int Settings_GenerateClientHdr(struct thread_Settings *client, void *testhdr,
-                               struct timeval startTime) {
+int Settings_GenerateClientHdr(struct thread_Settings *client, void *testhdr, struct timeval startTime) {
     uint16_t len = 0;
     uint16_t upperflags = 0;
     uint16_t lowerflags = 0;
@@ -3016,8 +2968,7 @@ int Settings_GenerateClientHdr(struct thread_Settings *client, void *testhdr,
         int buflen = (client->mBufLen < (int)sizeof(struct client_udpsmall_testhdr))
                          ? client->mBufLen
                          : sizeof(struct client_udpsmall_testhdr);
-        struct client_udpsmall_testhdr *hdr =
-            static_cast<struct client_udpsmall_testhdr *>(testhdr);
+        struct client_udpsmall_testhdr *hdr = static_cast<struct client_udpsmall_testhdr *>(testhdr);
         memset(hdr, 0, buflen);
         hdr->flags = htons(HEADER16_SMALL_TRIPTIMES);
         if (isTxStartTime(client) && !TimeZero(startTime)) {
@@ -3049,9 +3000,8 @@ int Settings_GenerateClientHdr(struct thread_Settings *client, void *testhdr,
     if (isUDP(client)) {  // UDP test information passed in every packet per
                           // being stateless
         struct client_udp_testhdr *hdr = static_cast<struct client_udp_testhdr *>(testhdr);
-        int buflen = (client->mBufLen < (int)sizeof(struct client_udp_testhdr))
-                         ? client->mBufLen
-                         : sizeof(struct client_udp_testhdr);
+        int buflen = (client->mBufLen < (int)sizeof(struct client_udp_testhdr)) ? client->mBufLen
+                                                                                : sizeof(struct client_udp_testhdr);
         memset(hdr, 0, buflen);
         flags |= HEADER_SEQNO64B;  // use 64 bit by default
         flags |= HEADER_EXTEND;
@@ -3093,11 +3043,9 @@ int Settings_GenerateClientHdr(struct thread_Settings *client, void *testhdr,
             if (isFullDuplex(client) || isReverse(client)) {
                 upperflags |= HEADER_ISOCH_SETTINGS;
                 hdr->isoch_settings.FPSl = htonl((long)(client->mFPS));
-                hdr->isoch_settings.FPSu =
-                    htonl((long)((client->mFPS - (long)(client->mFPS)) * rMillion));
+                hdr->isoch_settings.FPSu = htonl((long)((client->mFPS - (long)(client->mFPS)) * rMillion));
                 hdr->isoch_settings.Meanl = htonl((long)(client->mMean));
-                hdr->isoch_settings.Meanu =
-                    htonl((long)(((client->mMean) - (long)(client->mMean)) * rMillion));
+                hdr->isoch_settings.Meanu = htonl((long)(((client->mMean) - (long)(client->mMean)) * rMillion));
                 hdr->isoch_settings.Variancel = htonl((long)(client->mVariance));
                 hdr->isoch_settings.Varianceu =
                     htonl((long)((client->mVariance - (long)(client->mVariance)) * rMillion));
@@ -3141,8 +3089,7 @@ int Settings_GenerateClientHdr(struct thread_Settings *client, void *testhdr,
         // isoch payload is an enclave field between v 0.13 and v0.14
         // so figure out if it's there now - UDP only
         // will be filled in by the client write
-        if (isTripTime(client) || isFQPacing(client) || isIsochronous(client))
-            len += sizeof(struct isoch_payload);
+        if (isTripTime(client) || isFQPacing(client) || isIsochronous(client)) len += sizeof(struct isoch_payload);
 
         if (len > 0) {
             len += sizeof(struct UDP_datagram);
@@ -3158,16 +3105,14 @@ int Settings_GenerateClientHdr(struct thread_Settings *client, void *testhdr,
     } else {  // TCP first write with test information
         struct client_tcp_testhdr *hdr = static_cast<struct client_tcp_testhdr *>(testhdr);
 #ifdef HAVE_THREAD_DEBUG
-        thread_debug("Client header init size %d (%p)", sizeof(struct client_tcp_testhdr),
-                     (void *)hdr);
+        thread_debug("Client header init size %d (%p)", sizeof(struct client_tcp_testhdr), (void *)hdr);
 #endif
         if (isBounceBack(client)) {
             flags = HEADER_BOUNCEBACK;
             len = sizeof(struct bounceback_hdr);
         } else {
-            int buflen = (client->mBufLen < (int)sizeof(struct client_tcp_testhdr))
-                             ? client->mBufLen
-                             : sizeof(struct client_tcp_testhdr);
+            int buflen = (client->mBufLen < (int)sizeof(struct client_tcp_testhdr)) ? client->mBufLen
+                                                                                    : sizeof(struct client_tcp_testhdr);
             memset(hdr, 0, buflen);
             flags |= HEADER_EXTEND;
             hdr->extend.version_u = htonl(IPERF_VERSION_MAJORHEX);
@@ -3184,8 +3129,8 @@ int Settings_GenerateClientHdr(struct thread_Settings *client, void *testhdr,
             if (isPeerVerDetect(client)) {
                 flags |= (HEADER_V2PEERDETECT | HEADER_VERSION2);
             }
-            if (isTripTime(client) || isFQPacing(client) || isIsochronous(client) ||
-                isTxStartTime(client) || isLoadCCA(client) || isCongestionControl(client)) {
+            if (isTripTime(client) || isFQPacing(client) || isIsochronous(client) || isTxStartTime(client) ||
+                isLoadCCA(client) || isCongestionControl(client)) {
                 hdr->start_fq.start_tv_sec = htonl(startTime.tv_sec);
                 hdr->start_fq.start_tv_usec = htonl(startTime.tv_usec);
                 hdr->start_fq.fqratel = htonl((uint32_t)client->mFQPacingRate);
@@ -3224,15 +3169,13 @@ int Settings_GenerateClientHdr(struct thread_Settings *client, void *testhdr,
                 }
                 if (isFullDuplex(client) || isReverse(client) || isPeriodicBurst(client)) {
                     hdr->isoch_settings.FPSl = htonl((long)client->mFPS);
-                    hdr->isoch_settings.FPSu =
-                        htonl((long)((client->mFPS - (long)(client->mFPS)) * rMillion));
+                    hdr->isoch_settings.FPSu = htonl((long)((client->mFPS - (long)(client->mFPS)) * rMillion));
                     hdr->isoch_settings.Variancel = htonl((long)(client->mVariance));
                     hdr->isoch_settings.Varianceu =
                         htonl((long)((client->mVariance - (long)(client->mVariance)) * rMillion));
                     if (!isPeriodicBurst(client)) {
                         hdr->isoch_settings.Meanl = htonl((long)(client->mMean));
-                        hdr->isoch_settings.Meanu =
-                            htonl((long)(((client->mMean) - (long)(client->mMean)) * rMillion));
+                        hdr->isoch_settings.Meanu = htonl((long)(((client->mMean) - (long)(client->mMean)) * rMillion));
                         hdr->isoch_settings.BurstIPGl = htonl((long)client->mBurstIPG);
                         hdr->isoch_settings.BurstIPGu =
                             htonl(((long)(client->mBurstIPG) - (long)client->mBurstIPG * rMillion));
@@ -3254,8 +3197,7 @@ int Settings_GenerateClientHdr(struct thread_Settings *client, void *testhdr,
                     len += sizeof(uint16_t) + lenfield;
                 }
             } else if (isCongestionControl(client)) {
-                uint16_t lenfield =
-                    ((client->mCongestion != NULL) ? (strlen(client->mCongestion)) : 0);
+                uint16_t lenfield = ((client->mCongestion != NULL) ? (strlen(client->mCongestion)) : 0);
                 if (lenfield > 0) {
                     hdr->cca.cca_length = htons(lenfield);
                     lowerflags |= HEADER_CCA;
@@ -3271,8 +3213,7 @@ int Settings_GenerateClientHdr(struct thread_Settings *client, void *testhdr,
             if (len > 0) {
                 flags |= HEADER_LEN_BIT;
                 int keylen = 0;
-                if (!isServerReverse(client) && isPermitKey(client) &&
-                    (client->mPermitKey[0] != '\0')) {
+                if (!isServerReverse(client) && isPermitKey(client) && (client->mPermitKey[0] != '\0')) {
                     keylen = static_cast<int>(strnlen(client->mPermitKey, MAX_PERMITKEY_LEN));
                     flags |= HEADER_KEYCHECK;
                     struct permitKey *thiskey =
@@ -3293,8 +3234,7 @@ int Settings_GenerateClientHdr(struct thread_Settings *client, void *testhdr,
 
 int Settings_ClientTestHdrLen(uint32_t flags, struct thread_Settings *inSettings) {
     int peeklen = 0;
-    if ((flags & HEADER_VERSION1) || (flags & HEADER_VERSION2) || (flags & HEADER_EXTEND) ||
-        isPermitKey(inSettings)) {
+    if ((flags & HEADER_VERSION1) || (flags & HEADER_VERSION2) || (flags & HEADER_EXTEND) || isPermitKey(inSettings)) {
         if (flags & HEADER_LEN_BIT) {
             peeklen = static_cast<int>((flags & HEADER_LEN_MASK) >> 1);
             if (peeklen > MAX_HEADER_LEN) {

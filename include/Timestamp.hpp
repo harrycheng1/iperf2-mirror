@@ -141,17 +141,14 @@ class Timestamp {
      * return the difference in microseconds.
      * ------------------------------------------------------------------- */
     long subUsec(Timestamp right) {
-        return (mTime.tv_sec - right.mTime.tv_sec) * kMillion +
-               (mTime.tv_usec - right.mTime.tv_usec);
+        return (mTime.tv_sec - right.mTime.tv_sec) * kMillion + (mTime.tv_usec - right.mTime.tv_usec);
     }
 
     /* -------------------------------------------------------------------
      * subtract the right timestamp from my timestamp.
      * return the difference in microseconds.
      * ------------------------------------------------------------------- */
-    long subUsec(timeval right) {
-        return (mTime.tv_sec - right.tv_sec) * kMillion + (mTime.tv_usec - right.tv_usec);
-    }
+    long subUsec(timeval right) { return (mTime.tv_sec - right.tv_sec) * kMillion + (mTime.tv_usec - right.tv_usec); }
 
     /* -------------------------------------------------------------------
      * Return the number of microseconds from now to last time of setting.
@@ -167,8 +164,7 @@ class Timestamp {
      * return the difference in seconds as a floating point.
      * ------------------------------------------------------------------- */
     double subSec(Timestamp right) {
-        return (mTime.tv_sec - right.mTime.tv_sec) +
-               (mTime.tv_usec - right.mTime.tv_usec) / ((double)kMillion);
+        return (mTime.tv_sec - right.mTime.tv_sec) + (mTime.tv_usec - right.mTime.tv_usec) / ((double)kMillion);
     }
 
     /* -------------------------------------------------------------------
@@ -242,8 +238,7 @@ class Timestamp {
      * return true if my timestamp is before the right timestamp.
      * ------------------------------------------------------------------- */
     bool before(timeval right) {
-        return mTime.tv_sec < right.tv_sec ||
-               (mTime.tv_sec == right.tv_sec && mTime.tv_usec < right.tv_usec);
+        return mTime.tv_sec < right.tv_sec || (mTime.tv_sec == right.tv_sec && mTime.tv_usec < right.tv_usec);
     }
     bool before(Timestamp right) { return before(right.mTime); }
 
@@ -251,8 +246,7 @@ class Timestamp {
      * return true if my timestamp is after the right timestamp.
      * ------------------------------------------------------------------- */
     bool after(timeval right) {
-        return mTime.tv_sec > right.tv_sec ||
-               (mTime.tv_sec == right.tv_sec && mTime.tv_usec > right.tv_usec);
+        return mTime.tv_sec > right.tv_sec || (mTime.tv_sec == right.tv_sec && mTime.tv_usec > right.tv_usec);
     }
     bool after(Timestamp right) { return after(right.mTime); }
 

@@ -124,6 +124,4 @@ int Extractor_canRead(struct thread_Settings *mSettings) {
  * the header (timestamp)
  * @arg delta         Size to reduce
  */
-void Extractor_reduceReadSize(int delta, struct thread_Settings *mSettings) {
-    mSettings->Extractor_size -= delta;
-}
+void Extractor_reduceReadSize(int delta, struct thread_Settings *mSettings) { mSettings->Extractor_size -= delta; }

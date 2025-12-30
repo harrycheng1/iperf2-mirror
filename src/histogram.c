@@ -53,9 +53,8 @@
 // needed for thread_debug
 #include "Thread.h"
 #endif
-struct histogram *histogram_init(unsigned int bincount, unsigned int binwidth, float offset,
-                                 float units, double ci_lower, double ci_upper, unsigned int id,
-                                 char *name, bool Omit) {
+struct histogram *histogram_init(unsigned int bincount, unsigned int binwidth, float offset, float units,
+                                 double ci_lower, double ci_upper, unsigned int id, char *name, bool Omit) {
     struct histogram *this = (struct histogram *)malloc(sizeof(struct histogram));
     if (!this) {
         fprintf(stderr, "Malloc failure in histogram init\n");
@@ -185,8 +184,7 @@ void histogram_add(struct histogram *to, struct histogram *from) {
         if (from->maxts.tv_sec > to->maxts.tv_sec) {
             to->maxts.tv_sec = from->maxts.tv_sec;
             to->maxts.tv_usec = from->maxts.tv_usec;
-        } else if ((from->maxts.tv_sec == to->maxts.tv_sec) &&
-                   (from->maxts.tv_usec > to->maxts.tv_usec)) {
+        } else if ((from->maxts.tv_sec == to->maxts.tv_sec) && (from->maxts.tv_usec > to->maxts.tv_usec)) {
             to->maxts.tv_usec = from->maxts.tv_usec;
         }
     }
@@ -197,17 +195,16 @@ void histogram_print(struct histogram *h, double start, double end) {
         histogram_clear(h->prev);
     }
     if (!h->prev) {
-        h->prev = histogram_init(h->bincount, h->binwidth, h->offset, h->units, h->ci_lower,
-                                 h->ci_upper, h->id, h->myname, h->Omit);
+        h->prev = histogram_init(h->bincount, h->binwidth, h->offset, h->units, h->ci_lower, h->ci_upper, h->id,
+                                 h->myname, h->Omit);
     }
     int n = 0, ix, delta, lowerci, upperci, outliercnt, fence_lower, fence_upper, upper3stdev;
     int running = 0;
     int intervalpopulation, oob_u, oob_l;
     intervalpopulation = h->populationcnt - h->prev->populationcnt;
     strcpy(h->outbuf, h->myname);
-    sprintf(h->outbuf, "[%3d] " IPERFTimeFrmt " sec %s%s%s bin(w=%d%s):cnt(%d)=", h->id, start, end,
-            h->myname, (h->final ? "(f)" : ""), "-PDF:", h->binwidth,
-            ((h->units == 1e3) ? "ms" : "us"), intervalpopulation);
+    sprintf(h->outbuf, "[%3d] " IPERFTimeFrmt " sec %s%s%s bin(w=%d%s):cnt(%d)=", h->id, start, end, h->myname,
+            (h->final ? "(f)" : ""), "-PDF:", h->binwidth, ((h->units == 1e3) ? "ms" : "us"), intervalpopulation);
     n = strlen(h->outbuf);
     lowerci = 0;
     upperci = 0;
@@ -254,14 +251,13 @@ void histogram_print(struct histogram *h, double start, double end) {
     if (!upperci) upperci = h->bincount;
     if (!upper3stdev) upper3stdev = h->bincount;
     if (h->ci_upper > 99.7)
-        fprintf(stdout, "%s (%.2f/99.7/%.2f/%%=%d/%d/%d,Outliers=%d,obl/obu=%d/%d)", h->outbuf,
-                h->ci_lower, h->ci_upper, lowerci, upper3stdev, upperci, outliercnt, oob_l, oob_u);
+        fprintf(stdout, "%s (%.2f/99.7/%.2f/%%=%d/%d/%d,Outliers=%d,obl/obu=%d/%d)", h->outbuf, h->ci_lower,
+                h->ci_upper, lowerci, upper3stdev, upperci, outliercnt, oob_l, oob_u);
     else
-        fprintf(stdout, "%s (%.2f/%.2f/99.7%%=%d/%d/%d,Outliers=%d,obl/obu=%d/%d)", h->outbuf,
-                h->ci_lower, h->ci_upper, lowerci, upperci, upper3stdev, outliercnt, oob_l, oob_u);
+        fprintf(stdout, "%s (%.2f/%.2f/99.7%%=%d/%d/%d,Outliers=%d,obl/obu=%d/%d)", h->outbuf, h->ci_lower, h->ci_upper,
+                lowerci, upperci, upper3stdev, outliercnt, oob_l, oob_u);
     if (!h->final && (h->maxval > 0) && ((h->maxts.tv_sec > 0) || h->maxts.tv_usec > 0)) {
-        fprintf(stdout, " (%0.3f ms/%ld.%06ld)", (h->maxval * 1e3), (long)h->maxts.tv_sec,
-                (long)h->maxts.tv_usec);
+        fprintf(stdout, " (%0.3f ms/%ld.%06ld)", (h->maxval * 1e3), (long)h->maxts.tv_sec, (long)h->maxts.tv_usec);
         if (TimeDifference(h->prev->maxts, h->maxts) > 0) {
             fprintf(stdout, "(clock_err)");
         }
@@ -272,8 +268,7 @@ void histogram_print(struct histogram *h, double start, double end) {
         h->maxts.tv_sec = 0;
         h->maxts.tv_usec = 0;
     } else if (h->final && (h->fmaxval > 0) && ((h->maxts.tv_sec > 0) || h->maxts.tv_usec > 0)) {
-        fprintf(stdout, " (%0.3f ms/%ld.%06ld)", (h->fmaxval * 1e3), (long)h->fmaxts.tv_sec,
-                (long)h->fmaxts.tv_usec);
+        fprintf(stdout, " (%0.3f ms/%ld.%06ld)", (h->fmaxval * 1e3), (long)h->fmaxts.tv_sec, (long)h->fmaxts.tv_usec);
     }
     fprintf(stdout, "%s\n", (h->Omit ? report_omitted : ""));
 }

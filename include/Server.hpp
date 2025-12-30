@@ -117,8 +117,7 @@ class Server {
     struct sockaddr_storage srcaddr;
     struct iovec iov[1];
     struct msghdr message;
-    char ctrl[(CMSG_SPACE(sizeof(struct timeval)) +
-               CMSG_SPACE(sizeof(u_char)))];  // add space for rcvtos
+    char ctrl[(CMSG_SPACE(sizeof(struct timeval)) + CMSG_SPACE(sizeof(u_char)))];  // add space for rcvtos
     struct cmsghdr *cmsg;
 #if HAVE_DECL_MSG_CTRUNC
     bool ctrunc_warn_enable;

@@ -184,8 +184,7 @@ int main(int argc, char **argv) {
     Settings_ParseCommandLine(argc, argv, ext_gSettings);
 
     // Check for either having specified client or server
-    if ((ext_gSettings->mThreadMode != kMode_Client) &&
-        (ext_gSettings->mThreadMode != kMode_Listener)) {
+    if ((ext_gSettings->mThreadMode != kMode_Client) && (ext_gSettings->mThreadMode != kMode_Listener)) {
         // neither server nor client mode was specified
         // print usage and exit
 
@@ -193,8 +192,8 @@ int main(int argc, char **argv) {
         // In Win32 we also attempt to start a previously defined service
         // Starting in 2.0 to restart a previously defined service
         // you must call iperf with "iperf -D" or using the environment variable
-        SERVICE_TABLE_ENTRY dispatchTable[] = {
-            {(LPSTR)TEXT(SZSERVICENAME), (LPSERVICE_MAIN_FUNCTION)service_main}, {NULL, NULL}};
+        SERVICE_TABLE_ENTRY dispatchTable[] = {{(LPSTR)TEXT(SZSERVICENAME), (LPSERVICE_MAIN_FUNCTION)service_main},
+                                               {NULL, NULL}};
 
         // starting the service by SCM, there is no arguments will be passed in.
         // the arguments will pass into Service_Main entry.
@@ -220,8 +219,7 @@ int main(int argc, char **argv) {
 #endif
     }
 
-    int mbuflen =
-        (ext_gSettings->mBufLen > MINMBUFALLOCSIZE) ? ext_gSettings->mBufLen : MINMBUFALLOCSIZE;
+    int mbuflen = (ext_gSettings->mBufLen > MINMBUFALLOCSIZE) ? ext_gSettings->mBufLen : MINMBUFALLOCSIZE;
 #if (((HAVE_TUNTAP_TUN) || (HAVE_TUNTAP_TAP)) && (AF_PACKET))
     mbuflen += TAPBYTESSLOP;
 #endif

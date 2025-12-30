@@ -107,15 +107,15 @@ struct option {
 
 int gnu_getopt(int argc, char *const *argv, const char *optstring);
 
-int gnu_getopt_long(int argc, char *const *argv, const char *options,
-                    const struct option *long_options, int *opt_index);
+int gnu_getopt_long(int argc, char *const *argv, const char *options, const struct option *long_options,
+                    int *opt_index);
 
-int gnu_getopt_long_only(int argc, char *const *argv, const char *options,
-                         const struct option *long_options, int *opt_index);
+int gnu_getopt_long_only(int argc, char *const *argv, const char *options, const struct option *long_options,
+                         int *opt_index);
 
 /* Internal only.  Users should not call this directly.  */
-int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring,
-                         const struct option *longopts, int *longind, int long_only);
+int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring, const struct option *longopts,
+                         int *longind, int long_only);
 
 #ifdef __cplusplus
 } /* end extern "C" */

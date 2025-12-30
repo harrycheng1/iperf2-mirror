@@ -49,8 +49,7 @@
 #include "util.h"
 #include "iperf_formattime.h"
 
-static inline void append_precision(char *timestr, int buflen, enum TimeFormatPrecision prec,
-                                    int useconds) {
+static inline void append_precision(char *timestr, int buflen, enum TimeFormatPrecision prec, int useconds) {
     if (prec != Seconds) {
         int currlen = strlen(timestr);
         if ((buflen - currlen) > 10) {
@@ -68,9 +67,8 @@ static inline void append_precision(char *timestr, int buflen, enum TimeFormatPr
     }
 }
 
-inline void iperf_formattime(char *timestr, int buflen, struct timeval timestamp,
-                             enum TimeFormatPrecision prec, bool utc_time,
-                             enum TimeFormatType ftype) {
+inline void iperf_formattime(char *timestr, int buflen, struct timeval timestamp, enum TimeFormatPrecision prec,
+                             bool utc_time, enum TimeFormatType ftype) {
     if (buflen > 0) {
         struct tm ts;
         time_t seconds = (time_t)timestamp.tv_sec;

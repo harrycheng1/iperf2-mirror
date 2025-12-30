@@ -88,16 +88,14 @@ void SetSocketOptions(struct thread_Settings *inSettings) {
     // set the TCP window size (socket buffer sizes)
     // also the UDP buffer size
     // must occur before call to accept() for large window sizes
-    setsock_tcp_windowsize(inSettings->mSock, inSettings->mTCPWin,
-                           (inSettings->mThreadMode == kMode_Client ? 1 : 0));
+    setsock_tcp_windowsize(inSettings->mSock, inSettings->mTCPWin, (inSettings->mThreadMode == kMode_Client ? 1 : 0));
 #if HAVE_DECL_TCP_CONGESTION
     if (isCongestionControl(inSettings)) {
         Socklen_t len = strlen(inSettings->mCongestion) + 1;
-        int rc = setsockopt(inSettings->mSock, IPPROTO_TCP, TCP_CONGESTION, inSettings->mCongestion,
-                            len);
+        int rc = setsockopt(inSettings->mSock, IPPROTO_TCP, TCP_CONGESTION, inSettings->mCongestion, len);
         if (rc == SOCKET_ERROR) {
-            fprintf(stderr, "Attempt to set '%s' congestion control failed: %s\n",
-                    inSettings->mCongestion, strerror(errno));
+            fprintf(stderr, "Attempt to set '%s' congestion control failed: %s\n", inSettings->mCongestion,
+                    strerror(errno));
             unsetCongestionControl(inSettings);
             thread_stop(inSettings);
         }
@@ -106,18 +104,16 @@ void SetSocketOptions(struct thread_Settings *inSettings) {
         if (getsockopt(inSettings->mSock, IPPROTO_TCP, TCP_CONGESTION, &cca, &len) == 0) {
             cca[TCP_CCA_NAME_MAX - 1] = '\0';
             if (strcmp(cca, inSettings->mCongestion) != 0) {
-                fprintf(stderr, "Failed to set '%s' congestion control got '%s'\n",
-                        inSettings->mCongestion, cca);
+                fprintf(stderr, "Failed to set '%s' congestion control got '%s'\n", inSettings->mCongestion, cca);
                 thread_stop(inSettings);
             }
         }
     } else if (isLoadCCA(inSettings)) {
         Socklen_t len = strlen(inSettings->mLoadCCA) + 1;
-        int rc =
-            setsockopt(inSettings->mSock, IPPROTO_TCP, TCP_CONGESTION, inSettings->mLoadCCA, len);
+        int rc = setsockopt(inSettings->mSock, IPPROTO_TCP, TCP_CONGESTION, inSettings->mLoadCCA, len);
         if (rc == SOCKET_ERROR) {
-            fprintf(stderr, "Attempt to set '%s' load congestion control failed: %s\n",
-                    inSettings->mLoadCCA, strerror(errno));
+            fprintf(stderr, "Attempt to set '%s' load congestion control failed: %s\n", inSettings->mLoadCCA,
+                    strerror(errno));
             unsetLoadCCA(inSettings);
             thread_stop(inSettings);
         }
@@ -126,8 +122,7 @@ void SetSocketOptions(struct thread_Settings *inSettings) {
         if (getsockopt(inSettings->mSock, IPPROTO_TCP, TCP_CONGESTION, &cca, &len) == 0) {
             cca[TCP_CCA_NAME_MAX - 1] = '\0';
             if (strcmp(cca, inSettings->mLoadCCA) != 0) {
-                fprintf(stderr, "Failed to set '%s' load congestion control got '%s'\n",
-                        inSettings->mLoadCCA, cca);
+                fprintf(stderr, "Failed to set '%s' load congestion control got '%s'\n", inSettings->mLoadCCA, cca);
                 thread_stop(inSettings);
             }
         }
@@ -144,8 +139,7 @@ void SetSocketOptions(struct thread_Settings *inSettings) {
     Socklen_t len = sizeof(boolean);
 #if HAVE_DECL_SO_REUSEADDR
     // reuse the address, so we can run if a former server was killed off
-    rc = setsockopt(inSettings->mSock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char *>(&boolean),
-                    len);
+    rc = setsockopt(inSettings->mSock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char *>(&boolean), len);
     WARN_errno(rc == SOCKET_ERROR, "SO_REUSEADDR");
 #endif
 #if HAVE_DECL_SO_REUSEPORT
@@ -156,8 +150,7 @@ void SetSocketOptions(struct thread_Settings *inSettings) {
 
 #if ((HAVE_TUNTAP_TAP) && (HAVE_TUNTAP_TUN))
     if (isTunDev(inSettings) || isTapDev(inSettings)) {
-        char **device = (inSettings->mThreadMode == kMode_Client) ? &inSettings->mIfrnametx
-                                                                  : &inSettings->mIfrname;
+        char **device = (inSettings->mThreadMode == kMode_Client) ? &inSettings->mIfrnametx : &inSettings->mIfrname;
         struct ifreq ifr;
         struct sockaddr_ll saddr;
         memset(&ifr, 0, sizeof(ifr));
@@ -218,8 +211,7 @@ void SetSocketOptions(struct thread_Settings *inSettings) {
                 {
                     int val = inSettings->mTTL;
                     int rc = setsockopt(inSettings->mSock, IPPROTO_IPV6, IPV6_MULTICAST_HOPS,
-                                        reinterpret_cast<char *>(&val),
-                                        static_cast<Socklen_t>(sizeof(val)));
+                                        reinterpret_cast<char *>(&val), static_cast<Socklen_t>(sizeof(val)));
                     WARN_errno(rc == SOCKET_ERROR, "multicast v6 ttl");
                 }
 #else
@@ -229,9 +221,8 @@ void SetSocketOptions(struct thread_Settings *inSettings) {
 #endif
         } else if (inSettings->mTTL > 0) {
             int val = inSettings->mTTL;
-            int rc =
-                setsockopt(inSettings->mSock, IPPROTO_IP, IP_TTL, reinterpret_cast<char *>(&val),
-                           static_cast<Socklen_t>(sizeof(val)));
+            int rc = setsockopt(inSettings->mSock, IPPROTO_IP, IP_TTL, reinterpret_cast<char *>(&val),
+                                static_cast<Socklen_t>(sizeof(val)));
             WARN_errno(rc == SOCKET_ERROR, "v4 ttl");
         }
 
@@ -248,14 +239,12 @@ void SetSocketOptions(struct thread_Settings *inSettings) {
             int rc = 0;
             // set TCP nodelay option
             if (isNoDelay(inSettings)) {
-                rc = setsockopt(inSettings->mSock, IPPROTO_TCP, TCP_NODELAY,
-                                reinterpret_cast<char *>(&nodelay), len);
+                rc = setsockopt(inSettings->mSock, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char *>(&nodelay), len);
                 WARN_errno(rc == SOCKET_ERROR, "setsockopt TCP_NODELAY");
             }
             // Read the socket setting, could be set on by kernel
             if (isEnhanced(inSettings) && (rc == 0)) {
-                rc = getsockopt(inSettings->mSock, IPPROTO_TCP, TCP_NODELAY,
-                                reinterpret_cast<char *>(&nodelay), &len);
+                rc = getsockopt(inSettings->mSock, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char *>(&nodelay), &len);
                 WARN_errno(rc == SOCKET_ERROR, "getsockopt TCP_NODELAY");
                 if (rc == 0) {
                     if (nodelay)
@@ -271,8 +260,8 @@ void SetSocketOptions(struct thread_Settings *inSettings) {
         if (isRxClamp(inSettings)) {
             int clamp = inSettings->mClampSize;
             Socklen_t len = sizeof(clamp);
-            int rc = setsockopt(inSettings->mSock, IPPROTO_TCP, TCP_WINDOW_CLAMP,
-                                reinterpret_cast<char *>(&clamp), len);
+            int rc =
+                setsockopt(inSettings->mSock, IPPROTO_TCP, TCP_WINDOW_CLAMP, reinterpret_cast<char *>(&clamp), len);
             WARN_errno(rc == SOCKET_ERROR, "setsockopt TCP_WINDOW_CLAMP");
         }
 #endif
@@ -281,8 +270,8 @@ void SetSocketOptions(struct thread_Settings *inSettings) {
         if (isWritePrefetch(inSettings)) {
             int bytecnt = inSettings->mWritePrefetch;
             Socklen_t len = sizeof(bytecnt);
-            int rc = setsockopt(inSettings->mSock, IPPROTO_TCP, TCP_NOTSENT_LOWAT,
-                                reinterpret_cast<char *>(&bytecnt), len);
+            int rc =
+                setsockopt(inSettings->mSock, IPPROTO_TCP, TCP_NOTSENT_LOWAT, reinterpret_cast<char *>(&bytecnt), len);
             WARN_errno(rc == SOCKET_ERROR, "setsockopt TCP_NOTSENT_LOWAT");
         }
 #endif
@@ -290,8 +279,7 @@ void SetSocketOptions(struct thread_Settings *inSettings) {
             if (!isUDP(inSettings)) {
 #if HAVE_DECL_TCP_TX_DELAY
                 // convert to usecs
-                SetSocketTcpTxDelay(inSettings,
-                                    static_cast<int>(round(inSettings->mSendDelay * 1000)));
+                SetSocketTcpTxDelay(inSettings, static_cast<int>(round(inSettings->mSendDelay * 1000)));
 #endif
             } else {
 #if HAVE_DECL_TCP_TX_DELAY
@@ -304,8 +292,8 @@ void SetSocketOptions(struct thread_Settings *inSettings) {
 #if HAVE_DECL_SO_MAX_PACING_RATE
     /* If socket pacing is specified try to enable it. */
     if (isFQPacing(inSettings) && inSettings->mFQPacingRate > 0) {
-        int rc = setsockopt(inSettings->mSock, SOL_SOCKET, SO_MAX_PACING_RATE,
-                            &inSettings->mFQPacingRate, sizeof(inSettings->mFQPacingRate));
+        int rc = setsockopt(inSettings->mSock, SOL_SOCKET, SO_MAX_PACING_RATE, &inSettings->mFQPacingRate,
+                            sizeof(inSettings->mFQPacingRate));
         inSettings->mFQPacingRateCurrent = inSettings->mFQPacingRate;
         WARN_errno(rc == SOCKET_ERROR, "setsockopt SO_MAX_PACING_RATE");
     }
@@ -315,8 +303,7 @@ void SetSocketOptions(struct thread_Settings *inSettings) {
     if (isDontRoute(inSettings)) {
         int option = 1;
         Socklen_t len = sizeof(option);
-        int rc = setsockopt(inSettings->mSock, SOL_SOCKET, SO_DONTROUTE,
-                            reinterpret_cast<char *>(&option), len);
+        int rc = setsockopt(inSettings->mSock, SOL_SOCKET, SO_DONTROUTE, reinterpret_cast<char *>(&option), len);
         WARN_errno(rc == SOCKET_ERROR, "setsockopt SO_DONTROUTE");
     }
 #endif /* HAVE_DECL_SO_DONTROUTE */
@@ -333,8 +320,8 @@ void SetSocketOptionsSendTimeout(struct thread_Settings *mSettings, int timer) {
     timeout.tv_sec = timer / 1000000;
     timeout.tv_usec = timer % 1000000;
 #endif
-    if (setsockopt(mSettings->mSock, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<char *>(&timeout),
-                   sizeof(timeout)) < 0) {
+    if (setsockopt(mSettings->mSock, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<char *>(&timeout), sizeof(timeout)) <
+        0) {
         WARN_errno(mSettings->mSock == SO_SNDTIMEO, "socket");
     }
     //    fprintf(stderr,"**** tx timeout %d usecs\n", timer);
@@ -350,8 +337,8 @@ void SetSocketOptionsReceiveTimeout(struct thread_Settings *mSettings, int timer
     timeout.tv_sec = timer / 1000000;
     timeout.tv_usec = timer % 1000000;
 #endif
-    if (setsockopt(mSettings->mSock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<char *>(&timeout),
-                   sizeof(timeout)) < 0) {
+    if (setsockopt(mSettings->mSock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<char *>(&timeout), sizeof(timeout)) <
+        0) {
         WARN_errno(mSettings->mSock == SO_RCVTIMEO, "socket");
     }
     //    fprintf(stderr,"**** rx timeout %d usecs\n", timer);
@@ -380,19 +367,15 @@ void SetSocketOptionsIPTos(struct thread_Settings *mSettings, int tos) {
             int reqtos = tos;
             Socklen_t len = sizeof(reqtos);
             int rc = setsockopt(mSettings->mSock, (isIPV6(mSettings) ? IPPROTO_IPV6 : IPPROTO_IP),
-                                (isIPV6(mSettings) ? IPV6_TCLASS : IP_TOS),
-                                reinterpret_cast<char *>(&reqtos), len);
-            WARN_errno(rc == SOCKET_ERROR,
-                       (isIPV6(mSettings) ? "setsockopt IPV6_TCLASS" : "setsockopt IP_TOS"));
+                                (isIPV6(mSettings) ? IPV6_TCLASS : IP_TOS), reinterpret_cast<char *>(&reqtos), len);
+            WARN_errno(rc == SOCKET_ERROR, (isIPV6(mSettings) ? "setsockopt IPV6_TCLASS" : "setsockopt IP_TOS"));
             rc = getsockopt(mSettings->mSock, (isIPV6(mSettings) ? IPPROTO_IPV6 : IPPROTO_IP),
-                            (isIPV6(mSettings) ? IPV6_TCLASS : IP_TOS),
-                            reinterpret_cast<char *>(&reqtos), &len);
-            WARN_errno(rc == SOCKET_ERROR,
-                       (isIPV6(mSettings) ? "getsockopt IPV6_TCLASS" : "getsockopt IP_TOS"));
+                            (isIPV6(mSettings) ? IPV6_TCLASS : IP_TOS), reinterpret_cast<char *>(&reqtos), &len);
+            WARN_errno(rc == SOCKET_ERROR, (isIPV6(mSettings) ? "getsockopt IPV6_TCLASS" : "getsockopt IP_TOS"));
             if (reqtos != tos) {
                 char warnbuf[256];
-                snprintf(warnbuf, sizeof(warnbuf),
-                         "Warning: IP_TOS set to 0x%x, request for setting to 0x%x", reqtos, tos);
+                snprintf(warnbuf, sizeof(warnbuf), "Warning: IP_TOS set to 0x%x, request for setting to 0x%x", reqtos,
+                         tos);
                 warnbuf[sizeof(warnbuf) - 1] = '\0';
                 WARN(1, warnbuf);
                 mSettings->mTOS = reqtos;
@@ -449,8 +432,7 @@ void SetSocketTcpTxDelay(struct thread_Settings *mSettings, int delay) {
 #ifdef HAVE_THREAD_DEBUG
     else {
         Socklen_t len = sizeof(delay);
-        rc = getsockopt(mSettings->mSock, IPPROTO_TCP, TCP_TX_DELAY,
-                        reinterpret_cast<char *>(&delay), &len);
+        rc = getsockopt(mSettings->mSock, IPPROTO_TCP, TCP_TX_DELAY, reinterpret_cast<char *>(&delay), &len);
         thread_debug("TCP_TX_DELAY set to %d for sock %d", (int)delay, mSettings->mSock);
     }
 #endif
@@ -473,15 +455,13 @@ void SetSocketTxTime(struct thread_Settings *mSettings) {
 }
 
 void sol_bindtodevice(struct thread_Settings *inSettings) {
-    char *device =
-        (inSettings->mThreadMode == kMode_Client) ? inSettings->mIfrnametx : inSettings->mIfrname;
+    char *device = (inSettings->mThreadMode == kMode_Client) ? inSettings->mIfrnametx : inSettings->mIfrname;
     if (device) {
 #if (HAVE_DECL_SO_BINDTODEVICE)
         struct ifreq ifr;
         memset(&ifr, 0, sizeof(ifr));
         snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", device);
-        if (setsockopt(inSettings->mSock, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) <
-            0) {
+        if (setsockopt(inSettings->mSock, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) < 0) {
             char *buf;
             int len = snprintf(NULL, 0, "%s %s", "bind to device", device);
             len++;  // Trailing null byte + extra

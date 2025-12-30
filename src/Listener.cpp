@@ -178,8 +178,8 @@ void Listener::Run() {
             // really should be good enough unless the os scheduler sucks
             delay_loop(SINGLECLIENTDELAY_DURATION);
 #ifdef HAVE_THREAD_DEBUG
-            thread_debug("Listener single client loop mc/t/mcast/sc %d/%d/%d/%d", mCount, tc,
-                         isMulticast(mSettings), isSingleClient(mSettings));
+            thread_debug("Listener single client loop mc/t/mcast/sc %d/%d/%d/%d", mCount, tc, isMulticast(mSettings),
+                         isSingleClient(mSettings));
 #endif
             continue;
         }
@@ -195,8 +195,7 @@ void Listener::Run() {
         // Use a select() with a timeout if -t is set or if this is a v1 -r or
         // -d test
         fd_set set;
-        if (((mMode_Time || isCompat(mSettings)) &&
-             (!isPermitKey(mSettings) && (mSettings->mAmount != 0))) ||
+        if (((mMode_Time || isCompat(mSettings)) && (!isPermitKey(mSettings) && (mSettings->mAmount != 0))) ||
             (isPermitKey(mSettings) && (mSettings->mListenerTimeout != 0))) {
             // Hang a select w/timeout on the listener socket
             struct timeval timeout;
@@ -205,8 +204,7 @@ void Listener::Run() {
                 timeout.tv_usec = (mSettings->mAmount % 100) * 10000;
             } else {
                 timeout.tv_sec = static_cast<long>(mSettings->mListenerTimeout);
-                timeout.tv_usec =
-                    (static_cast<long>(mSettings->mListenerTimeout) * 1000000) % 1000000;
+                timeout.tv_usec = (static_cast<long>(mSettings->mListenerTimeout) * 1000000) % 1000000;
             }
             FD_ZERO(&set);
             FD_SET(ListenSocket, &set);
@@ -242,8 +240,7 @@ void Listener::Run() {
         }
         need_listen = true;
 #ifdef HAVE_THREAD_DEBUG
-        thread_debug("Listener thread accepted server sock=%d transferID", server->mSock,
-                     server->mTransferID);
+        thread_debug("Listener thread accepted server sock=%d transferID", server->mSock, server->mTransferID);
 #endif
         // Decrement the -P counter, commonly usd to kill the listener
         // after one test, i.e. -s -P 1
@@ -267,8 +264,7 @@ void Listener::Run() {
         // -V (for v6) on
         //    it's command line
         //
-        if ((mSettings->clientListener &&
-             SockAddr_Hostare_Equal(&mSettings->peer, &server->peer)) ||
+        if ((mSettings->clientListener && SockAddr_Hostare_Equal(&mSettings->peer, &server->peer)) ||
             (!isIPV6(mSettings) && SockAddr_isIPv6(&server->peer))) {
             // Not allowed, reset things and restart the loop
             // Don't forget to delete the UDP entry (inserted in my_accept)
@@ -294,8 +290,7 @@ void Listener::Run() {
         if (!isCompat(server) && (isConnectOnly(server) || !apply_client_settings(server))) {
             if (isConnectionReport(server) && !isSumOnly(server)) {
                 struct ReportHeader *reporthdr = InitConnectionReport(server);
-                struct ConnectionInfo *cr =
-                    static_cast<struct ConnectionInfo *>(reporthdr->this_report);
+                struct ConnectionInfo *cr = static_cast<struct ConnectionInfo *>(reporthdr->this_report);
                 cr->connect_timestamp.tv_sec = server->accept_time.tv_sec;
                 cr->connect_timestamp.tv_usec = server->accept_time.tv_usec;
                 assert(reporthdr);
@@ -312,8 +307,7 @@ void Listener::Run() {
         // be checked
         if (isUDP(server)) {
             if (!isCompat(mSettings) && !isTapDev(mSettings) &&
-                (isL2LengthCheck(mSettings) || isL2LengthCheck(server)) &&
-                !L2_setup(server, server->mSock)) {
+                (isL2LengthCheck(mSettings) || isL2LengthCheck(server)) && !L2_setup(server, server->mSock)) {
                 // Requested L2 testing but L2 setup failed
                 Iperf_remove_host(server);
                 assert(server != mSettings);
@@ -322,8 +316,7 @@ void Listener::Run() {
             }
         }
         setTransferID(server, NORMAL);
-        if ((mSettings->mReportMode == kReport_CSV) && server->mSumReport &&
-            !server->mSumReport->sum_reverse_set) {
+        if ((mSettings->mReportMode == kReport_CSV) && server->mSumReport && !server->mSumReport->sum_reverse_set) {
             format_ips_port_string(&server->mSumReport->info, 1);
             server->mSumReport->sum_reverse_set = true;
         } else if (isTripTime(server) && server->mSumReport) {
@@ -363,10 +356,9 @@ void Listener::Run() {
                     server->mFullDuplexReport = InitSumReport(server, server->mSock, true);
                     listener_client_settings->mFullDuplexReport = server->mFullDuplexReport;
 #if HAVE_THREAD_DEBUG
-                    thread_debug("FullDuplex report client=%p/%p server=%p/%p",
-                                 (void *)listener_client_settings,
-                                 (void *)listener_client_settings->mFullDuplexReport,
-                                 (void *)server, (void *)server->mFullDuplexReport);
+                    thread_debug("FullDuplex report client=%p/%p server=%p/%p", (void *)listener_client_settings,
+                                 (void *)listener_client_settings->mFullDuplexReport, (void *)server,
+                                 (void *)server->mFullDuplexReport);
 #endif
                     server->runNow = listener_client_settings;
                 } else if (server->mMode != kTest_Normal) {
@@ -374,9 +366,8 @@ void Listener::Run() {
                     thread_debug(
                         "V1 test (-d or -r) sum report client=%p/%p "
                         "server=%p/%p",
-                        (void *)listener_client_settings,
-                        (void *)listener_client_settings->mFullDuplexReport, (void *)server,
-                        (void *)server->mFullDuplexReport);
+                        (void *)listener_client_settings, (void *)listener_client_settings->mFullDuplexReport,
+                        (void *)server, (void *)server->mFullDuplexReport);
 #endif
                     if (listener_client_settings->mMode == kTest_DualTest) {
 #ifdef HAVE_THREAD
@@ -393,8 +384,7 @@ void Listener::Run() {
         setTransferID(server, NORMAL);
         if (isConnectionReport(server) && !isSumOnly(server)) {
             struct ReportHeader *reporthdr = InitConnectionReport(server);
-            struct ConnectionInfo *cr =
-                static_cast<struct ConnectionInfo *>(reporthdr->this_report);
+            struct ConnectionInfo *cr = static_cast<struct ConnectionInfo *>(reporthdr->this_report);
             cr->connect_timestamp.tv_sec = server->accept_time.tv_sec;
             cr->connect_timestamp.tv_usec = server->accept_time.tv_usec;
             assert(reporthdr);
@@ -418,8 +408,8 @@ void Listener::Run() {
         char *text = (char *)calloc(len + 1, sizeof(char));
         if (text) {
             snprintf(text, len,
-                     "[Info] Listener thread filtered and dropped %" PRIdMAX
-                     " packets (stale/duplicates=%" PRIdMAX "/%" PRIdMAX ")\n",
+                     "[Info] Listener thread filtered and dropped %" PRIdMAX " packets (stale/duplicates=%" PRIdMAX
+                     "/%" PRIdMAX ")\n",
                      (drain_count + duplicate_count), drain_count, duplicate_count);
             PostReport(InitStringReport(text));
             FREE_ARRAY(text);
@@ -427,8 +417,7 @@ void Listener::Run() {
     }
 #endif
 #ifdef HAVE_THREAD_DEBUG
-    thread_debug("Listener exiting port/sig/threads %d/%d/%d", mSettings->mPort, sInterupted,
-                 mCount);
+    thread_debug("Listener exiting port/sig/threads %d/%d/%d", mSettings->mPort, sInterupted, mCount);
 #endif
 }  // end Run
 
@@ -468,8 +457,7 @@ bool Listener::my_listen() {
 #ifdef WIN32
         if (SockAddr_isMulticast(&mSettings->multicast_group)) {
             // Multicast on Win32 requires special handling
-            ListenSocket = WSASocket(domain, type, 0, 0, 0,
-                                     WSA_FLAG_MULTIPOINT_C_LEAF | WSA_FLAG_MULTIPOINT_D_LEAF);
+            ListenSocket = WSASocket(domain, type, 0, 0, 0, WSA_FLAG_MULTIPOINT_C_LEAF | WSA_FLAG_MULTIPOINT_D_LEAF);
             WARN_errno(ListenSocket == INVALID_SOCKET, "socket");
         } else
 #endif
@@ -485,8 +473,8 @@ bool Listener::my_listen() {
 #if HAVE_MULTICAST
 #ifdef WIN32
             // Multicast on Win32 requires special handling
-            rc = WSAJoinLeaf(ListenSocket, reinterpret_cast<sockaddr *>(&mSettings->local),
-                             mSettings->size_local, 0, 0, 0, 0, JL_BOTH);
+            rc = WSAJoinLeaf(ListenSocket, reinterpret_cast<sockaddr *>(&mSettings->local), mSettings->size_local, 0, 0,
+                             0, 0, JL_BOTH);
             WARN_errno(rc == SOCKET_ERROR, "WSAJoinLeaf (aka bind)");
 #else
 #if 0 && (HAVE_DECL_IP_ADD_MEMBERSHIP || HAVE_DECL_MCAST_JOIN_GROUP)  // possible future, bind to
@@ -497,8 +485,7 @@ bool Listener::my_listen() {
                 rc = bind(ListenSocket, reinterpret_cast<sockaddr*>(&tmp), mSettings->size_local);
                 printf("***** any bind\n");
 #else
-            rc = bind(ListenSocket, reinterpret_cast<sockaddr *>(&mSettings->local),
-                      mSettings->size_local);
+            rc = bind(ListenSocket, reinterpret_cast<sockaddr *>(&mSettings->local), mSettings->size_local);
             //	    printf("***** single bind\n");
 #endif
             FAIL_errno(rc == SOCKET_ERROR, "listener bind", mSettings);
@@ -512,8 +499,7 @@ bool Listener::my_listen() {
 #endif  // HAVE_MULTICAST
         } else {
             // bind socket for unicast
-            rc = bind(ListenSocket, reinterpret_cast<sockaddr *>(&mSettings->local),
-                      mSettings->size_local);
+            rc = bind(ListenSocket, reinterpret_cast<sockaddr *>(&mSettings->local), mSettings->size_local);
         }
         FAIL_errno(rc == SOCKET_ERROR, "listener bind", mSettings);
     }
@@ -657,8 +643,7 @@ bool Listener::L2_setup(thread_Settings *server, int sockfd) {
         return false;
 #endif /* HAVE_IPV6 */
     } else {
-        rc = SockBPF_v4_Connect(server->mSock,
-                                (reinterpret_cast<struct sockaddr_in *>(l))->sin_addr.s_addr,
+        rc = SockBPF_v4_Connect(server->mSock, (reinterpret_cast<struct sockaddr_in *>(l))->sin_addr.s_addr,
                                 (reinterpret_cast<struct sockaddr_in *>(p))->sin_addr.s_addr,
                                 (reinterpret_cast<struct sockaddr_in *>(l))->sin_port,
                                 (reinterpret_cast<struct sockaddr_in *>(p))->sin_port);
@@ -721,8 +706,7 @@ bool Listener::tap_setup(thread_Settings *server, int sockfd) {
         return false;
 #endif /* HAVE_IPV6 */
     } else {
-        rc = SockAddr_v4_Connect_BPF(server->mSock,
-                                     (reinterpret_cast<struct sockaddr_in *>(l))->sin_addr.s_addr,
+        rc = SockAddr_v4_Connect_BPF(server->mSock, (reinterpret_cast<struct sockaddr_in *>(l))->sin_addr.s_addr,
                                      (reinterpret_cast<struct sockaddr_in *>(p))->sin_addr.s_addr,
                                      (reinterpret_cast<struct sockaddr_in *>(l))->sin_port,
                                      (reinterpret_cast<struct sockaddr_in *>(p))->sin_port);
@@ -764,8 +748,7 @@ RETRYREAD:
         nread = recvfrom(ListenSocket, server->mBuf, server->mBufLen, 0,
                          reinterpret_cast<struct sockaddr *>(&server->peer), &server->size_peer);
         if (nread > 0) {
-            struct client_udp_testhdr *hdr =
-                reinterpret_cast<struct client_udp_testhdr *>(server->mBuf);
+            struct client_udp_testhdr *hdr = reinterpret_cast<struct client_udp_testhdr *>(server->mBuf);
             uint32_t flags = ntohl(hdr->base.flags);
             setSeqNo64b(server);
             if (!isCompat(mSettings) && (nread >= 4) && !(flags & HEADER_SEQNO64B)) {
@@ -775,8 +758,8 @@ RETRYREAD:
             // heldover from a previous run
             if (isSeqNo64b(server)) {
                 // New client - Signed PacketID packed into unsigned id2,id
-                intmax_t packetID64 = (static_cast<uint32_t>(ntohl(mBuf_UDP->id))) |
-                                      (static_cast<uintmax_t>(ntohl(mBuf_UDP->id2)) << 32);
+                intmax_t packetID64 =
+                    (static_cast<uint32_t>(ntohl(mBuf_UDP->id))) | (static_cast<uintmax_t>(ntohl(mBuf_UDP->id2)) << 32);
                 if (packetID64 > 0) drainstalepkts = false;
             } else {
                 // Old client - Signed PacketID in Signed id
@@ -833,23 +816,18 @@ RETRYREAD:
             //
             // See ticket 357 https://sourceforge.net/p/iperf2/tickets/357/
             if (!isMulticast(server)) {
-                rc = connect(server->mSock, reinterpret_cast<struct sockaddr *>(&server->peer),
-                             server->size_peer);
+                rc = connect(server->mSock, reinterpret_cast<struct sockaddr *>(&server->peer), server->size_peer);
                 FAIL_errno(rc == SOCKET_ERROR, "connect UDP", mSettings);
                 if ((mCount < 0) || (mCount > 1)) my_listen();
                 server->size_local = sizeof(iperf_sockaddr);
-                getsockname(server->mSock, reinterpret_cast<sockaddr *>(&server->local),
-                            &server->size_local);
+                getsockname(server->mSock, reinterpret_cast<sockaddr *>(&server->local), &server->size_local);
                 SockAddr_Ifrname(server);
             } else {
                 server->size_multicast_group = sizeof(iperf_sockaddr);
                 iperf_sockaddr sent_dstaddr;
-                getsockname(server->mSock, reinterpret_cast<sockaddr *>(&sent_dstaddr),
-                            &server->size_multicast_group);
-                int join_send_match =
-                    SockAddr_Hostare_Equal(&sent_dstaddr, &server->multicast_group);
-                rc = connect(server->mSock, reinterpret_cast<struct sockaddr *>(&server->peer),
-                             server->size_peer);
+                getsockname(server->mSock, reinterpret_cast<sockaddr *>(&sent_dstaddr), &server->size_multicast_group);
+                int join_send_match = SockAddr_Hostare_Equal(&sent_dstaddr, &server->multicast_group);
+                rc = connect(server->mSock, reinterpret_cast<struct sockaddr *>(&server->peer), server->size_peer);
                 FAIL_errno(rc == SOCKET_ERROR, "mcast connect UDP", mSettings);
                 if ((mCount < 0) || (mCount > 1)) my_listen();
 #if DEBUG_MCAST
@@ -858,8 +836,7 @@ RETRYREAD:
                 size_t len = 200;
                 SockAddr_getHostAddress(&sent_dstaddr, joinaddr, len);
                 SockAddr_getHostAddress(&server->multicast_group, pktaddr, len);
-                printf("mcast(%d): join addr %s pkt group addr %s\n", join_send_match, joinaddr,
-                       pktaddr);
+                printf("mcast(%d): join addr %s pkt group addr %s\n", join_send_match, joinaddr, pktaddr);
 #endif
                 WARN(!join_send_match, "mcast join and packet group addr");
                 // RJM - use a cmesg to read the interface name
@@ -872,16 +849,15 @@ RETRYREAD:
 
 #if (((HAVE_TUNTAP_TUN) || (HAVE_TUNTAP_TAP)) && (AF_PACKET))
 int Listener::tuntap_accept(thread_Settings *server) {
-    int rc = recv(server->mSock, server->mBuf,
-                  (server->mBufLen + TAPBYTESSLOP + sizeof(struct iphdr) +
-                   sizeof(struct ether_header) + sizeof(struct udphdr)),
-                  0);
+    int rc = recv(
+        server->mSock, server->mBuf,
+        (server->mBufLen + TAPBYTESSLOP + sizeof(struct iphdr) + sizeof(struct ether_header) + sizeof(struct udphdr)),
+        0);
     if (rc <= 0) return 0;
     //	rc = udpchecksum((void *)ip_hdr, (void *)udp_hdr, udplen,
     //(isIPV6(mSettings) ? 1 : 0));
     struct iphdr *l3hdr = (struct iphdr *)((char *)server->mBuf + sizeof(struct ether_header));
-    struct udphdr *l4hdr = (struct udphdr *)((char *)server->mBuf + sizeof(struct iphdr) +
-                                             sizeof(struct ether_header));
+    struct udphdr *l4hdr = (struct udphdr *)((char *)server->mBuf + sizeof(struct iphdr) + sizeof(struct ether_header));
     //    uint16_t ipver = (uint16_t) ntohs(mBuf + sizeof(struct ether_header));
     //    printf ("*** version = %d\n", ipver);
     // Note: sockaddrs are stored in network bytes order
@@ -896,10 +872,9 @@ int Listener::tuntap_accept(thread_Settings *server) {
     peer->sin_port = l4hdr->source;
     local->sin_port = l4hdr->dest;
     server->l4offset = sizeof(struct iphdr) + sizeof(struct ether_header);
-    SockBPF_v4_Connect_TAP(server->mSock, local->sin_addr.s_addr, peer->sin_addr.s_addr,
-                           local->sin_port, peer->sin_port);
-    server->l4payloadoffset =
-        sizeof(struct iphdr) + sizeof(struct ether_header) + sizeof(struct udphdr);
+    SockBPF_v4_Connect_TAP(server->mSock, local->sin_addr.s_addr, peer->sin_addr.s_addr, local->sin_port,
+                           peer->sin_port);
+    server->l4payloadoffset = sizeof(struct iphdr) + sizeof(struct ether_header) + sizeof(struct udphdr);
     server->firstreadbytes = rc;
     return server->mSock;
 }
@@ -932,15 +907,13 @@ int Listener::my_accept(thread_Settings *server) {
         // note udp_accept will update the active host table
     } else {
         // accept a TCP  connection
-        server->mSock =
-            accept(ListenSocket, reinterpret_cast<sockaddr *>(&server->peer), &server->size_peer);
+        server->mSock = accept(ListenSocket, reinterpret_cast<sockaddr *>(&server->peer), &server->size_peer);
         if (server->mSock > 0) {
             Timestamp now;
             server->accept_time.tv_sec = now.getSecs();
             server->accept_time.tv_usec = now.getUsecs();
             server->size_local = sizeof(iperf_sockaddr);
-            getsockname(server->mSock, reinterpret_cast<sockaddr *>(&server->local),
-                        &server->size_local);
+            getsockname(server->mSock, reinterpret_cast<sockaddr *>(&server->local), &server->size_local);
             SockAddr_Ifrname(server);
             Iperf_push_host(server);
         }
@@ -1036,8 +1009,7 @@ bool Listener::apply_client_settings_udp(thread_Settings *server) {
             thread_debug("UDP small header");
 #endif
             struct client_udpsmall_testhdr *smallhdr =
-                reinterpret_cast<struct client_udpsmall_testhdr *>(server->mBuf +
-                                                                   server->l4payloadoffset);
+                reinterpret_cast<struct client_udpsmall_testhdr *>(server->mBuf + server->l4payloadoffset);
             server->sent_time.tv_sec = ntohl(hdr->seqno_ts.tv_sec);
             server->sent_time.tv_usec = ntohl(hdr->seqno_ts.tv_usec);
             server->txstart_epoch.tv_sec = ntohl(smallhdr->start_tv_sec);
@@ -1067,8 +1039,7 @@ bool Listener::apply_client_settings_udp(thread_Settings *server) {
                 setTripTime(server);
             }
             setEnhanced(server);
-        } else if ((flags & HEADER_VERSION1) || (flags & HEADER_VERSION2) ||
-                   (flags & HEADER_EXTEND)) {
+        } else if ((flags & HEADER_VERSION1) || (flags & HEADER_VERSION2) || (flags & HEADER_EXTEND)) {
             if (flags & HEADER_VERSION1) {
                 uint32_t tidthreads = ntohl(hdr->base.numThreads);
                 int buflen_peer_req = ntohl(hdr->base.mBufLen);
@@ -1125,8 +1096,7 @@ bool Listener::apply_client_settings_udp(thread_Settings *server) {
                     server->txstart_epoch.tv_sec = ntohl(hdr->start_fq.start_tv_sec);
                     server->txstart_epoch.tv_usec = ntohl(hdr->start_fq.start_tv_usec);
                     Timestamp now;
-                    if ((abs(now.getSecs() - server->txstart_epoch.tv_sec)) >
-                        (MAXDIFFTXSTART + 1)) {
+                    if ((abs(now.getSecs() - server->txstart_epoch.tv_sec)) > (MAXDIFFTXSTART + 1)) {
                         fprintf(stdout,
                                 "WARN: ignore --txstart-time because client "
                                 "didn't provide "
@@ -1142,8 +1112,8 @@ bool Listener::apply_client_settings_udp(thread_Settings *server) {
                     server->sent_time.tv_sec = ntohl(hdr->start_fq.start_tv_sec);
                     server->sent_time.tv_usec = ntohl(hdr->start_fq.start_tv_usec);
                     Timestamp now;
-                    if (!isTxStartTime(server) && ((abs(now.getSecs() - server->sent_time.tv_sec)) >
-                                                   (MAXDIFFTIMESTAMPSECS + 1))) {
+                    if (!isTxStartTime(server) &&
+                        ((abs(now.getSecs() - server->sent_time.tv_sec)) > (MAXDIFFTIMESTAMPSECS + 1))) {
                         fprintf(stdout,
                                 "WARN: ignore --trip-times because client "
                                 "didn't provide valid "
@@ -1197,11 +1167,9 @@ bool Listener::apply_client_settings_tcp(thread_Settings *server) {
     } else {
         rc = true;
         readptr += nread;
-        struct client_tcp_testhdr *hdr =
-            reinterpret_cast<struct client_tcp_testhdr *>(server->mBuf);
+        struct client_tcp_testhdr *hdr = reinterpret_cast<struct client_tcp_testhdr *>(server->mBuf);
         uint32_t flags = ntohl(hdr->base.flags);
-        if (!(flags & HEADER_KEYCHECK) && !(flags & HEADER_LEN_BIT) &&
-            (flags & HEADER_KEYLEN_MASK)) {
+        if (!(flags & HEADER_KEYCHECK) && !(flags & HEADER_LEN_BIT) && (flags & HEADER_KEYLEN_MASK)) {
             WARN(1, "invalid header field ignored");
             goto DONE;
         }
@@ -1271,8 +1239,7 @@ bool Listener::apply_client_settings_tcp(thread_Settings *server) {
                     bbhdr = reinterpret_cast<struct bounceback_hdr *>(server->mBuf);
                 }
             }
-            int remaining =
-                server->mBounceBackBytes - (sizeof(struct bounceback_hdr) + sizeof(uint32_t));
+            int remaining = server->mBounceBackBytes - (sizeof(struct bounceback_hdr) + sizeof(uint32_t));
             if (remaining < 0) {
                 WARN(1, "bounce back bytes too small");
                 rc = false;
@@ -1313,8 +1280,7 @@ bool Listener::apply_client_settings_tcp(thread_Settings *server) {
                     goto DONE;
                 }
                 server->firstreadbytes = nread;
-                struct client_tcp_testhdr *hdr =
-                    reinterpret_cast<struct client_tcp_testhdr *>(server->mBuf);
+                struct client_tcp_testhdr *hdr = reinterpret_cast<struct client_tcp_testhdr *>(server->mBuf);
                 if (flags & HEADER_VERSION1) {
                     uint32_t tidthreads = ntohl(hdr->base.numThreads);
                     if (tidthreads & HEADER_HASTRANSFERID) {
@@ -1341,8 +1307,7 @@ bool Listener::apply_client_settings_tcp(thread_Settings *server) {
                         server->txstart_epoch.tv_sec = ntohl(hdr->start_fq.start_tv_sec);
                         server->txstart_epoch.tv_usec = ntohl(hdr->start_fq.start_tv_usec);
                         Timestamp now;
-                        if ((abs(now.getSecs() - server->txstart_epoch.tv_sec)) >
-                            (MAXDIFFTXSTART + 1)) {
+                        if ((abs(now.getSecs() - server->txstart_epoch.tv_sec)) > (MAXDIFFTXSTART + 1)) {
                             fprintf(stdout,
                                     "WARN: ignore --txstart-time because "
                                     "client didn't provide "
@@ -1359,8 +1324,7 @@ bool Listener::apply_client_settings_tcp(thread_Settings *server) {
                         server->sent_time.tv_sec = ntohl(hdr->start_fq.start_tv_sec);
                         server->sent_time.tv_usec = ntohl(hdr->start_fq.start_tv_usec);
                         if (!isTxStartTime(server) &&
-                            ((abs(now.getSecs() - server->sent_time.tv_sec)) >
-                             (MAXDIFFTIMESTAMPSECS + 1))) {
+                            ((abs(now.getSecs() - server->sent_time.tv_sec)) > (MAXDIFFTIMESTAMPSECS + 1))) {
                             fprintf(stdout,
                                     "WARN: ignore --trip-times because client "
                                     "didn't provide "
@@ -1381,8 +1345,7 @@ bool Listener::apply_client_settings_tcp(thread_Settings *server) {
                             struct client_tcp_testhdr *hdr =
                                 reinterpret_cast<struct client_tcp_testhdr *>(server->mBuf);
                             server->mFPS = ntohl(hdr->isoch_settings.FPSl);
-                            server->mFPS +=
-                                ntohl(hdr->isoch_settings.FPSu) / static_cast<double>(rMillion);
+                            server->mFPS += ntohl(hdr->isoch_settings.FPSu) / static_cast<double>(rMillion);
                         }
                         if (!server->mFPS) {
                             server->mFPS = 1.0;
@@ -1398,8 +1361,7 @@ bool Listener::apply_client_settings_tcp(thread_Settings *server) {
                             strncpy(server->mCongestion, hdr->cca.value, ccalen);
                             server->mCongestion[ccalen] = '\0';
                             Socklen_t len = strlen(server->mCongestion) + 1;
-                            int rc = setsockopt(server->mSock, IPPROTO_TCP, TCP_CONGESTION,
-                                                server->mCongestion, len);
+                            int rc = setsockopt(server->mSock, IPPROTO_TCP, TCP_CONGESTION, server->mCongestion, len);
                             if (rc == SOCKET_ERROR) {
                                 fprintf(stderr,
                                         "Attempt to set '%s' congestion "
@@ -1429,8 +1391,7 @@ bool Listener::apply_client_settings_tcp(thread_Settings *server) {
                         }
                     }
 #if HAVE_DECL_TCP_NOTSENT_LOWAT
-                    if ((isServerReverse(server) || isFullDuplex(server)) &&
-                        (upperflags & HEADER_WRITEPREFETCH)) {
+                    if ((isServerReverse(server) || isFullDuplex(server)) && (upperflags & HEADER_WRITEPREFETCH)) {
                         server->mWritePrefetch = ntohl(hdr->extend.TCPWritePrefetch);
                         if (server->mWritePrefetch > 0) {
                             setWritePrefetch(server);
@@ -1453,8 +1414,7 @@ bool Listener::apply_client_settings_tcp(thread_Settings *server) {
         // and either 2.0.13 flags or the newer 2.0.14 flag of
         // V2PEERDETECT
         if (!isUDP(server) && !isCompat(mSettings) &&
-            ((!(flags & HEADER_VERSION2) && (flags & HEADER_EXTEND)) ||
-             (flags & HEADER_V2PEERDETECT))) {
+            ((!(flags & HEADER_VERSION2) && (flags & HEADER_EXTEND)) || (flags & HEADER_V2PEERDETECT))) {
             client_test_ack(server);
         }
     }
@@ -1507,8 +1467,8 @@ int Listener::client_test_ack(thread_Settings *server) {
 #if HAVE_DECL_TCP_NODELAY
     int optflag = 1;
     // Disable Nagle to reduce latency of this intial message
-    if ((rc = setsockopt(server->mSock, IPPROTO_TCP, TCP_NODELAY,
-                         reinterpret_cast<char *>(&optflag), sizeof(int))) < 0) {
+    if ((rc = setsockopt(server->mSock, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char *>(&optflag), sizeof(int))) <
+        0) {
         WARN_errno(rc < 0, "tcpnodelay");
     }
 #endif
@@ -1519,8 +1479,8 @@ int Listener::client_test_ack(thread_Settings *server) {
 #if HAVE_DECL_TCP_NODELAY
     // Re-nable Nagle
     optflag = isNoDelay(server) ? 1 : 0;
-    if (!isUDP(server) && (rc = setsockopt(server->mSock, IPPROTO_TCP, TCP_NODELAY,
-                                           reinterpret_cast<char *>(&optflag), sizeof(int))) < 0) {
+    if (!isUDP(server) && (rc = setsockopt(server->mSock, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char *>(&optflag),
+                                           sizeof(int))) < 0) {
         WARN_errno(rc < 0, "tcpnodelay");
     }
 #endif

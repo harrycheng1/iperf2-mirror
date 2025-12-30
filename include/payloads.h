@@ -733,8 +733,7 @@ struct server_hdr {
 #define SIZEOF_TCPHDRMSG_V1 (sizeof(struct client_hdr_v1))
 #define SIZEOF_TCPHDRMSG_EXT (sizeof(struct client_tcp_testhdr))
 #define MINMBUFALLOCSIZE (int)(sizeof(struct client_tcp_testhdr)) + TAPBYTESSLOP
-#define MINTRIPTIMEPAYLOAD \
-    (int)(sizeof(struct client_udp_testhdr) - sizeof(struct client_hdrext_isoch_settings))
+#define MINTRIPTIMEPAYLOAD (int)(sizeof(struct client_udp_testhdr) - sizeof(struct client_hdrext_isoch_settings))
 #ifdef __cplusplus
 } /* end extern "C" */
 #endif

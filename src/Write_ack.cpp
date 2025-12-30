@@ -60,8 +60,7 @@ WriteAck::WriteAck(thread_Settings *inSettings) {
     int optflag = 1;
     int rc;
     // Disable Nagle to reduce latency of this intial message
-    if ((rc = setsockopt(mSettings->mSock, IPPROTO_TCP, TCP_NODELAY, (char *)&optflag,
-                         sizeof(int))) < 0) {
+    if ((rc = setsockopt(mSettings->mSock, IPPROTO_TCP, TCP_NODELAY, (char *)&optflag, sizeof(int))) < 0) {
         WARN_errno(rc < 0, "tcpnodelay write-ack");
     } else {
 #ifdef HAVE_THREAD_DEBUG
@@ -84,8 +83,7 @@ void WriteAck::Close(PacketRing *pr) {
     Condition_Lock((*(pr->awake_producer)));
     while (!pr->consumerdone) {
 #ifdef HAVE_THREAD_DEBUG
-        thread_debug("Server await write ack thread done per cond %p/%d",
-                     (void *)pr->awake_producer, pr->consumerdone);
+        thread_debug("Server await write ack thread done per cond %p/%d", (void *)pr->awake_producer, pr->consumerdone);
 #endif
         Condition_TimedWait(pr->awake_producer, 1);
     }
@@ -107,8 +105,7 @@ void WriteAck::RunServer(void) {
         // packet->packetLen, len, (void *) packet, (void *) mSettings);
 #endif
         if (len != sizeof(ReportStruct)) {
-            fprintf(stderr, "Write ack length error: got %d but expected %d\n", len,
-                    (int)sizeof(ReportStruct));
+            fprintf(stderr, "Write ack length error: got %d but expected %d\n", len, (int)sizeof(ReportStruct));
         }
     }
 #ifdef HAVE_THREAD_DEBUG

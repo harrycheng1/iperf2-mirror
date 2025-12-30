@@ -324,8 +324,8 @@ static const char *_gnu_getopt_initialize(int argc, char *const *argv, const cha
    If LONG_ONLY is nonzero, '-' as well as '--' can introduce
    long-named options.  */
 
-int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring,
-                         const struct option *longopts, int *longind, int long_only) {
+int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring, const struct option *longopts,
+                         int *longind, int long_only) {
     gnu_optarg = NULL;
 
     if (!__gnu_getopt_initialized || gnu_optind == 0) {
@@ -422,9 +422,8 @@ int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring,
 
        This distinction seems to be the most useful approach.  */
 
-    if (longopts != NULL &&
-        (argv[gnu_optind][1] == '-' ||
-         (long_only && (argv[gnu_optind][2] || !my_index(optstring, argv[gnu_optind][1]))))) {
+    if (longopts != NULL && (argv[gnu_optind][1] == '-' ||
+                             (long_only && (argv[gnu_optind][2] || !my_index(optstring, argv[gnu_optind][1]))))) {
         char *nameend;
         const struct option *p;
         const struct option *pfound = NULL;
@@ -456,8 +455,7 @@ int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring,
             }
 
         if (ambig && !exact) {
-            if (gnu_opterr)
-                fprintf(stderr, _("%s: option `%s' is ambiguous\n"), argv[0], argv[gnu_optind]);
+            if (gnu_opterr) fprintf(stderr, _("%s: option `%s' is ambiguous\n"), argv[0], argv[gnu_optind]);
             nextchar += strlen(nextchar);
             gnu_optind++;
             gnu_optopt = 0;
@@ -499,8 +497,7 @@ int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring,
                     gnu_optarg = argv[gnu_optind++];
                 else {
                     if (gnu_opterr)
-                        fprintf(stderr, _("%s: option `%s' requires an argument\n"), argv[0],
-                                argv[gnu_optind - 1]);
+                        fprintf(stderr, _("%s: option `%s' requires an argument\n"), argv[0], argv[gnu_optind - 1]);
                     nextchar += strlen(nextchar);
                     gnu_optopt = pfound->val;
                     return optstring[0] == ':' ? ':' : '?';
@@ -525,8 +522,7 @@ int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring,
                     fprintf(stderr, _("%s: unrecognized option `--%s'\n"), argv[0], nextchar);
                 else
                     /* +option or -option */
-                    fprintf(stderr, _("%s: unrecognized option `%c%s'\n"), argv[0],
-                            argv[gnu_optind][0], nextchar);
+                    fprintf(stderr, _("%s: unrecognized option `%c%s'\n"), argv[0], argv[gnu_optind][0], nextchar);
             }
             nextchar = (char *)"";
             gnu_optind++;
@@ -591,8 +587,7 @@ int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring,
             /* gnu_optarg is now the argument, see if it's in the
                table of longopts.  */
 
-            for (nextchar = nameend = gnu_optarg; *nameend && *nameend != '=';
-                 nameend++) /* Do nothing.  */
+            for (nextchar = nameend = gnu_optarg; *nameend && *nameend != '='; nameend++) /* Do nothing.  */
                 ;
 
             /* Test all long options for either exact match
@@ -614,9 +609,7 @@ int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring,
                         ambig = 1;
                 }
             if (ambig && !exact) {
-                if (gnu_opterr)
-                    fprintf(stderr, _("%s: option `-W %s' is ambiguous\n"), argv[0],
-                            argv[gnu_optind]);
+                if (gnu_opterr) fprintf(stderr, _("%s: option `-W %s' is ambiguous\n"), argv[0], argv[gnu_optind]);
                 nextchar += strlen(nextchar);
                 gnu_optind++;
                 return '?';
@@ -642,8 +635,7 @@ int _gnu_getopt_internal(int argc, char *const *argv, const char *optstring,
                         gnu_optarg = argv[gnu_optind++];
                     else {
                         if (gnu_opterr)
-                            fprintf(stderr, _("%s: option `%s' requires an argument\n"), argv[0],
-                                    argv[gnu_optind - 1]);
+                            fprintf(stderr, _("%s: option `%s' requires an argument\n"), argv[0], argv[gnu_optind - 1]);
                         nextchar += strlen(nextchar);
                         return optstring[0] == ':' ? ':' : '?';
                     }

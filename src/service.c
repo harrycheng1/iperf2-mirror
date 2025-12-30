@@ -254,8 +254,7 @@ void CmdInstallService(int argc, char **argv) {
     TCHAR szPath[512];
 
     if (GetModuleFileName(NULL, szPath, 512) == 0) {
-        _tprintf(TEXT("Unable to install %s - %s\n"), TEXT(SZSERVICEDISPLAYNAME),
-                 GetLastErrorText(szErr, 256));
+        _tprintf(TEXT("Unable to install %s - %s\n"), TEXT(SZSERVICEDISPLAYNAME), GetLastErrorText(szErr, 256));
         return;
     }
 
@@ -429,9 +428,8 @@ LPTSTR GetLastErrorText(LPTSTR lpszBuf, DWORD dwSize) {
     DWORD dwRet;
     LPTSTR lpszTemp = NULL;
 
-    dwRet = FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
-        NULL, GetLastError(), LANG_NEUTRAL, (LPTSTR)&lpszTemp, 0, NULL);
+    dwRet = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
+                          NULL, GetLastError(), LANG_NEUTRAL, (LPTSTR)&lpszTemp, 0, NULL);
 
     // supplied buffer is not long enough
     if (!dwRet || ((long)dwSize < (long)dwRet + 14))

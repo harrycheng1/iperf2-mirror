@@ -61,8 +61,7 @@ Mutex packetringdebug_mutex;
 // relevant to the reporter thread moving to the next ring. This is needed for
 // proper summing
 //
-struct PacketRing *packetring_init(int count, struct Condition *awake_consumer,
-                                   struct Condition *awake_producer) {
+struct PacketRing *packetring_init(int count, struct Condition *awake_consumer, struct Condition *awake_producer) {
     assert(awake_consumer != NULL);
     struct PacketRing *pr = NULL;
     if ((pr = (struct PacketRing *)calloc(1, sizeof(struct PacketRing)))) {
@@ -97,16 +96,15 @@ struct PacketRing *packetring_init(int count, struct Condition *awake_consumer,
     thread_debug(
         "Init %d element packet ring=%p consumer=%p producer=%p total rings=%d "
         "enable=%d",
-        count, (void *)pr, (void *)pr->awake_consumer, (void *)pr->awake_producer,
-        totalpacketringcount, pr->mutex_enable);
+        count, (void *)pr, (void *)pr->awake_consumer, (void *)pr->awake_producer, totalpacketringcount,
+        pr->mutex_enable);
     Mutex_Unlock(&packetringdebug_mutex);
 #endif
     return (pr);
 }
 
 inline void packetring_enqueue(struct PacketRing *pr, struct ReportStruct *metapacket) {
-    while (((pr->producer == pr->maxcount) && (pr->consumer == 0)) ||
-           ((pr->producer + 1) == pr->consumer)) {
+    while (((pr->producer == pr->maxcount) && (pr->consumer == 0)) || ((pr->producer + 1) == pr->consumer)) {
         // Signal the consumer thread to process a full queue
         if (pr->mutex_enable) {
             assert(pr->awake_consumer != NULL);
@@ -218,8 +216,8 @@ void packetring_free(struct PacketRing *pr) {
                 "Free packet ring=%p producer=%p (consumer=%p) awaits = %d "
                 "total "
                 "rings = %d",
-                (void *)pr, (void *)pr->awake_producer, (void *)pr->awake_consumer,
-                pr->awaitcounter, totalpacketringcount);
+                (void *)pr, (void *)pr->awake_producer, (void *)pr->awake_consumer, pr->awaitcounter,
+                totalpacketringcount);
             Mutex_Unlock(&packetringdebug_mutex);
 #endif
             free(pr->data);
